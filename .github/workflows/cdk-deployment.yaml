@@ -56,10 +56,10 @@ jobs:
           aws-region: ${{ secrets.TELEMETRY_SMART_CITY_SECRETS_REGION}}
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --only=production
 
-      - name: Build
-        run: npm run build
+      - name: Synth stack
+        run: cdk synth
 
       - name: Deploy CDK stack
         run: npx cdk deploy --require-approval never

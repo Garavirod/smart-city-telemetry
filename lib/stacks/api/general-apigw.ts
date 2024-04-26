@@ -2,6 +2,7 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { APiResources } from "./resources/types";
 import * as cdk from "aws-cdk-lib";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 export class GeneralApiGateway {
   private static _instance: GeneralApiGateway;
@@ -12,6 +13,11 @@ export class GeneralApiGateway {
 
   public initConfiguration(scope: any) {
     this.scope = scope;
+    this.apiResources = {
+      ...this.apiResources,
+      ...{},
+    };
+    
     this.api = new apigateway.RestApi(scope, "telemetry-api", {
       description: "General API gateway for the dependencies services",
       deployOptions: {
@@ -91,7 +97,7 @@ export class GeneralApiGateway {
         {
           runtime: lambda.Runtime.NODEJS_18_X,
           handler: lambdaHandler.handler,
-          code: lambdaHandler.code,
+          code: new lambda.AssetCode(lambdaHandler.entry),
         }
       );
 
@@ -136,9 +142,10 @@ export class GeneralApiGateway {
 type LambdaHandlerParams = {
   lambdaNameId: string;
   handler: string;
-  code: lambda.Code;
+  entry: any;
   isProxy: boolean;
   requestParams?: RequestParameters[];
+  environment?: Record<string, string>;
 };
 
 type httpMethodType = "GET" | "POST" | "PATCH" | "DELETE" | "UPDATE";

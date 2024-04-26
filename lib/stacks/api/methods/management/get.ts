@@ -9,8 +9,8 @@ export const createGETHttpMethods = () => {
     resource: APIManagementResourcesList.users,
     lambdaHandler: {
       lambdaNameId: "get-users",
-      handler: "",
-      code: Code.fromAsset(path.join(__dirname, "../../../lambdas/management/get-users")),
+      handler: "get-users.handler",
+      entry: path.join(__dirname, "../../../lambdas/management/get-users.ts"),
       isProxy: true,
     },
   });
@@ -19,8 +19,8 @@ export const createGETHttpMethods = () => {
     resource: APIManagementResourcesList.dependencies,
     lambdaHandler: {
       lambdaNameId: "get-dependencies",
-      handler: "",
-      code: Code.fromAsset(path.join(__dirname, "../../../lambdas/management/get-dependencies")),
+      handler: "get-dependencies.handler",
+      entry: path.join(__dirname, "../../../lambdas/management/get-dependencies.ts"),
       isProxy: true,
     },
   });

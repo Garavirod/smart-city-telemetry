@@ -1,5 +1,4 @@
 import { GeneralApiGateway } from "../../general-apigw"
-import { createHttpMethods } from "../../methods/management";
 import { APIManagementResourcesList } from "./types";
 
 export const createResources = () => {
