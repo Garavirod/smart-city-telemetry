@@ -58,8 +58,5 @@ jobs:
       - name: Install dependencies
         run: npm install --only=production
 
-      - name: Synth stack
-        run: cdk synth
-
       - name: Deploy CDK stack
         run: npx cdk deploy --require-approval never
