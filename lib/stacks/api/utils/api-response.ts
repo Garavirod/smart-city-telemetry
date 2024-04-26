@@ -1,3 +1,5 @@
+import { APIGatewayProxyResult } from "aws-lambda";
+
 export interface HttpResponse {
   statusCode: HttpStatus;
   body?: any;
@@ -82,4 +84,40 @@ const isDev = () => {
   const isDev = process.env.NODE_ENV !== "prod";
   console.debug(`isDev: ${isDev}`);
   return isDev;
+};
+
+export const SuccessResponse200 = (props: {
+  message?: string;
+  data?: any;
+  extras?: any;
+}): APIGatewayProxyResult => {
+  const { message, extras, data } = props;
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: message ? message : "Request successfully done",
+      data,
+      extras,
+    }),
+  };
+};
+
+export const InternalErrorResponse500 = (props: {
+  error?:any
+  data?: any;
+  extras?: any;
+}): APIGatewayProxyResult => {
+  const { error, extras, data } = props;
+  let message = "Request failed - Unknown error";
+  if(error instanceof Error){
+    message = error.message;
+  }
+  return {
+    statusCode: 500,
+    body: JSON.stringify({
+      message:`Request failed - ${message}`,
+      data,
+      extras,
+    }),
+  };
 };
