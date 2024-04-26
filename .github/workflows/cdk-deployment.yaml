@@ -1,0 +1,65 @@
+name: deploy-cdk-telemetry-city
+
+on:
+  workflow_dispatch:
+    inputs:
+      selected_env:
+        type: choice
+        required: true
+        description: Deployment Environment
+        options:
+          #- sbx
+          - dev
+          - prod
+          #- qa
+
+run-name: Deploy ${{ inputs.service }} to ${{ github.event.inputs.selected_env }} by ${{ github.triggering_actor }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Developer
+        id: developer
+        run: |
+          export ACTOR="${{ github.triggering_actor }}"
+          case $ACTOR in
+            Garavirod)
+              devname=RODRIGO
+              ;;
+          esac
+          echo "name=${devname^^}" >> $GITHUB_OUTPUT
+          echo "lowercase=${devname,,}" >> $GITHUB_OUTPUT
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      - name: Install CDK dependencies
+        run: npm install -g aws-cdk
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.TELEMETRY_SMART_CITY_SECRETS_REGION}}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy CDK stack
+        run: npx cdk deploy --require-approval never
