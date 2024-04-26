@@ -1,0 +1,269 @@
+name: deploy-new-hotness
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        type: choice
+        required: true
+        description: Service
+        options:
+          # TODO: Uncomment or add more services as needed.
+          - svc-api
+          - svc-catalog
+          - svc-listings
+          - svc-orders
+          - svc-shipping
+          - svc-payout
+          - svc-shopify
+          - svc-notification
+          - infra
+      selected_env:
+        type: choice
+        required: true
+        description: Deployment Environment
+        options:
+          #- sbx
+          - dev
+          - qa
+          #- PROD
+
+run-name: Deploy ${{ inputs.service }} to ${{ github.event.inputs.selected_env }} by ${{ github.triggering_actor }}
+
+jobs:
+  initialize:
+    runs-on: ubuntu-latest
+    name: initialize
+    outputs:
+      deploy_env: ${{ steps.resolve-keys.outputs.deploy_env }}
+      core_log_level: "DEBUG"
+      aws_access_key_id_name: ${{ steps.resolve-keys.outputs.aws_access_key_id_name }}
+      aws_secret_access_key_name: ${{ steps.resolve-keys.outputs.aws_secret_access_key_name }}
+      tf_state_bucket: ${{ steps.resolve-tf.outputs.tf_state_bucket }}
+      tf_state_key: ${{ steps.resolve-tf.outputs.tf_state_key }}
+      # the below doesn't seem to work because the way github handles secrets is a little funny.
+      # see https://stackoverflow.com/questions/61255989/dynamically-retrieve-github-actions-secret
+      # aws_access_key_id : ${{ secrets[format('{0}', steps.resolve-keys.outputs.aws_access_key_id_name)] }}
+      # aws_secret_access_key : ${{ secrets[format('{0}', steps.resolve-keys.outputs.aws_access_key_id_name)] }}
+    steps:
+      - name: Developer
+        id: developer
+        run: |
+          export ACTOR="${{ github.triggering_actor }}"
+          case $ACTOR in
+            Garavirod)
+              devname=RODRIGO
+              ;;
+          esac
+          echo "name=${devname^^}" >> $GITHUB_OUTPUT
+          echo "lowercase=${devname,,}" >> $GITHUB_OUTPUT
+      - name: resolve-keys
+        id: resolve-keys
+        env:
+          SELECTED_ENV: ${{ github.event.inputs.selected_env }}
+          ACTOR_NAME: ${{ steps.developer.outputs.name }}
+
+        run: |
+          echo "SELECTED_ENV = ${SELECTED_ENV}"
+          echo "ACTOR_NAME = ${ACTOR_NAME}"
+          if [[ "$SELECTED_ENV" == "sbx" ]]
+          then
+            echo "selecting sandbox keys for ${ACTOR_NAME}"
+            echo "aws_access_key_id_name=SANDBOX_${ACTOR_NAME}_ACCESS_KEY_ID" >> $GITHUB_OUTPUT
+            echo "aws_secret_access_key_name=SANDBOX_${ACTOR_NAME}_SECRET_ACCESS_KEY" >> $GITHUB_OUTPUT
+            echo "deploy_env=${{ github.event.inputs.selected_env }}-${{ steps.developer.outputs.lowercase}}" >> $GITHUB_OUTPUT
+            echo
+          else
+            echo "selecting deployment keys for ${SELECTED_ENV}"
+            echo "aws_access_key_id_name=RECURATE_CORE_DEPLOYMENT_ACCESS_KEY_ID" >> $GITHUB_OUTPUT
+            echo "aws_secret_access_key_name=RECURATE_CORE_DEPLOYMENT_SECRET_ACCESS_KEY" >> $GITHUB_OUTPUT
+            echo "deploy_env=${{ github.event.inputs.selected_env }}" >> $GITHUB_OUTPUT
+          fi
+      - name: resolve-tf
+        id: resolve-tf
+        env:
+          SELECTED_ENV: ${{ github.event.inputs.selected_env }}
+          ACTOR_NAME: ${{ steps.developer.outputs.name }}
+
+        run: |
+          echo "SELECTED_ENV = ${SELECTED_ENV}"
+          echo "ACTOR_NAME = ${ACTOR_NAME}"
+          if [[ "$SELECTED_ENV" == "sbx" ]]
+          then
+            echo "selecting tf state variables for ${ACTOR_NAME}"
+            echo "tf_state_bucket=${{ steps.developer.outputs.lowercase }}-recurate-tf-state-bucket" >> $GITHUB_OUTPUT
+            echo "tf_state_key=_tf/${SELECTED_ENV}/state" >> $GITHUB_OUTPUT
+          else
+            echo "selecting deployment tf state variables for ${SELECTED_ENV}"
+            echo "tf_state_bucket=recurate-core-tf-state-bucket" >> $GITHUB_OUTPUT
+            echo "tf_state_key=_tf/${SELECTED_ENV}/state" >> $GITHUB_OUTPUT
+          fi
+      - name: debug-output-vars
+        id: debug-output-vars
+        run: |
+          echo "deploy_env: ${{ steps.resolve-keys.outputs.deploy_env }}"
+          echo "aws_access_key_id_name: ${{ steps.resolve-keys.outputs.aws_access_key_id_name }}"
+          echo "aws_secret_access_key_name: ${{ steps.resolve-keys.outputs.aws_secret_access_key_name }}"
+          echo "tf_state_bucket: ${{ steps.resolve-tf.outputs.tf_state_bucket }}"
+          echo "tf_state_key: ${{ steps.resolve-tf.outputs.tf_state_key }}"
+          echo "actor_name: ${{ steps.developer.outputs.lowercase }}"
+  terraform:
+    runs-on: ubuntu-latest
+    name: tf deploy
+    needs: initialize
+    env:
+      working-directory: tf
+    steps:
+      - uses: actions/checkout@v3
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets[format('{0}', needs.initialize.outputs.aws_access_key_id_name)] }}
+          aws-secret-access-key: ${{ secrets[format('{0}', needs.initialize.outputs.aws_secret_access_key_name)] }}
+          aws-region: ${{ vars.CORE_AWS_REGION }}
+          mask-aws-account-id: "no"
+
+      - name: Check for State Bucket
+        id: statebucketcheck
+        run: echo "bucket_exists=$(aws s3api list-buckets --query 'Buckets[?Name==`${{ needs.initialize.outputs.tf_state_bucket }}`].Name' --region ${{ vars.CORE_AWS_REGION }} --output text)" >> $GITHUB_OUTPUT
+
+      - name: State Bucket Print
+        id: statebucketprint
+        run: echo "${{ steps.statebucketcheck.outputs.bucket_exists }}"
+
+      - name: Create State Bucket if it doesn't exist.
+        id: statebucketmap
+        if: ${{ steps.statebucketcheck.outputs.bucket_exists == '' }}
+        run: |
+          aws s3api create-bucket --region ${{ vars.CORE_AWS_REGION }} --bucket ${{ needs.initialize.outputs.tf_state_bucket }} --create-bucket-configuration LocationConstraint=${{ vars.CORE_AWS_REGION }}
+          aws s3api put-bucket-versioning --region ${{ vars.CORE_AWS_REGION }} --bucket ${{ needs.initialize.outputs.tf_state_bucket }} --versioning-configuration Status=Enabled
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+        working-directory: ${{env.working-directory}}
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+          -backend-config="bucket=${{ needs.initialize.outputs.tf_state_bucket }}"
+          -backend-config="key=${{ needs.initialize.outputs.tf_state_key }}"
+          -backend-config="region=${{ vars.CORE_AWS_REGION }}"
+        working-directory: ${{env.working-directory}}
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: ${{env.working-directory}}
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var="env=${{ needs.initialize.outputs.deploy_env }}" -no-color
+        continue-on-error: true
+        working-directory: ${{env.working-directory}}
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+        working-directory: ${{env.working-directory}}
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -var="env=${{ needs.initialize.outputs.deploy_env }}" -auto-approve -input=false
+        continue-on-error: true
+        working-directory: ${{env.working-directory}}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [initialize]
+    name: deploy
+    steps:
+      # see https://stackoverflow.com/questions/72925899/github-actions-detect-if-secret-exists
+      - name: assert-access-key-id
+        id: assert-access-key-id
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets[format('{0}', needs.initialize.outputs.aws_access_key_id_name)] }}
+          #AWS_ACCESS_KEY_ID: ${{ secrets.SANDBOX_LAMONT_ACCESS_KEY_ID }}
+        if: ${{ env.AWS_ACCESS_KEY_ID == '' }}
+        run: 'echo "no AWS_ACCESS_KEY_ID secret was found for ${{ needs.initialize.outputs.aws_access_key_id_name }}" ; exit 1;'
+
+      - name: assert-secret-key
+        id: assert-secret-key
+        env:
+          AWS_SECRET_ACCESS_KEY: ${{ secrets[format('{0}', needs.initialize.outputs.aws_secret_access_key_name)] }}
+        if: ${{ env.AWS_SECRET_ACCESS_KEY == '' }}
+        run: 'echo "no AWS_SECRET_ACCESS_KEY secret was found for ${{ needs.initialize.outputs.aws_secret_access_key_name }}" ; exit 1;'
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Go (migration support step 1)
+        id: install-go
+        uses: actions/setup-go@v4.1.0
+        # with:
+        #   go-version: 1.17.x
+
+      - name: Install Goose (migration support step 2)
+        id: install-goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@latest
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache-dependency-path: "./package.json"
+          scope: "@recurate"
+          registry-url: "https://npm.pkg.github.com"
+
+      - name: Cache Node Modules
+        id: node-cache
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./node_modules
+          key: "dev"
+
+      - name: npm install
+        id: npm-install
+        env:
+          DEPLOY_ENV: ${{ needs.initialize.outputs.deploy_env }}
+          CORE_LOG_LEVEL: DEBUG
+          RECURATE_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci --ignore-scripts
+        working-directory: services/${{ inputs.service }}
+
+      - name: npm build
+        id: npm-build
+        env:
+          NODE_ENV: ${{ needs.initialize.outputs.deploy_env }}
+        run: |
+          npm run build
+        working-directory: services/${{ inputs.service }}
+
+      - name: npm deploy
+        id: npm-deploy
+        env:
+          # see https://stackoverflow.com/questions/72925899/github-actions-detect-if-secret-exists
+          AWS_ACCESS_KEY_ID: ${{ secrets[format('{0}', needs.initialize.outputs.aws_access_key_id_name)] }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets[format('{0}', needs.initialize.outputs.aws_secret_access_key_name)] }}
+          AWS_REGION: ${{ vars.CORE_AWS_REGION }}
+          DEPLOY_ENV: ${{ needs.initialize.outputs.deploy_env }}
+          NODE_ENV: ${{ needs.initialize.outputs.deploy_env }}
+          CORE_LOG_LEVEL: DEBUG
+          RECURATE_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # set these for the svc-api post-deploy step to publish some stuff to s3 for us. other services ignore these.
+          EXPORT_API_NAME: "svc-api--api"
+          EXPORT_BUCKET_NAME: "svc-api--api-artifacts-bkt"
+        run: |
+          npm run deploy
+        working-directory: services/${{ inputs.service }}
+
+  
