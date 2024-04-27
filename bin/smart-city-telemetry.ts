@@ -9,4 +9,4 @@ const app = new cdk.App();
 
 // Stacks creation
 new TrustGHActionsStack(app, "TrustGHActionsStack",{});
-// new APIGatewayStack(app, "APIGatewayStack",{});
+new APIGatewayStack(app, "APIGatewayStack",{});
