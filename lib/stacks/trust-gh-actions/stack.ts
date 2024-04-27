@@ -43,7 +43,7 @@ export class TrustGHActionsStack extends cdk.Stack {
             // branch of your repository. You can use wildcards here, but
             // you should be careful about what you allow.
             "token.actions.githubusercontent.com:sub": [
-              `repo:${this.githubOrg.valueAsString}/${this.githubRepo.valueAsString}:ref:refs/heads/main`,
+              `repo:${this.githubOrg.valueAsString}/${this.githubRepo.valueAsString}:*`,
             ],
           },
           // This specifies that the audience (aud) claim must be sts.amazonaws.com
@@ -71,7 +71,10 @@ export class TrustGHActionsStack extends cdk.Stack {
     //          by CloudFormation, but you should still be aware.
     this.assumeCdkDeploymentRoles = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
-      actions: ["sts:AssumeRole"],
+      actions: [
+        "sts:AssumeRole", 
+        "cloudformation:DescribeStacks"
+      ],
       resources: ["arn:aws:iam::*:role/cdk-*"],
       conditions: {
         StringEquals: {
