@@ -15,7 +15,6 @@ export class GeneralApiGateway {
     this.scope = scope;
     this.apiResources = {
       ...this.apiResources,
-      ...{},
     };
     
     this.api = new apigateway.RestApi(scope, "telemetry-api", {
@@ -63,19 +62,17 @@ export class GeneralApiGateway {
     return this._instance || (this._instance = new this());
   }
 
-  public get apiResourcesMap(): Record<APiResources, apigateway.Resource> {
-    return this.apiResources;
-  }
-
   public addNewApiResource(nameResource: APiResources) {
     this.apiResources[nameResource] = this.api.root.addResource(nameResource);
+    console.log(`El resources ${JSON.stringify(Object.keys(this.apiResources))}`)
   }
 
   public addResourceToResource(props: {
     parentResource: APiResources;
     childResource: APiResources;
   }) {
-    this.apiResourcesMap[props.parentResource].addResource(props.childResource);
+    console.log(`Adding resource to ${this.apiResources[props.parentResource]}`)
+    this.apiResources[props.childResource] = this.apiResources[props.parentResource].addResource(props.childResource);
   }
 
   public addHttpMethodToResource(props: {

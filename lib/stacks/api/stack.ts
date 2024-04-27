@@ -6,7 +6,6 @@ export class APIGatewayStack {
   private scope: any;
   constructor(scope: any) {
     this.scope = scope;
-    this.createStack();
   }
 
   public createStack() {
