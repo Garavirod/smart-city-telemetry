@@ -58,8 +58,5 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build
-        run: npm run build
-
       - name: Deploy CDK stack
         run: npx cdk deploy --require-approval never
