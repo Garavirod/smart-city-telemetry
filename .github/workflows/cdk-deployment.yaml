@@ -61,8 +61,8 @@ jobs:
         run: cdk bootstrap
         working-directory: .
 
-      - name: CDK Destroy
-        run: cdk destroy "${{ github.event.inputs.stack }}" --require-approval never
+      - name: CDK Deploy
+        run: cdk deploy "${{ github.event.inputs.stack }}" --require-approval never
         working-directory: .
 
       # - name: Install Node.js and npm
