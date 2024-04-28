@@ -10,7 +10,7 @@ export class TrustGHActionsStack extends cdk.Stack {
 
   constructor(scope: Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
-     this.configureProvider();
+    this.configureProvider();
     this.createIamRole();
     this.createPolicY();
   }
@@ -71,22 +71,9 @@ export class TrustGHActionsStack extends cdk.Stack {
     //          by CloudFormation, but you should still be aware.
     this.assumeCdkDeploymentRoles = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
-      actions: [
-        "sts:AssumeRole",
-        "s3:PutObject",
-        "s3:GetObject",
-        "s3:ListBucket",
-        "s3:GetBucketLocation",
-        /* "cloudformation:CreateStack",
-        "cloudformation:DescribeStacks",
-        "cloudformation:CreateChangeSet",
-        "cloudformation:DescribeChangeSet",
-        "cloudformation:DeleteChangeSet",
-        "cloudformation:ExecuteChangeSet" */
-      ],
+      actions: ["sts:AssumeRole"],
       resources: [
         "arn:aws:iam::*:role/cdk-*",
-        "arn:aws:s3:::cdk*",
         /*  "*" */
       ],
       conditions: {
