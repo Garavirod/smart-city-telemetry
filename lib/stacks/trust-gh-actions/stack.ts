@@ -10,49 +10,9 @@ export class TrustGHActionsStack extends cdk.Stack {
 
   constructor(scope: Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
-    /*  this.configureProvider();
+     this.configureProvider();
     this.createIamRole();
-    this.createPolicY(); */
-
-    const provider = new iam.OpenIdConnectProvider(this, "MyProvider", {
-      url: "https://token.actions.githubusercontent.com",
-      clientIds: ["sts.amazonaws.com"],
-    });
-
-    const githubOrganisation = "Garavirod";
-    // Change this to the repo you want to push code from
-    const repoName = "smart-city-telemetry";
-    /**
-     * Create a principal for the OpenID; which can allow it to assume
-     * deployment roles.
-     */
-    const GitHubPrincipal = new iam.OpenIdConnectPrincipal(
-      provider
-    ).withConditions({
-      StringLike: {
-        "token.actions.githubusercontent.com:sub": `repo:${githubOrganisation}/${repoName}:*`,
-      },
-    });
-
-    new iam.Role(this, "GitHubActionsRole", {
-      assumedBy: GitHubPrincipal,
-      description:
-        "Role assumed by GitHubPrincipal for deploying from CI using aws cdk",
-      roleName: "github-ci-role",
-      maxSessionDuration: cdk.Duration.hours(1),
-      inlinePolicies: {
-        CdkDeploymentPolicy: new iam.PolicyDocument({
-          assignSids: true,
-          statements: [
-            new iam.PolicyStatement({
-              effect: iam.Effect.ALLOW,
-              actions: ["sts:AssumeRole"],
-              resources: [`arn:aws:iam::${this.account}:role/cdk-*`],
-            }),
-          ],
-        }),
-      },
-    });
+    this.createPolicY();
   }
 
   private configureProvider() {
