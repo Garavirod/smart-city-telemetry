@@ -50,7 +50,7 @@ jobs:
           role-session-name: "GitHubActions-DeployLayerStack"
 
       - name: Bootstrap CDK toolkit
-        run: cdk bootstrap aws:/${{vars.AWS_SMART_TELEMETRY_CITY_ACCOUNT}}/${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}
+        run: cdk bootstrap aws://${{vars.AWS_SMART_TELEMETRY_CITY_ACCOUNT}}/${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}
 
       - name: Deploy CDK stack ${{ github.event.inputs.stack }}
         uses: youyo/aws-cdk-github-actions@v2
