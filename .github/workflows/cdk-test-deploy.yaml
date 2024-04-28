@@ -1,0 +1,53 @@
+name: deploy-cdk-telemetry-city
+
+permissions:
+ id-token: write # Required for GitHub to be able to create a token for you to authenticate with AWS
+ contents: read  # Permits your action to read this repo.
+
+on:
+  workflow_dispatch:
+    inputs:
+      stack:
+        type: choice
+        required: true
+        description: Stack service
+        options:
+          # TODO: Uncomment or add more services as needed.
+          - APIGatewayStack
+          - TrustGHActionsStack
+      selected_env:
+        type: choice
+        required: true
+        description: Deployment Environment
+        options:
+          #- sbx
+          - dev
+          - prod
+          #- qa
+
+run-name: Deploy ${{ github.event.inputs.stack }} to ${{ github.event.inputs.selected_env }} by ${{ github.triggering_actor }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v1
+
+      - name: Assume role using OIDC
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: ${{ vars.AWS_SMART_TELEMETRY_CITY_IAM_ROLE }}
+          aws-region: ${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - run: yarn install
+
+      - name: Synth infrastructure stack
+        run: yarn --cwd packages/infrastructure cdk synth
+
+      - name: Deploy infrastructure stack
+        run: yarn --cwd packages/infrastructure cdk deploy ${{ github.event.inputs.stack }} --require-approval never

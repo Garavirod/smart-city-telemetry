@@ -10,9 +10,49 @@ export class TrustGHActionsStack extends cdk.Stack {
 
   constructor(scope: Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
-    this.configureProvider();
+    /*  this.configureProvider();
     this.createIamRole();
-    this.createPolicY();
+    this.createPolicY(); */
+
+    const provider = new iam.OpenIdConnectProvider(this, "MyProvider", {
+      url: "https://token.actions.githubusercontent.com",
+      clientIds: ["sts.amazonaws.com"],
+    });
+
+    const githubOrganisation = "Garavirod";
+    // Change this to the repo you want to push code from
+    const repoName = "smart-city-telemetry";
+    /**
+     * Create a principal for the OpenID; which can allow it to assume
+     * deployment roles.
+     */
+    const GitHubPrincipal = new iam.OpenIdConnectPrincipal(
+      provider
+    ).withConditions({
+      StringLike: {
+        "token.actions.githubusercontent.com:sub": `repo:${githubOrganisation}/${repoName}:*`,
+      },
+    });
+
+    new iam.Role(this, "GitHubActionsRole", {
+      assumedBy: GitHubPrincipal,
+      description:
+        "Role assumed by GitHubPrincipal for deploying from CI using aws cdk",
+      roleName: "github-ci-role",
+      maxSessionDuration: cdk.Duration.hours(1),
+      inlinePolicies: {
+        CdkDeploymentPolicy: new iam.PolicyDocument({
+          assignSids: true,
+          statements: [
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: ["sts:AssumeRole"],
+              resources: [`arn:aws:iam::${this.account}:role/cdk-*`],
+            }),
+          ],
+        }),
+      },
+    });
   }
 
   private configureProvider() {
@@ -72,10 +112,23 @@ export class TrustGHActionsStack extends cdk.Stack {
     this.assumeCdkDeploymentRoles = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: [
-        "sts:AssumeRole", 
-        "cloudformation:DescribeStacks"
+        "sts:AssumeRole",
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:GetBucketLocation",
+        /* "cloudformation:CreateStack",
+        "cloudformation:DescribeStacks",
+        "cloudformation:CreateChangeSet",
+        "cloudformation:DescribeChangeSet",
+        "cloudformation:DeleteChangeSet",
+        "cloudformation:ExecuteChangeSet" */
       ],
-      resources: ["arn:aws:iam::*:role/cdk-*"],
+      resources: [
+        "arn:aws:iam::*:role/cdk-*",
+        "arn:aws:s3:::cdk*",
+        /*  "*" */
+      ],
       conditions: {
         StringEquals: {
           "aws:ResourceTag/aws-cdk:bootstrap-role": [
@@ -89,6 +142,12 @@ export class TrustGHActionsStack extends cdk.Stack {
 
     // Attach policy to role
     this.githubActionsRole.addToPolicy(this.assumeCdkDeploymentRoles);
+    this.githubActionsRole.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName(
+        "AWSCloudFormationReadOnlyAccess"
+      )
+    );
+
     new cdk.CfnOutput(this, "GitHubActionsRoleArn", {
       value: this.githubActionsRole.roleArn,
       description: "The role ARN for GitHub Actions to use during deployment.",
