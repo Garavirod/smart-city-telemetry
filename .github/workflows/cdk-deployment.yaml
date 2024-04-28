@@ -34,13 +34,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}
+      #     role-to-assume: ${{ vars.AWS_SMART_TELEMETRY_CITY_IAM_ROLE }}
+      #     role-session-name: "GitHubActions-DeployLayerStack"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}
           role-to-assume: ${{ vars.AWS_SMART_TELEMETRY_CITY_IAM_ROLE }}
+          aws-region: ${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}
           role-session-name: "GitHubActions-DeployLayerStack"
 
       - name: install npm
@@ -64,22 +71,6 @@ jobs:
       - name: CDK Deploy
         run: cdk deploy "${{ github.event.inputs.stack }}" --require-approval never
         working-directory: .
-
-      # - name: Install Node.js and npm
-      #   uses: actions/setup-node@v2
-      #   with:
-      #     node-version: '18'
-
-      # - name: Install CDK CLI
-      #   run: npm install -g aws-cdk
-
-
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     role-to-assume: ${{ vars.AWS_SMART_TELEMETRY_CITY_IAM_ROLE }}
-      #     aws-region: ${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}
-      #     role-session-name: "GitHubActions-DeployLayerStack"
 
       # - name: Bootstrap CDK toolkit
       #   run: cdk bootstrap aws://${{vars.AWS_SMART_TELEMETRY_CITY_ACCOUNT}}/${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}

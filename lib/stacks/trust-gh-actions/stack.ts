@@ -88,10 +88,10 @@ export class TrustGHActionsStack extends cdk.Stack {
     });
 
     // Attach policy to role
-    this.githubActionsRole.addToPolicy(this.assumeCdkDeploymentRoles);
+    // this.githubActionsRole.addToPolicy(this.assumeCdkDeploymentRoles);
     this.githubActionsRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "AWSCloudFormationReadOnlyAccess"
+        "AdministratorAccess"
       )
     );
 
