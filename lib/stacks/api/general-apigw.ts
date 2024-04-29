@@ -88,13 +88,13 @@ export class GeneralApiGateway {
         this.createRequestAndParamRequests(lambdaHandler.requestParams);
 
       // Lambda handler
-      const handlerIntegration = new lambda.Function(
+      const handlerIntegration = new NodejsFunction(
         GeneralApiGateway.Instance.scope,
         lambdaHandler.lambdaNameId,
         {
           runtime: lambda.Runtime.NODEJS_18_X,
           handler: lambdaHandler.handler,
-          code: new lambda.AssetCode(lambdaHandler.entry),
+          entry: lambdaHandler.entry,
         }
       );
 
