@@ -12,9 +12,9 @@ on:
         required: true
         description: Stack service
         options:
-          # TODO: Uncomment or add more services as needed.
-          - APIGatewayStack
-          - lambda-handlers
+          # Add more services as needed.
+          - svc-permissions-stack
+          - svc-api-gateway-stack
       selected_env:
         type: choice
         required: true

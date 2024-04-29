@@ -1,40 +1,45 @@
 import * as cdk from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
-import { Construct } from "constructs";
-export class TrustGHActionsStack extends cdk.Stack {
+
+export class GitHubActionsPermissions {
   private githubOrg: cdk.CfnParameter;
   private githubRepo: cdk.CfnParameter;
   private githubProvider: iam.CfnOIDCProvider;
   private githubActionsRole: iam.Role;
   private assumeCdkDeploymentRoles: iam.PolicyStatement;
+  private scope: any;
 
-  constructor(scope: Construct, id: string, props: cdk.StackProps) {
-    super(scope, id, props);
+  constructor(scope: any) {
+    this.scope = scope;
     this.configureProvider();
     this.createIamRole();
     this.createPolicY();
   }
 
   private configureProvider() {
-    this.githubOrg = new cdk.CfnParameter(this, "GithubOrg", {
+    this.githubOrg = new cdk.CfnParameter(this.scope, "GithubOrg", {
       type: "String",
       description: "The GitHub organization that owns the repository.",
     });
 
-    this.githubRepo = new cdk.CfnParameter(this, "GitHubRepo", {
+    this.githubRepo = new cdk.CfnParameter(this.scope, "GitHubRepo", {
       type: "String",
       description: "The GitHub repository that will run the action.",
     });
 
-    this.githubProvider = new iam.CfnOIDCProvider(this, "GitHubOIDCProvider", {
-      thumbprintList: ["6938fd4d98bab03faadb97b34396831e3780aea1"],
-      url: "https://token.actions.githubusercontent.com", // <-- 1 per account
-      clientIdList: ["sts.amazonaws.com"], // <-- Tokens are intended for STS
-    });
+    this.githubProvider = new iam.CfnOIDCProvider(
+      this.scope,
+      "GitHubOIDCProvider",
+      {
+        thumbprintList: ["6938fd4d98bab03faadb97b34396831e3780aea1"],
+        url: "https://token.actions.githubusercontent.com", // <-- 1 per account
+        clientIdList: ["sts.amazonaws.com"], // <-- Tokens are intended for STS
+      }
+    );
   }
 
   private createIamRole() {
-    this.githubActionsRole = new iam.Role(this, "GitHubActionsRole", {
+    this.githubActionsRole = new iam.Role(this.scope, "GitHubActionsRole", {
       assumedBy: new iam.FederatedPrincipal(
         this.githubProvider.attrArn,
         {
@@ -90,12 +95,10 @@ export class TrustGHActionsStack extends cdk.Stack {
     // Attach policy to role
     // this.githubActionsRole.addToPolicy(this.assumeCdkDeploymentRoles);
     this.githubActionsRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "AdministratorAccess"
-      )
+      iam.ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess")
     );
 
-    new cdk.CfnOutput(this, "GitHubActionsRoleArn", {
+    new cdk.CfnOutput(this.scope, "GitHubActionsRoleArn", {
       value: this.githubActionsRole.roleArn,
       description: "The role ARN for GitHub Actions to use during deployment.",
     });
