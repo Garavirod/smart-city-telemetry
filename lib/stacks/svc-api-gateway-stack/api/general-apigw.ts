@@ -3,6 +3,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import { APiResources } from "./resources/types";
 import * as cdk from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import path = require("path");
 
 export class GeneralApiGateway {
   private static _instance: GeneralApiGateway;
@@ -16,7 +17,7 @@ export class GeneralApiGateway {
     this.apiResources = {
       ...this.apiResources,
     };
-    
+
     this.api = new apigateway.RestApi(scope, "telemetry-api", {
       description: "General API gateway for the dependencies services",
       deployOptions: {
@@ -64,15 +65,21 @@ export class GeneralApiGateway {
 
   public addNewApiResource(nameResource: APiResources) {
     this.apiResources[nameResource] = this.api.root.addResource(nameResource);
-    console.log(`El resources ${JSON.stringify(Object.keys(this.apiResources))}`)
+    console.log(
+      `El resources ${JSON.stringify(Object.keys(this.apiResources))}`
+    );
   }
 
   public addResourceToResource(props: {
     parentResource: APiResources;
     childResource: APiResources;
   }) {
-    console.log(`Adding resource to ${this.apiResources[props.parentResource]}`)
-    this.apiResources[props.childResource] = this.apiResources[props.parentResource].addResource(props.childResource);
+    console.log(
+      `Adding resource to ${this.apiResources[props.parentResource]}`
+    );
+    this.apiResources[props.childResource] = this.apiResources[
+      props.parentResource
+    ].addResource(props.childResource);
   }
 
   public addHttpMethodToResource(props: {
@@ -89,12 +96,15 @@ export class GeneralApiGateway {
 
       // Lambda handler
       const handlerIntegration = new NodejsFunction(
-        GeneralApiGateway.Instance.scope,
+        this.scope,
         lambdaHandler.lambdaNameId,
         {
           runtime: lambda.Runtime.NODEJS_18_X,
-          handler: lambdaHandler.handler,
-          entry: lambdaHandler.entry,
+          handler: "handler",
+          entry: path.join(
+            __dirname,
+            `../lambda-api-integrations/${lambdaHandler.lambdaFileName}`
+          ),
         }
       );
 
@@ -138,8 +148,7 @@ export class GeneralApiGateway {
 
 type LambdaHandlerParams = {
   lambdaNameId: string;
-  handler: string;
-  entry: any;
+  lambdaFileName: any;
   isProxy: boolean;
   requestParams?: RequestParameters[];
   environment?: Record<string, string>;

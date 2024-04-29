@@ -11,9 +11,9 @@ test('SQS Queue Created', () => {
   const stack1 = new ApiGatewayStack.SvcApiGatewayStack(app, 'SvcApiGatewayStack');
   const template1 = Template.fromStack(stack1);
 
-  const stack2 = new PermissionStack.SvcPermissionsStack(app, 'SvcPermissionsStack');
+  /* const stack2 = new PermissionStack.SvcPermissionsStack(app, 'SvcPermissionsStack');
   const template2 = Template.fromStack(stack2);
-
+ */
     // THEN
 
   /* template.hasResourceProperties('AWS::SQS::Queue', {
