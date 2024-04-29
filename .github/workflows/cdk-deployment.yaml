@@ -34,15 +34,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}
-      #     role-to-assume: ${{ vars.AWS_SMART_TELEMETRY_CITY_IAM_ROLE }}
-      #     role-session-name: "GitHubActions-DeployLayerStack"
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -71,14 +62,3 @@ jobs:
       - name: CDK Deploy
         run: cdk deploy "${{ github.event.inputs.stack }}" --require-approval never
         working-directory: .
-
-      # - name: Bootstrap CDK toolkit
-      #   run: cdk bootstrap aws://${{vars.AWS_SMART_TELEMETRY_CITY_ACCOUNT}}/${{ vars.AWS_SMART_TELEMETRY_CITY_REGION }}
-
-      # - name: Deploy CDK stack ${{ github.event.inputs.stack }}
-      #   uses: youyo/aws-cdk-github-actions@v2
-      #   with:
-      #     cdk_subcommand: 'deploy'
-      #     cdk_stack: "${{ github.event.inputs.stack }}"
-      #     cdk_args: '--require-approval never' # This is a toy example, so we don't need to approve changes
-      #     actions_comment: false
