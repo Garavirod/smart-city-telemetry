@@ -10,7 +10,7 @@ export const createGETHttpMethods = () => {
     lambdaHandler: {
       lambdaNameId: "get-users",
       handler: "handler",
-      entry: path.join(__dirname, "../../../lambdas/lambda-code.ts"),
+      entry: path.join(__dirname, "../../../lambdas/lambda-code/get-users.ts"),
       isProxy: true,
     },
   });
@@ -20,7 +20,7 @@ export const createGETHttpMethods = () => {
     lambdaHandler: {
       lambdaNameId: "get-dependencies",
       handler: "handler",
-      entry: path.join(__dirname, "../../../lambdas/lambda-code.ts"),
+      entry: path.join(__dirname, "../../../lambdas/lambda-code/get-users.ts"),
       isProxy: true,
     },
   });
