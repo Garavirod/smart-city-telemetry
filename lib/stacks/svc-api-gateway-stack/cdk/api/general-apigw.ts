@@ -2,6 +2,7 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { randomUUID } from "crypto";
 import { APiResourceMethods, ResourcesAPI } from "./resources/types";
 import * as cdk from "aws-cdk-lib";
+import { manageMentResources } from "./resources/management/resources";
 
 export class GeneralApiGateway {
   private static _instance: GeneralApiGateway;
@@ -34,8 +35,16 @@ export class GeneralApiGateway {
         allowOrigins: ["http://localhost:3000"],
       },
     });
+    // Resources creation
+    this.createAPIEndpointResources();
+    // Usage plan configuration
     this.configureAPIKeyPlanUsage();
+    // Export stack configuration
     this.configureExportStack();
+  }
+
+  private createAPIEndpointResources(){
+    this.addApiResourceFromRoot(manageMentResources);
   }
 
   private configureAPIKeyPlanUsage() {
@@ -78,7 +87,7 @@ export class GeneralApiGateway {
     }
   }
 
-  public addApiResourceFromRoot(resources: ResourcesAPI) {
+  private addApiResourceFromRoot(resources: ResourcesAPI) {
     const resourceId = randomUUID();
     this.apiResources[resources.pathPart] = this.api.root.addResource(
       resources.pathPart

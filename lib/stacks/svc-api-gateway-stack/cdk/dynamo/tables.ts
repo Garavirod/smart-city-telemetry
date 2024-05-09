@@ -1,6 +1,7 @@
 import { RemovalPolicy } from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { DynamoTableNames } from './types';
+import { LambdasManagementIntegrations } from '../api/lambda-integrations/management/general-lambda-Integration';
 
 
 export class DynamoTableServices {
@@ -22,7 +23,7 @@ export class DynamoTableServices {
             removalPolicy: RemovalPolicy.DESTROY
         });
         // Define more tables as needed
-    }
+    }   
 
     public get GetTables(){
         return this.tables;

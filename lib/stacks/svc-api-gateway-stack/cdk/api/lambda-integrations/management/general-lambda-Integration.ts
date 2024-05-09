@@ -1,4 +1,3 @@
-import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { createLambdaIntegration, createRequestAndParamRequests } from "../utils";
 import {
   LambdaIntegrationDefinition,
@@ -10,7 +9,7 @@ export class LambdasManagementIntegrations {
   private static _instance: LambdasManagementIntegrations;
   private scope: any;
 
-  // Lambda
+  // Lambdas
   public getUsersLambdaIntegration: LambdaIntegrationDefinition;
   public getDependenciesLambdaIntegration: LambdaIntegrationDefinition;
 
@@ -71,6 +70,36 @@ export class LambdasManagementIntegrations {
   }
 
   private createLambdaGetDependencies(){
+    // Setting the requestParameters up
+    const lambdaRequestParams: RequestParameters[] = [
+      {
+        type: RequestParamType.QueryString,
+        isRequired: true,
+        sourceParamName: "page_size",
+        paramName: "page_size",
+      },
+      {
+        type: RequestParamType.QueryString,
+        isRequired: true,
+        sourceParamName: "page_size",
+        paramName: "page_size",
+      },
+    ];
+    this.getDependenciesLambdaIntegration.params =
+      createRequestAndParamRequests(lambdaRequestParams);
 
+    // Create lambda integration
+    this.getDependenciesLambdaIntegration.functionIntegration =
+      createLambdaIntegration({
+        scope:this.scope,
+        httpMethod: "GET",
+        lambdaNameId: "get-dependencies",
+        lambdaFileName: "management/get-dependencies.ts",
+        isProxy: true,
+        requestParameters:
+          this.getUsersLambdaIntegration.params.requestParameters,
+        requestTemplates:
+          this.getUsersLambdaIntegration.params.requestTemplates,
+      });
   }
 }

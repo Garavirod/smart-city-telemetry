@@ -13,7 +13,7 @@ export const createLambdaIntegration = (props: LambdaHandlerParams) => {
       handler: "handler",
       entry: path.join(
         __dirname,
-        `../../lambda-api-integrations/${props.lambdaFileName}`
+        `../../../services/lambda-api-integrations/${props.lambdaFileName}`
       ),
       environment: {},
     }
