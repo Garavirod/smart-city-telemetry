@@ -1,7 +1,17 @@
-import { createManagementResources } from "./management";
-import { createTrenLigeroResources } from "./tren-ligero";
+import { GeneralApiGateway } from "../general-apigw";
+import { manageMentResources } from "./management/resources";
 
+
+/**
+ * This function creates the api resource from the root.
+ * as follows:
+ * root
+ *  management/
+ *             nested resources..
+ *  tren-ligero/
+ *              nested resources..
+ */
 export const createAllAPIResources = () => {
-    createManagementResources();
-    createTrenLigeroResources();
-}
+  // Management resources
+  GeneralApiGateway.Instance.addApiResourceFromRoot(manageMentResources);
+};

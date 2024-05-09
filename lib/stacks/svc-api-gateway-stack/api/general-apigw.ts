@@ -1,15 +1,13 @@
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
-import * as lambda from "aws-cdk-lib/aws-lambda";
-import { APiResources } from "./resources/types";
+import { randomUUID } from "crypto";
+import { APiResourceMethods, ResourcesAPI } from "./resources/types";
 import * as cdk from "aws-cdk-lib";
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import path = require("path");
 
 export class GeneralApiGateway {
   private static _instance: GeneralApiGateway;
   public api: apigateway.RestApi;
   public scope: any;
-  public apiResources: Record<APiResources, apigateway.Resource>;
+  public apiResources: Record<string, apigateway.Resource>;
   private constructor() {}
 
   public initConfiguration(scope: any) {
@@ -37,7 +35,7 @@ export class GeneralApiGateway {
       },
     });
     this.configureAPIKeyPlanUsage();
-    // this.configureAPIURL()
+    this.configureExportStack();
   }
 
   private configureAPIKeyPlanUsage() {
@@ -53,8 +51,8 @@ export class GeneralApiGateway {
     usagePlan.addApiKey(apiKey);
   }
 
-  private configureAPIURL() {
-    new cdk.CfnOutput(this.scope, "apiUrl", {
+  private configureExportStack() {
+    new cdk.CfnOutput(this.scope, "ApiTelemetryUrl", {
       value: GeneralApiGateway.Instance.api.url,
     });
   }
@@ -63,103 +61,47 @@ export class GeneralApiGateway {
     return this._instance || (this._instance = new this());
   }
 
-  public addNewApiResource(nameResource: APiResources) {
-    this.apiResources[nameResource] = this.api.root.addResource(nameResource);
-    console.log(
-      `El resources ${JSON.stringify(Object.keys(this.apiResources))}`
-    );
-  }
-
-  public addResourceToResource(props: {
-    parentResource: APiResources;
-    childResource: APiResources;
-  }) {
-    console.log(
-      `Adding resource to ${this.apiResources[props.parentResource]}`
-    );
-    this.apiResources[props.childResource] = this.apiResources[
-      props.parentResource
-    ].addResource(props.childResource);
-  }
-
-  public addHttpMethodToResource(props: {
-    httpMethod: httpMethodType;
-    resource: APiResources;
-    lambdaHandler?: LambdaHandlerParams;
-  }) {
-    const { httpMethod, resource, lambdaHandler } = props;
-    if (!lambdaHandler) {
-      this.apiResources[resource].addMethod(httpMethod);
-    } else {
-      const { requestParameters, requestTemplates, requiredRequestTemplates } =
-        this.createRequestAndParamRequests(lambdaHandler.requestParams);
-
-      // Lambda handler
-      const handlerIntegration = new NodejsFunction(
-        this.scope,
-        lambdaHandler.lambdaNameId,
-        {
-          runtime: lambda.Runtime.NODEJS_18_X,
-          handler: "handler",
-          entry: path.join(
-            __dirname,
-            `../lambda-api-integrations/${lambdaHandler.lambdaFileName}`
-          ),
-        }
+  private nestedResources(parent: string, resources: ResourcesAPI[]) {
+    for (const r of resources) {
+      const resourceId = randomUUID();
+      this.apiResources[resourceId] = this.apiResources[parent].addResource(
+        r.pathPart
       );
-
-      // Lambda integrations
-      const integration = new apigateway.LambdaIntegration(handlerIntegration, {
-        proxy: lambdaHandler.isProxy, // More flexibility over event params and body requests,
-        requestParameters,
-        requestTemplates: {
-          "application/json": JSON.stringify(requestTemplates),
-        },
-      });
-
-      this.apiResources[resource].addMethod(httpMethod, integration, {
-        requestParameters: requiredRequestTemplates,
-      });
-    }
-  }
-
-  private createRequestAndParamRequests(
-    requestParm: RequestParameters[] | undefined
-  ) {
-    let requestParameters: Record<string, string> = {};
-    let requestTemplates: Record<string, string> = {};
-    let requiredRequestTemplates: Record<string, boolean> = {};
-
-    if (requestParm) {
-      for (const item of requestParm) {
-        requestParameters[
-          `integration.request.${item.type}.${item.paramName}`
-        ] = `method.request.${item.type}.${item.sourceParamName}`;
-        requestTemplates[
-          `${item.paramName}`
-        ] = `$input.params('${item.paramName}')`;
-        requiredRequestTemplates[`${item.paramName}`] = item.isRequired;
+      // add methods
+      this.addHttpMethodToResource(r.methods, resourceId);
+      // add nested resources
+      if (r.resources) {
+        for (const re of r.resources) {
+          this.nestedResources(resourceId, re.resources ?? []);
+        }
       }
     }
+  }
 
-    return { requestParameters, requestTemplates, requiredRequestTemplates };
+  public addApiResourceFromRoot(resources: ResourcesAPI) {
+    const resourceId = randomUUID();
+    this.apiResources[resources.pathPart] = this.api.root.addResource(
+      resources.pathPart
+    );
+    // Add al methods
+    this.addHttpMethodToResource(resources.methods, resourceId);
+    // Nested resources
+    this.nestedResources(resourceId, resources.resources ?? []);
+  }
+
+  private addHttpMethodToResource(
+    httpMethods: APiResourceMethods[],
+    resourceId: string
+  ) {
+    for (const method of httpMethods) {
+      this.apiResources[resourceId].addMethod(
+        method.httpMethod,
+        method.lambdaIntegration.functionIntegration,
+        {
+          requestParameters:
+            method.lambdaIntegration.params.requiredRequestTemplates,
+        }
+      );
+    }
   }
 }
-
-type LambdaHandlerParams = {
-  lambdaNameId: string;
-  lambdaFileName: any;
-  isProxy: boolean;
-  requestParams?: RequestParameters[];
-  environment?: Record<string, string>;
-};
-
-type httpMethodType = "GET" | "POST" | "PATCH" | "DELETE" | "UPDATE";
-
-type requestParamType = "header" | "querystring" | "path";
-type RequestParameters = {
-  type: requestParamType;
-  paramName: string;
-  isRequired: boolean;
-  sourceParamName: string;
-};
