@@ -1,8 +1,9 @@
 import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
-import { GeneralApiGateway } from "./api/general-apigw";
-import { createAllAPIResources } from "./api/resources";
-import { LambdasManagementIntegrations } from "./api/lambda-integrations/management/general-lambda-Integration";
+import { LambdasManagementIntegrations } from "./cdk/api/lambda-integrations/management/general-lambda-Integration";
+import { GeneralApiGateway } from "./cdk/api/general-apigw";
+import { createAllAPIResources } from "./cdk/api/resources";
+
 
 export class SvcApiGatewayStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {

@@ -1,5 +1,4 @@
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { GeneralApiGateway } from "../general-apigw";
 import { LambdaHandlerParams, RequestParameters } from "../resources/types";
 import { LambdaIntegration } from "aws-cdk-lib/aws-apigateway";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
@@ -14,7 +13,7 @@ export const createLambdaIntegration = (props: LambdaHandlerParams) => {
       handler: "handler",
       entry: path.join(
         __dirname,
-        `../lambda-api-integrations/${props.lambdaFileName}`
+        `../../lambda-api-integrations/${props.lambdaFileName}`
       ),
       environment: {},
     }
