@@ -1,19 +1,27 @@
-import { ResourcesAPI } from "../types";
-import { LambdasManagementIntegrations } from "../../lambda-integrations/management/general-lambda-Integration";
+import { ManagementLambdaKeyNames } from "../../../lambda/types";
+import { RequestParamType, ResourcesAPI } from "../types";
 
 export const manageMentResources: ResourcesAPI = {
   pathPart: "management",
   methods: [
     {
       httpMethod: "GET",
-      lambdaIntegration:
-        LambdasManagementIntegrations.Instance.getUsersLambdaIntegration,
+      lambdaKeyName: ManagementLambdaKeyNames.GetUsers,
+      isproxy: true,
+      requestParams: [
+        {
+          isRequired: true,
+          sourceParamName: "page_size",
+          paramName: "page_size",
+          type: RequestParamType.QueryString,
+        },
+      ],
     },
-    {
+    /* {
       httpMethod: "POST",
       lambdaIntegration:
         LambdasManagementIntegrations.Instance.getUsersLambdaIntegration,
-    },
+    }, */
   ],
   resources: [
     {
@@ -21,12 +29,19 @@ export const manageMentResources: ResourcesAPI = {
       methods: [
         {
           httpMethod: "GET",
-          lambdaIntegration:
-            LambdasManagementIntegrations.Instance
-              .getDependenciesLambdaIntegration,
+          lambdaKeyName: ManagementLambdaKeyNames.GetDependencies,
+          isproxy: true,
+          requestParams: [
+            {
+              isRequired: true,
+              sourceParamName: "page_size",
+              paramName: "page_size",
+              type: RequestParamType.QueryString,
+            },
+          ],
         },
       ],
-      resources: [
+      /* resources: [
         {
           pathPart: "{dependency_id}",
           methods: [
@@ -84,9 +99,9 @@ export const manageMentResources: ResourcesAPI = {
             }, // end {dependency_id}
           ],
         },
-      ],
+      ], */
     }, // end map-api-keys
-    {
+    /* {
       pathPart: "users",
       methods: [
         {
@@ -96,6 +111,6 @@ export const manageMentResources: ResourcesAPI = {
               .getDependenciesLambdaIntegration,
         },
       ],
-    }, // end users
+    }, // end users */
   ],
 };
