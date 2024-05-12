@@ -8,5 +8,5 @@ import { SvcPermissionsStack } from '../lib/stacks/svc-permissions-stack';
 const app = new cdk.App();
 
 // Stacks creation
-new SvcPermissionsStack(app, "svc-permissions-stack",{});
-new SvcApiGatewayStack(app, "svc-api-gateway-stack",{});
+// new SvcPermissionsStack(app, "svc-permissions-stack",{});
+new SvcApiGatewayStack(app, "svc-api-gw",{});

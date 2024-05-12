@@ -103,19 +103,19 @@ export const SuccessResponse200 = (props: {
 };
 
 export const InternalErrorResponse500 = (props: {
-  error?:any
+  error?: any;
   data?: any;
   extras?: any;
 }): APIGatewayProxyResult => {
   const { error, extras, data } = props;
   let message = "Request failed - Unknown error";
-  if(error instanceof Error){
+  if (error instanceof Error) {
     message = error.message;
   }
   return {
     statusCode: 500,
     body: JSON.stringify({
-      message:`Request failed - ${message}`,
+      message: `Request failed - ${message}`,
       data,
       extras,
     }),

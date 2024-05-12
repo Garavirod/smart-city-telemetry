@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { extractDataFromEvent } from "../../api/utils/pre-process-event";
-import { QueryStringParametersPagination } from "../../api/interfaces/shared";
-import { InternalErrorResponse500, SuccessResponse200 } from "../../api/utils/api-response";
+import { QueryStringParametersPagination } from "../../../cdk/api/interfaces/shared";
+import { extractDataFromEvent } from "../../utils/pre-process-event";
+import { InternalErrorResponse500, SuccessResponse200 } from "../../utils/api-response";
 
 
 interface QueryParamsExpected extends QueryStringParametersPagination {
@@ -17,12 +17,12 @@ export const handler = async (
       propertyToExtract: "queryStringParameters",
     });
     if (!params) {
-      throw new Error("No query string parameters into request");
+      throw new Error("No query string parameters");
     }
     const users = [
       {
-        dependency_id: 1111,
-        name: "Tren ligero",
+        user_id: 1111,
+        name: "Rodrigo García",
       },
     ];
     return SuccessResponse200({ data: users });

@@ -13,8 +13,8 @@ on:
         description: Stack service
         options:
           # Add more services as needed.
-          - svc-permissions-stack
-          - svc-api-gateway-stack
+          - svc-api-gw
+          - svc-api-ws
       selected_env:
         type: choice
         required: true

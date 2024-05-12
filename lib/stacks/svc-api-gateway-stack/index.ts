@@ -1,14 +1,18 @@
 import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
-import { createAPIGatewayServices } from "./api";
-import { GeneralApiGateway } from "./api/general-apigw";
-import { createAllAPIResources } from "./api/resources";
+import { GeneralApiGateway } from "./cdk/api/general-api-gateway";
+import { ManagementLambdas } from "./cdk/lambda/management-lambdas";
+import { manageMentResources } from "./cdk/api/resources/management/resources";
 
 export class SvcApiGatewayStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    // Apigateway services
-    GeneralApiGateway.Instance.initConfiguration(this);
-    createAllAPIResources();
+
+    // constructs
+    const managementLambdas = new ManagementLambdas(this);
+    const apiGateway = new GeneralApiGateway(this);
+    
+    apiGateway.setLambdaHandlers(managementLambdas.getLambdaHandlers);
+    apiGateway.addApiResourceFromRoot({ resources: manageMentResources });
   }
 }
