@@ -11,8 +11,8 @@ export const manageMentResources: ResourcesAPI = {
       requestParams: [
         {
           isRequired: true,
-          sourceParamName: "page_size",
-          paramName: "page_size",
+          sourceParamName: "pageSize",
+          paramName: "pageSize",
           type: RequestParamType.QueryString,
         },
       ],
@@ -34,8 +34,8 @@ export const manageMentResources: ResourcesAPI = {
           requestParams: [
             {
               isRequired: true,
-              sourceParamName: "page_size",
-              paramName: "page_size",
+              sourceParamName: "pageSize",
+              paramName: "pageSize",
               type: RequestParamType.QueryString,
             },
           ],

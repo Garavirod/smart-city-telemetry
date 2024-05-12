@@ -26,7 +26,7 @@ export class GeneralApiGateway {
     this.apiDescription = "General API gateway for the dependencies services";
     this.stage = "dev";
     this.corsConfig = this.buildCorsConfigurations();
-    this.apiResourcesMap = {...this.apiResourcesMap};
+    this.apiResourcesMap = { ...this.apiResourcesMap };
     this.lambdaFunctions = { ...this.lambdaFunctions };
     this.apiGateway = new apigateway.RestApi(this.scope, this.apiName, {
       description: this.apiDescription,
@@ -50,15 +50,16 @@ export class GeneralApiGateway {
     lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>
   ) {
     this.lambdaFunctions = { ...this.lambdaFunctions, ...lambdaFunctions };
-    for(const k in this.lambdaFunctions){
-      console.log(`La key ${k}`)
+    for (const k in this.lambdaFunctions) {
+      console.log(`La key ${k}`);
     }
   }
 
   public addApiResourceFromRoot(props: { resources: ResourcesAPI }) {
     const resourceId = randomUUID();
-    this.apiResourcesMap[resourceId] =
-      this.apiGateway.root.addResource(props.resources.pathPart);
+    this.apiResourcesMap[resourceId] = this.apiGateway.root.addResource(
+      props.resources.pathPart
+    );
     // Add al methods
     this.addHttpMethodToResource({
       resourceId: resourceId,
@@ -78,13 +79,15 @@ export class GeneralApiGateway {
     requestParameters: Record<string, string>;
     requestTemplates: Record<string, string>;
   }) {
-    console.log(`La key al construir ${props.lambdaKeyName}`)
+    console.log(`La key al construir ${props.lambdaKeyName}`);
     return new apigateway.LambdaIntegration(
       this.lambdaFunctions[props.lambdaKeyName],
       {
         proxy: props.isProxy, // More flexibility over event params and body requests,
-        requestParameters: props.requestParameters,
+        requestParameters: props.requestParameters, // Define mapping parameters from your method to your integration
         requestTemplates: {
+          // You can define a mapping that will build a payload for your integration, based
+          //  on the integration parameters that you have specified
           "application/json": JSON.stringify(props.requestTemplates),
         },
       }
@@ -110,6 +113,7 @@ export class GeneralApiGateway {
         method.httpMethod,
         integration,
         {
+          apiKeyRequired: true,
           requestParameters: params.requiredRequestTemplates,
         }
       );
@@ -134,12 +138,17 @@ export class GeneralApiGateway {
         requestParameters[
           `integration.request.${item.type}.${item.paramName}`
         ] = `method.request.${item.type}.${item.sourceParamName}`;
+
         requestTemplates[
           `${item.paramName}`
         ] = `$input.params('${item.paramName}')`;
+
         requiredRequestTemplates[`${item.paramName}`] = item.isRequired;
       }
     }
+    console.log("RP 1", requestParameters);
+    console.log("RP 2", requestTemplates);
+    console.log("RP 3", requiredRequestTemplates);
     return { requestParameters, requestTemplates, requiredRequestTemplates };
   }
 
