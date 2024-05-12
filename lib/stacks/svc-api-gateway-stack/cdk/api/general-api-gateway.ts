@@ -41,20 +41,27 @@ export class GeneralApiGateway {
         allowOrigins: this.corsConfig.allowOrigins,
       },
     });
-
+    // Configure usage plan
     this.configureAPIKeyPlanUsage();
+    // Configure stack output
     this.configureExportStack();
   }
 
+  /**
+   * Set the lambdas for using them inside class
+   * @param lambdaFunctions 
+   */
   public setLambdaHandlers(
     lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>
   ) {
     this.lambdaFunctions = { ...this.lambdaFunctions, ...lambdaFunctions };
-    for (const k in this.lambdaFunctions) {
-      console.log(`La key ${k}`);
-    }
   }
 
+
+  /**
+   * Create a resource endpoint from the root of the api
+   * @param props 
+   */
   public addApiResourceFromRoot(props: { resources: ResourcesAPI }) {
     const resourceId = randomUUID();
     this.apiResourcesMap[resourceId] = this.apiGateway.root.addResource(
@@ -65,7 +72,6 @@ export class GeneralApiGateway {
       resourceId: resourceId,
       httpMethods: props.resources.methods,
     });
-    console.debug("Methods added for ", props.resources.pathPart);
     // Nested resources
     this.nestedResources({
       parent: resourceId,
@@ -73,27 +79,36 @@ export class GeneralApiGateway {
     });
   }
 
+  /**
+   * Create an instance of LambdaIntegration
+   * @param props 
+   * @returns {LambdaIntegration}
+   */
   private createLambdaIntegration(props: {
     lambdaKeyName: LambdasKeyNames;
     isProxy: boolean;
     requestParameters: Record<string, string>;
     requestTemplates: Record<string, string>;
   }) {
-    console.log(`La key al construir ${props.lambdaKeyName}`);
     return new apigateway.LambdaIntegration(
       this.lambdaFunctions[props.lambdaKeyName],
       {
         proxy: props.isProxy, // More flexibility over event params and body requests,
         requestParameters: props.requestParameters, // Define mapping parameters from your method to your integration
         requestTemplates: {
-          // You can define a mapping that will build a payload for your integration, based
-          //  on the integration parameters that you have specified
+          // Define a mapping that will build a payload for your integration, based
+          // on the integration parameters that you have specified
           "application/json": JSON.stringify(props.requestTemplates),
         },
       }
     );
   }
 
+  /**
+   * Add a nested resources, from a parent resource to 
+   * an specific resource child
+   * @param props 
+   */
   private addHttpMethodToResource(props: {
     resourceId: string;
     httpMethods: APiResourceMethods[];
@@ -114,6 +129,7 @@ export class GeneralApiGateway {
         integration,
         {
           apiKeyRequired: true,
+          // Marked request parameters as required
           requestParameters: params.requiredRequestTemplates,
         }
       );
@@ -135,23 +151,29 @@ export class GeneralApiGateway {
 
     if (requestParm) {
       for (const item of requestParm) {
+        // Map requestParameters to the integration
         requestParameters[
           `integration.request.${item.type}.${item.paramName}`
         ] = `method.request.${item.type}.${item.sourceParamName}`;
 
+        // Build payload for requestParameters defined in requestParameters
         requestTemplates[
           `${item.paramName}`
         ] = `$input.params('${item.paramName}')`;
 
-        requiredRequestTemplates[`method.request.${item.type}.${item.paramName}`] = item.isRequired;
+        // Marked request parameters for http method creation
+        requiredRequestTemplates[
+          `method.request.${item.type}.${item.paramName}`
+        ] = item.isRequired;
       }
     }
-    console.log("RP 1", requestParameters);
-    console.log("RP 2", requestTemplates);
-    console.log("RP 3", requiredRequestTemplates);
     return { requestParameters, requestTemplates, requiredRequestTemplates };
   }
 
+  /**
+   * Nests resources to a child resource
+   * @param props 
+   */
   private nestedResources(props: {
     parent: string;
     resources: ResourcesAPI[];
@@ -178,6 +200,10 @@ export class GeneralApiGateway {
     }
   }
 
+
+  /**
+   * Create the API keys usage plan
+   */
   private configureAPIKeyPlanUsage() {
     const apiKeName = "svc-api-gateway-key";
     const usagePlanName = "Usage plan for svc-api-gateway";
@@ -193,6 +219,10 @@ export class GeneralApiGateway {
     usagePlan.addApiKey(apiKey);
   }
 
+
+  /**
+   * Configure the cdk exportation (visibility for other stacks)
+   */
   private configureExportStack() {
     const nameStackExportationUrl = "ApiGatewayTelemetryUrl";
     new cdk.CfnOutput(this.scope, nameStackExportationUrl, {
@@ -200,6 +230,11 @@ export class GeneralApiGateway {
     });
   }
 
+
+  /**
+   * Define CORS configuration for the API
+   * @returns {Object}
+   */
   private buildCorsConfigurations() {
     const allowHeaders = [
       "Content-Type",

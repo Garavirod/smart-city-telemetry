@@ -4,16 +4,18 @@ import { Construct } from "constructs";
 import path = require("path");
 import { LambdasKeyNames, ManagementLambdaKeyNames } from "./types";
 
-
 export class ManagementLambdas {
   private scope: Construct;
   private lambdaHandlers: Record<LambdasKeyNames, NodejsFunction>;
   constructor(scope: Construct) {
-    this.lambdaHandlers = {...this.lambdaHandlers}
+    this.lambdaHandlers = { ...this.lambdaHandlers };
     this.scope = scope;
     this.createLambdas();
   }
 
+  /**
+   * Create all the lambda definitions
+   */
   private createLambdas() {
     this.getLambdaHandlers[ManagementLambdaKeyNames.GetUsers] =
       this.createNodeFunctionLambda({
@@ -30,10 +32,19 @@ export class ManagementLambdas {
       });
   }
 
+  /**
+   * Returns the map with all the lambdas defined
+   */
   public get getLambdaHandlers() {
     return this.lambdaHandlers;
   }
 
+  /**
+   * Creates an instance of NodejsFunction for creating a lambda
+   * handler
+   * @param props
+   * @returns {NodejsFunction}
+   */
   private createNodeFunctionLambda(props: {
     lambdaName: string;
     fileNameImlCode: string;

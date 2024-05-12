@@ -8,11 +8,10 @@ export class SvcApiGatewayStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Lambda constructs
+    // constructs
     const managementLambdas = new ManagementLambdas(this);
-    // Api gateway constructs
     const apiGateway = new GeneralApiGateway(this);
-
+    
     apiGateway.setLambdaHandlers(managementLambdas.getLambdaHandlers);
     apiGateway.addApiResourceFromRoot({ resources: manageMentResources });
   }
