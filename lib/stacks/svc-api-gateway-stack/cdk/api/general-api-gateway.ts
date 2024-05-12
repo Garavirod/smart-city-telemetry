@@ -143,7 +143,7 @@ export class GeneralApiGateway {
           `${item.paramName}`
         ] = `$input.params('${item.paramName}')`;
 
-        requiredRequestTemplates[`${item.paramName}`] = item.isRequired;
+        requiredRequestTemplates[`method.request.${item.type}.${item.paramName}`] = item.isRequired;
       }
     }
     console.log("RP 1", requestParameters);
