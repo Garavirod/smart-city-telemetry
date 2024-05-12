@@ -22,7 +22,7 @@ export class ManagementLambdas {
         environment: {},
       });
 
-    this.getLambdaHandlers[ManagementLambdaKeyNames.GetUsers] =
+    this.getLambdaHandlers[ManagementLambdaKeyNames.GetDependencies] =
       this.createNodeFunctionLambda({
         fileNameImlCode: "get-dependencies.ts",
         lambdaName: ManagementLambdaKeyNames.GetDependencies,

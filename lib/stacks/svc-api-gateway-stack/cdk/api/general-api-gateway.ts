@@ -27,6 +27,7 @@ export class GeneralApiGateway {
     this.stage = "dev";
     this.corsConfig = this.buildCorsConfigurations();
     this.apiResourcesMap = {...this.apiResourcesMap};
+    this.lambdaFunctions = { ...this.lambdaFunctions };
     this.apiGateway = new apigateway.RestApi(this.scope, this.apiName, {
       description: this.apiDescription,
       deployOptions: {
@@ -49,11 +50,14 @@ export class GeneralApiGateway {
     lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>
   ) {
     this.lambdaFunctions = { ...this.lambdaFunctions, ...lambdaFunctions };
+    for(const k in this.lambdaFunctions){
+      console.log(`La key ${k}`)
+    }
   }
 
   public addApiResourceFromRoot(props: { resources: ResourcesAPI }) {
     const resourceId = randomUUID();
-    this.apiResourcesMap[props.resources.pathPart] =
+    this.apiResourcesMap[resourceId] =
       this.apiGateway.root.addResource(props.resources.pathPart);
     // Add al methods
     this.addHttpMethodToResource({
@@ -74,6 +78,7 @@ export class GeneralApiGateway {
     requestParameters: Record<string, string>;
     requestTemplates: Record<string, string>;
   }) {
+    console.log(`La key al construir ${props.lambdaKeyName}`)
     return new apigateway.LambdaIntegration(
       this.lambdaFunctions[props.lambdaKeyName],
       {
