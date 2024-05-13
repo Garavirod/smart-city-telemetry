@@ -6,7 +6,7 @@ import {
   paginateQuery,
 } from "@aws-sdk/lib-dynamodb";
 
-import { GetOptions, PutOptions, QueryPaginationOptions } from "./types";
+import { GetOptions, PutOptions, QueryPaginateResult, QueryPaginationOptions } from "./types";
 import { DynamoClientInstance } from "../client/dynamo-client";
 
 import {
@@ -41,7 +41,7 @@ export const GetCommandOperation = async (options: GetOptions) => {
 
 export const QueryPaginationCommandOperation = async <T>(
   options: QueryPaginationOptions
-) => {
+): Promise<QueryPaginateResult<T>> => {
   const {
     expressions,
     index,

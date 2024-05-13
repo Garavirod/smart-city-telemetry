@@ -18,6 +18,13 @@ export type QueryPaginationOptions = {
   ScanIndexForward: boolean;
 };
 
+export type QueryPaginateResult<T> = {
+  Items: T[];
+  Count: number;
+  IteratorDone?: boolean;
+  LastEvaluatedKey?: string | undefined;
+};
+
 export type FilterExpressionConjunctions = "AND" | "OR";
 
 export type SearchOperator =
@@ -33,7 +40,7 @@ export type SearchOperator =
 export interface SearchExpression<T> {
   column: T;
   operator: SearchOperator;
-  value: string | number | string[] | number[];
+  value: string | number | string[] | number[] | boolean;
 }
 
 export interface PageOptions {
