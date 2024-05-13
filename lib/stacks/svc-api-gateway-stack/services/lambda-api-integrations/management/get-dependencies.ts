@@ -20,6 +20,7 @@ export const handler = async (
     if (!params) {
       throw new Error("No query string parameters into request");
     }
+    
     const users = [
       {
         dependency_id: 1111,

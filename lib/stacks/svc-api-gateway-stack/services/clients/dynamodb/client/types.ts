@@ -1,4 +1,4 @@
-import { DynamoTables } from "./tables";
+import { DynamoTables } from "../tables/tables";
 
 export interface marshallOptions {
   /**
@@ -39,12 +39,3 @@ export interface unmarshallOptions {
   convertWithoutMapWrapper?: boolean;
 }
 
-export type PutOptions = {
-  TableName: DynamoTables;
-  Item: any;
-};
-
-export type GetOptions = {
-  TableName: DynamoTables;
-  key: any;
-};
