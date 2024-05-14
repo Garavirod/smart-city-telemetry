@@ -3,14 +3,18 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import path = require("path");
 import { LambdasKeyNames, ManagementLambdaKeyNames } from "./types";
+import { overrideLogicalResourceName } from "../helpers/override-logical-resource-name";
 
 export class ManagementLambdas {
   private scope: Construct;
   private lambdaHandlers: Record<LambdasKeyNames, NodejsFunction>;
-  constructor(scope: Construct) {
+  private readonly stackName: string;
+  constructor(scope: Construct, stackName: string) {
     this.lambdaHandlers = { ...this.lambdaHandlers };
     this.scope = scope;
+    this.stackName = stackName;
     this.createLambdas();
+    this.overrideLogicalNameResources();
   }
 
   /**
@@ -30,6 +34,16 @@ export class ManagementLambdas {
         lambdaName: ManagementLambdaKeyNames.GetDependencies,
         environment: {},
       });
+  }
+
+  private overrideLogicalNameResources() {
+    for (const k in this.lambdaHandlers) {
+      overrideLogicalResourceName({
+        resource: this.getLambdaHandlers[k as LambdasKeyNames],
+        appName: this.stackName,
+        resourceName: k,
+      });
+    }
   }
 
   /**
