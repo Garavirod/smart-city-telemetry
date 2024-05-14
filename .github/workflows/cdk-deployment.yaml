@@ -23,7 +23,7 @@ on:
           #- sbx
           - dev
           - prod
-          #- qa
+          - qa
 
 run-name: Deploy ${{ github.event.inputs.stack }} to ${{ github.event.inputs.selected_env }} by ${{ github.triggering_actor }}
 

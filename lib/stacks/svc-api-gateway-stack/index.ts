@@ -17,8 +17,8 @@ export class SvcApiGatewayStack extends cdk.Stack {
 
     // constructs
     const managementLambdas = new ManagementLambdas(this, id);
-    const apiGateway = new GeneralApiGateway(this);
-    const managementDynamoDB = new ManagementDynamoDB(this);
+    const apiGateway = new GeneralApiGateway(this, id);
+    const managementDynamoDB = new ManagementDynamoDB(this, id);
 
     // Api gateway settings
     apiGateway.setLambdaHandlers(managementLambdas.getLambdaHandlers);

@@ -9,6 +9,7 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LambdasKeyNames } from "../lambda/types";
+import { overrideLogicalResourceName } from "../helpers/override-logical-resource-name";
 
 export class GeneralApiGateway {
   private scope: Construct;
@@ -19,10 +20,12 @@ export class GeneralApiGateway {
   private apiGateway: apigateway.RestApi;
   private apiResourcesMap: Record<string, apigateway.Resource>;
   private lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>;
+  private readonly stackName: string;
 
-  constructor(scope: Construct) {
+  constructor(scope: Construct, id: string) {
     this.scope = scope;
-    this.apiName = 'telemetry-api"';
+    this.stackName = id;
+    this.apiName = "telemetry-api";
     this.apiDescription = "General API gateway for the dependencies services";
     this.stage = "dev";
     this.corsConfig = this.buildCorsConfigurations();
@@ -45,11 +48,17 @@ export class GeneralApiGateway {
     this.configureAPIKeyPlanUsage();
     // Configure stack output
     this.configureExportStack();
+    // Override logical resource name
+    overrideLogicalResourceName({
+      resource: this.apiGateway,
+      appName: this.stackName,
+      resourceName: this.apiName,
+    });
   }
 
   /**
    * Set the lambdas for using them inside class
-   * @param lambdaFunctions 
+   * @param lambdaFunctions
    */
   public setLambdaHandlers(
     lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>
@@ -57,10 +66,9 @@ export class GeneralApiGateway {
     this.lambdaFunctions = { ...this.lambdaFunctions, ...lambdaFunctions };
   }
 
-
   /**
    * Create a resource endpoint from the root of the api
-   * @param props 
+   * @param props
    */
   public addApiResourceFromRoot(props: { resources: ResourcesAPI }) {
     const resourceId = randomUUID();
@@ -81,7 +89,7 @@ export class GeneralApiGateway {
 
   /**
    * Create an instance of LambdaIntegration
-   * @param props 
+   * @param props
    * @returns {LambdaIntegration}
    */
   private createLambdaIntegration(props: {
@@ -105,9 +113,9 @@ export class GeneralApiGateway {
   }
 
   /**
-   * Add a nested resources, from a parent resource to 
+   * Add a nested resources, from a parent resource to
    * an specific resource child
-   * @param props 
+   * @param props
    */
   private addHttpMethodToResource(props: {
     resourceId: string;
@@ -172,7 +180,7 @@ export class GeneralApiGateway {
 
   /**
    * Nests resources to a child resource
-   * @param props 
+   * @param props
    */
   private nestedResources(props: {
     parent: string;
@@ -200,7 +208,6 @@ export class GeneralApiGateway {
     }
   }
 
-
   /**
    * Create the API keys usage plan
    */
@@ -219,7 +226,6 @@ export class GeneralApiGateway {
     usagePlan.addApiKey(apiKey);
   }
 
-
   /**
    * Configure the cdk exportation (visibility for other stacks)
    */
@@ -229,7 +235,6 @@ export class GeneralApiGateway {
       value: this.apiGateway.url,
     });
   }
-
 
   /**
    * Define CORS configuration for the API

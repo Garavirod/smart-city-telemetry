@@ -6,4 +6,4 @@ export enum TrenLigeroDynamoKeyNames{
     'Trenes'='Trenes'
 }
 
-export type DynamoKeyNames = ManagementDynamoKeyName | TrenLigeroDynamoKeyNames
+export type DynamoTablesKeyNames = ManagementDynamoKeyName | TrenLigeroDynamoKeyNames

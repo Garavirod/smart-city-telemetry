@@ -3,18 +3,22 @@ import { LambdasKeyNames } from "../lambda/types";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import { RemovalPolicy } from "aws-cdk-lib";
-import { DynamoKeyNames, ManagementDynamoKeyName } from "./types";
+import { DynamoTablesKeyNames, ManagementDynamoKeyName } from "./types";
+import { overrideLogicalResourceName } from "../helpers/override-logical-resource-name";
 
 export class ManagementDynamoDB {
   private lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>;
-  private dynamoTables: Record<DynamoKeyNames, dynamodb.Table>;
+  private dynamoTables: Record<DynamoTablesKeyNames, dynamodb.Table>;
   private scope: Construct;
+  private readonly stackName:string;
 
-  constructor(scope: Construct) {
+  constructor(scope: Construct, id:string) {
     this.scope = scope;
     this.lambdaFunctions = { ...this.lambdaFunctions };
     this.dynamoTables = { ...this.dynamoTables };
+    this.stackName = id;
     this.createDynamoTables();
+    this.overrideLogicalNameResources();
   }
 
   private createDynamoTables() {
@@ -48,13 +52,24 @@ export class ManagementDynamoDB {
    * @param props
    */
   public grantWritePermissionsToLambdas(props: {
-    keyNameTable: DynamoKeyNames;
+    keyNameTable: DynamoTablesKeyNames;
     keyNameLambdas: LambdasKeyNames[];
   }) {
     for (const keyNameLambda of props.keyNameLambdas) {
       this.dynamoTables[props.keyNameTable].grantReadWriteData(
         this.lambdaFunctions[keyNameLambda]
       );
+    }
+  }
+
+
+  private overrideLogicalNameResources() {
+    for (const k in this.dynamoTables) {
+      overrideLogicalResourceName({
+        resource: this.dynamoTables[k as DynamoTablesKeyNames ],
+        appName: this.stackName,
+        resourceName: k,
+      });
     }
   }
 }
