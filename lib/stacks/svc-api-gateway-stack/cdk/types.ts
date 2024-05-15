@@ -1,1 +1,1 @@
-export type DeployEnvironment = "dev" | "prod" | "qa";
+export type DeployEnvironment = "Dev" | "Prod" | "Qa";

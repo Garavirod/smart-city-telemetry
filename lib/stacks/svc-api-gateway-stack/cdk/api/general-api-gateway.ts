@@ -25,7 +25,7 @@ export class GeneralApiGateway {
   constructor(scope: Construct, id: string) {
     this.scope = scope;
     this.stackName = id;
-    this.apiName = "telemetry-api";
+    this.apiName = "TelemetryApi";
     this.apiDescription = "General API gateway for the dependencies services";
     this.stage = "dev";
     this.corsConfig = this.buildCorsConfigurations();
@@ -52,7 +52,6 @@ export class GeneralApiGateway {
     overrideLogicalResourceName({
       resource: this.apiGateway,
       appName: this.stackName,
-      resourceName: this.apiName,
     });
   }
 

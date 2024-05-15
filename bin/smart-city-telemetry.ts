@@ -8,4 +8,4 @@ const app = new cdk.App();
 
 // Stacks creation
 // new SvcPermissionsStack(app, "svc-permissions-stack",{});
-new SvcApiGatewayStack(app, "svc-api-gw", {});
+new SvcApiGatewayStack(app, "SvcApiGateway", {});

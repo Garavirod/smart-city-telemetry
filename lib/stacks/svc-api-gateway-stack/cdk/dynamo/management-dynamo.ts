@@ -68,7 +68,6 @@ export class ManagementDynamoDB {
       overrideLogicalResourceName({
         resource: this.dynamoTables[k as DynamoTablesKeyNames ],
         appName: this.stackName,
-        resourceName: k,
       });
     }
   }

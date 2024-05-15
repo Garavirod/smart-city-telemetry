@@ -41,7 +41,6 @@ export class ManagementLambdas {
       overrideLogicalResourceName({
         resource: this.getLambdaHandlers[k as LambdasKeyNames],
         appName: this.stackName,
-        resourceName: k,
       });
     }
   }

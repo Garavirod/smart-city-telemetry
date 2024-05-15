@@ -1,10 +1,10 @@
 export enum ManagementLambdaKeyNames {
-  GetUsers = "get-users",
-  GetDependencies = "get-dependencies",
+  GetUsers = "GetUsers",
+  GetDependencies = "GetDependencies",
 }
 
 export enum TrenLigeroLambdaKeyNames {
-  GetTrenes = "get-trenes",
+  GetTrenes = "GetTrenes",
 }
 
 export type LambdasKeyNames =
