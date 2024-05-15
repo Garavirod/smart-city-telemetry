@@ -15,7 +15,7 @@ export const overrideLogicalResourceName = (props: {
     throw Error("No DEPLOY_ENVIRONMENT variable");
   }
   const envName = DEPLOY_ENVIRONMENT as DeployEnvironment;
-  const newName = `${envName}${props.appName}${props.resource.node.id}`;
+  const newName = `${envName}${props.resource.node.id}`;
   const sanitizedNewName = newName.replace(/[^a-zA-Z0-9]/g, "");
   (props.resource.node.defaultChild as CfnResource).overrideLogicalId(sanitizedNewName);
 };
