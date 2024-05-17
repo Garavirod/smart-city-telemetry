@@ -6,19 +6,10 @@ import { manageMentResources } from "./cdk/api/resources/management/resources";
 import { ManagementDynamoDB } from "./cdk/dynamo/management-dynamo";
 import { ManagementDynamoKeyName } from "./cdk/dynamo/types";
 import { ManagementLambdaKeyNames } from "./cdk/lambda/types";
-import { DeployEnvironment } from "./cdk/types";
-export class SvcApiGatewayStack extends cdk.Stack {
-  public readonly app: cdk.App;
-  public readonly appName: string;
-  public readonly env: DeployEnvironment;
 
+export class SvcApiGatewayStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    const stackName= "SvcApiGateway"
-    const name = 'svc-test'
-    super(scope, `Dev-${stackName}-stack`, props);
-    this.appName = 'Dev-' + name;
-    this.node.setContext("appName", this.appName);
-    this.node.setContext("env", "Dev");
+    super(scope, id, props);
 
     // constructs
     const managementLambdas = new ManagementLambdas(this);

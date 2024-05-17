@@ -3,7 +3,7 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import path = require("path");
 import { LambdasKeyNames, ManagementLambdaKeyNames } from "./types";
-import { overrideLogicalResourceName } from "../helpers/override-logical-resource-name";
+import { nameResource, overrideLogicalResourceName } from "../helpers/override-logical-resource-name";
 
 export class ManagementLambdas {
   private scope: Construct;
@@ -63,6 +63,7 @@ export class ManagementLambdas {
   }) {
     const { lambdaName, fileNameImlCode, environment } = props;
     return new NodejsFunction(this.scope, lambdaName, {
+      functionName:nameResource(lambdaName),
       runtime: Runtime.NODEJS_18_X,
       handler: "handler",
       entry: path.join(

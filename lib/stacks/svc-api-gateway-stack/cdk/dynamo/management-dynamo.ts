@@ -4,7 +4,7 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import { RemovalPolicy } from "aws-cdk-lib";
 import { DynamoTablesKeyNames, ManagementDynamoKeyName } from "./types";
-import { overrideLogicalResourceName } from "../helpers/override-logical-resource-name";
+import { nameResource, overrideLogicalResourceName } from "../helpers/override-logical-resource-name";
 
 export class ManagementDynamoDB {
   private lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>;
@@ -17,7 +17,7 @@ export class ManagementDynamoDB {
     this.lambdaFunctions = { ...this.lambdaFunctions };
     this.dynamoTables = { ...this.dynamoTables };
     this.createDynamoTables();
-    this.overrideLogicalNameResources();
+    // this.overrideLogicalNameResources();
   }
 
   private createDynamoTables() {
@@ -26,6 +26,7 @@ export class ManagementDynamoDB {
       this.scope,
       ManagementDynamoKeyName.Users,
       {
+        tableName:nameResource(ManagementDynamoKeyName.Users),
         partitionKey: {
           name: "user_id",
           type: dynamodb.AttributeType.STRING,
@@ -62,11 +63,11 @@ export class ManagementDynamoDB {
   }
 
 
-  private overrideLogicalNameResources() {
+  /* private overrideLogicalNameResources() {
     for (const k in this.dynamoTables) {
       overrideLogicalResourceName({
         resource: this.dynamoTables[k as DynamoTablesKeyNames ],
       });
     }
-  }
+  } */
 }

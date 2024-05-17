@@ -18,3 +18,13 @@ export const overrideLogicalResourceName = (props: {
   const sanitizedNewName = newName.replace(/[^a-zA-Z0-9]/g, "");
   (props.resource.node.defaultChild as CfnResource).overrideLogicalId(sanitizedNewName);
 };
+
+
+export function nameResource(name:string){
+  const { DEPLOY_ENVIRONMENT } = process.env;
+  if (!DEPLOY_ENVIRONMENT) {
+    throw Error("No DEPLOY_ENVIRONMENT variable");
+  }
+  const envName = DEPLOY_ENVIRONMENT as DeployEnvironment;
+  return `${envName}-${name}`;
+}
