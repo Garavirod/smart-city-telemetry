@@ -9,7 +9,7 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LambdasKeyNames } from "../lambda/types";
-import { getEnvironmentNameResource } from "../helpers/override-logical-resource-name";
+import { getEnvironmentNameResource } from "../helpers";
 
 export class GeneralApiGateway {
   private scope: Construct;
@@ -23,7 +23,7 @@ export class GeneralApiGateway {
 
   constructor(scope: Construct) {
     this.scope = scope;
-    this.apiName = "TelemetryApi";
+    this.apiName = getEnvironmentNameResource("TelemetryApi");
     this.apiDescription = "General API gateway for the dependencies services";
     this.stage = "dev";
     this.corsConfig = this.buildCorsConfigurations();

@@ -6,7 +6,12 @@ import {
   paginateQuery,
 } from "@aws-sdk/lib-dynamodb";
 
-import { GetOptions, PutOptions, QueryPaginateResult, QueryPaginationOptions } from "./types";
+import {
+  GetOptions,
+  PutOptions,
+  QueryPaginateResult,
+  QueryPaginationOptions,
+} from "./types";
 import { DynamoClientInstance } from "../client/dynamo-client";
 
 import {
@@ -16,16 +21,18 @@ import {
   toKeyConditionExpressions,
   toKeyConditionExpressionsBeginWith,
 } from "./helpers";
+import { Logger } from "../../../../../../libs/logger";
 
 export const PutCommandOperation = async (options: PutOptions) => {
+  Logger.debug(`PutCommand options >: ${options}`);
   const client = new DynamoClientInstance();
   const command = new PutCommand({
     TableName: options.TableName,
     Item: options.Item,
   });
-  const response = await client.getDynamoDBClient.send(command);
+  await client.getDynamoDBClient.send(command);
   client.destroyDynamoClients();
-  return response;
+  Logger.debug("PutCommand successfully done!");
 };
 
 export const GetCommandOperation = async (options: GetOptions) => {
@@ -65,7 +72,10 @@ export const QueryPaginationCommandOperation = async <T>(
   } else {
     KeyConditionExpressionType = toKeyConditionExpressions(expressions);
     filterExpressionType = filterExpressionAfterQueryDone
-      ? toFilterExpressions(filterExpressionAfterQueryDone, filterExpressionConjunction)
+      ? toFilterExpressions(
+          filterExpressionAfterQueryDone,
+          filterExpressionConjunction
+        )
       : undefined;
   }
 
@@ -77,7 +87,7 @@ export const QueryPaginationCommandOperation = async <T>(
   let limit = pageSize;
 
   while (limit > 0 && !IteratorDone) {
-    console.debug(
+    Logger.debug(
       `loopCount: ${loopCount++} totalCount: ${totalCount} pageSize: ${pageSize}`
     );
     const config: Omit<DynamoDBDocumentPaginationConfiguration, "client"> = {

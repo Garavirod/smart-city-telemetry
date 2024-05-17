@@ -7,6 +7,7 @@ import {
 import { QueryParamsPagination } from "../types";
 import { ManagementService } from "../../clients/dynamodb/services";
 import { UserRole, UsersModel } from "../../clients/dynamodb/models/management";
+import { Logger } from "../../../../../libs/logger";
 
 interface QueryParamsExpected extends QueryParamsPagination {}
 
@@ -46,9 +47,10 @@ export const handler = async (
     }); */
 
     return SuccessResponse200({
-      data: user,
+      data: response,
     });
   } catch (error) {
-    return InternalErrorResponse500({ error: error });
+    Logger.error(`Handler error ${error}`);
+    return InternalErrorResponse500({});
   }
 };

@@ -4,6 +4,7 @@ import {
   marshallOptions,
   unmarshallOptions,
 } from "@aws-sdk/lib-dynamodb";
+import { Logger } from "../../../../../../libs/logger";
 
 export class DynamoClientInstance {
   private client: DynamoDBClient;
@@ -26,6 +27,7 @@ export class DynamoClientInstance {
   }
 
   public destroyDynamoClients() {
+    Logger.debug('Destroying dynamo client');
     this.dynamoDocumentDBclient.destroy();
     this.client.destroy();
   }

@@ -1,9 +1,13 @@
 import { UsersModel } from "../models/management";
-import { PutCommandOperation, QueryPaginationCommandOperation } from "../operations/dynamo-operations";
+import {
+  PutCommandOperation,
+  QueryPaginationCommandOperation,
+} from "../operations/dynamo-operations";
 import { ManagementTables } from "../tables/tables";
 import { ManagementTablesIndex } from "../tables/tables-index";
 import { type PaginationServiceResponse } from "./types";
-import { getEnvironmentNameResource } from "../../../../cdk/helpers/override-logical-resource-name";
+import { getEnvironmentNameResource } from "../../../../cdk/helpers";
+import { Logger } from "../../../../../../libs/logger";
 
 export const getUsers = async (props: { page?: any; pageSize: number }) => {
   try {
@@ -50,15 +54,16 @@ export const deleteUserById = async () => {
   } catch (error) {}
 };
 
-export const addNewUser = async (item:UsersModel) => {
+export const addNewUser = async (item: UsersModel) => {
   try {
     const table = getEnvironmentNameResource(ManagementTables.Users);
-    const response = await PutCommandOperation({
-      TableName:table,
-      Item: item
+    await PutCommandOperation({
+      TableName: table,
+      Item: item,
     });
-    return response;
+    return item;
   } catch (error) {
-    throw Error(`Error on putting new user via service ${error}`);
+    Logger.error(`Error on putting new user via service ${error}`);
+    throw Error(`${error}`);
   }
-}
+};

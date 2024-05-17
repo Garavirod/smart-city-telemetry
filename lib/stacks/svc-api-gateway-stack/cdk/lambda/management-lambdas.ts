@@ -3,14 +3,8 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import path = require("path");
 import { LambdasKeyNames, ManagementLambdaKeyNames } from "./types";
-import {
-  getEnvironmentNameResource,
-  overrideLogicalResourceName,
-} from "../helpers/override-logical-resource-name";
-import * as dotenv from "dotenv";
-
-let envPath = path.resolve(__dirname, "../.env");
-dotenv.config({ path: envPath });
+import { getEnvironmentNameResource } from "../helpers";
+import { GlobalEnvironmentVars } from "../../../../libs/environment";
 
 export class ManagementLambdas {
   private scope: Construct;
@@ -20,7 +14,6 @@ export class ManagementLambdas {
     this.lambdaHandlers = { ...this.lambdaHandlers };
     this.scope = scope;
     this.createLambdas();
-    this.overrideLogicalNameResources();
   }
 
   /**
@@ -31,27 +24,15 @@ export class ManagementLambdas {
       this.createNodeFunctionLambda({
         fileNameImlCode: "get-users.ts",
         lambdaName: ManagementLambdaKeyNames.GetUsers,
-        environment: {
-          DEPLOY_ENVIRONMENT: process.env.DEPLOY_ENVIRONMENT ?? "",
-        },
+        environment: {},
       });
 
     this.getLambdaHandlers[ManagementLambdaKeyNames.GetDependencies] =
       this.createNodeFunctionLambda({
         fileNameImlCode: "get-dependencies.ts",
         lambdaName: ManagementLambdaKeyNames.GetDependencies,
-        environment: {
-          DEPLOY_ENVIRONMENT: process.env.DEPLOY_ENVIRONMENT ?? "",
-        },
+        environment: {},
       });
-  }
-
-  private overrideLogicalNameResources() {
-    for (const k in this.lambdaHandlers) {
-      overrideLogicalResourceName({
-        resource: this.getLambdaHandlers[k as LambdasKeyNames],
-      });
-    }
   }
 
   /**
@@ -81,7 +62,11 @@ export class ManagementLambdas {
         __dirname,
         `../../services/lambda-api-integrations/management/${fileNameImlCode}`
       ),
-      environment,
+      environment: {
+        DEPLOY_ENVIRONMENT: GlobalEnvironmentVars.DEPLOY_ENVIRONMENT,
+        LOGGER_LEVEL: GlobalEnvironmentVars.LOGGER_LEVEL,
+        ...environment,
+      },
     });
   }
 }

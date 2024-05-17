@@ -4,7 +4,7 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import { RemovalPolicy } from "aws-cdk-lib";
 import { DynamoTablesKeyNames, ManagementDynamoKeyName } from "./types";
-import { getEnvironmentNameResource } from "../helpers/override-logical-resource-name";
+import { getEnvironmentNameResource } from "../helpers";
 
 export class ManagementDynamoDB {
   private lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>;

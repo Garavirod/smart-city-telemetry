@@ -12,8 +12,8 @@ export interface UsersModel {
 }
 
 export enum UserRole {
-  AdminUser,
-  CommonUser,
+  AdminUser="Admin",
+  CommonUser="Common",
 }
 
 export enum Dependencies {
