@@ -1,19 +1,18 @@
 import { SearchColumnTables } from "../tables/table-search-columns";
-import { DynamoTables } from "../tables/tables";
 import { TableIndex } from "../tables/tables-index";
 
 export type PutOptions = {
-  TableName: DynamoTables;
+  TableName: string;
   Item: any;
 };
 
 export type GetOptions = {
-  TableName: DynamoTables;
+  TableName: string;
   key: any;
 };
 
 export type QueryPaginationOptions = {
-  TableName: DynamoTables;
+  TableName: string;
   searchOptions: SearchOptions<SearchColumnTables, TableIndex>;
   ScanIndexForward: boolean;
 };

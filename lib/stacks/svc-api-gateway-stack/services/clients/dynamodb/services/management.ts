@@ -1,13 +1,15 @@
 import { UsersModel } from "../models/management";
-import { QueryPaginationCommandOperation } from "../operations/dynamo-operations";
+import { PutCommandOperation, QueryPaginationCommandOperation } from "../operations/dynamo-operations";
 import { ManagementTables } from "../tables/tables";
 import { ManagementTablesIndex } from "../tables/tables-index";
 import { type PaginationServiceResponse } from "./types";
+import { getEnvironmentNameResource } from "../../../../cdk/helpers/override-logical-resource-name";
 
 export const getUsers = async (props: { page?: any; pageSize: number }) => {
   try {
+    const table = getEnvironmentNameResource(ManagementTables.Users);
     const searchResult = await QueryPaginationCommandOperation<UsersModel>({
-      TableName: ManagementTables.Users,
+      TableName: table,
       ScanIndexForward: false,
       searchOptions: {
         startingToken: props.page,
@@ -47,3 +49,16 @@ export const deleteUserById = async () => {
   try {
   } catch (error) {}
 };
+
+export const addNewUser = async (item:UsersModel) => {
+  try {
+    const table = getEnvironmentNameResource(ManagementTables.Users);
+    const response = await PutCommandOperation({
+      TableName:table,
+      Item: item
+    });
+    return response;
+  } catch (error) {
+    throw Error(`Error on putting new user via service ${error}`);
+  }
+}

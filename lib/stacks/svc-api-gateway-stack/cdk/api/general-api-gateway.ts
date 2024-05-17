@@ -9,7 +9,7 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LambdasKeyNames } from "../lambda/types";
-import { overrideLogicalResourceName } from "../helpers/override-logical-resource-name";
+import { getEnvironmentNameResource } from "../helpers/override-logical-resource-name";
 
 export class GeneralApiGateway {
   private scope: Construct;
@@ -21,7 +21,6 @@ export class GeneralApiGateway {
   private apiResourcesMap: Record<string, apigateway.Resource>;
   private lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>;
 
-
   constructor(scope: Construct) {
     this.scope = scope;
     this.apiName = "TelemetryApi";
@@ -31,6 +30,7 @@ export class GeneralApiGateway {
     this.apiResourcesMap = { ...this.apiResourcesMap };
     this.lambdaFunctions = { ...this.lambdaFunctions };
     this.apiGateway = new apigateway.RestApi(this.scope, this.apiName, {
+      restApiName: this.apiName,
       description: this.apiDescription,
       deployOptions: {
         stageName: this.stage,
@@ -47,10 +47,6 @@ export class GeneralApiGateway {
     this.configureAPIKeyPlanUsage();
     // Configure stack output
     this.configureExportStack();
-    // Override logical resource name
-    overrideLogicalResourceName({
-      resource: this.apiGateway,
-    });
   }
 
   /**
@@ -209,9 +205,11 @@ export class GeneralApiGateway {
    * Create the API keys usage plan
    */
   private configureAPIKeyPlanUsage() {
-    const apiKeName = "svc-api-gateway-key";
+    const apiKeName = getEnvironmentNameResource("ApiGatewayKey");
     const usagePlanName = "Usage plan for svc-api-gateway";
-    const apiKey = new apigateway.ApiKey(this.scope, apiKeName);
+    const apiKey = new apigateway.ApiKey(this.scope, apiKeName, {
+      apiKeyName: apiKeName,
+    });
     const usagePlan = new apigateway.UsagePlan(this.scope, usagePlanName, {
       apiStages: [
         {

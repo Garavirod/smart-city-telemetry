@@ -4,20 +4,18 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import { RemovalPolicy } from "aws-cdk-lib";
 import { DynamoTablesKeyNames, ManagementDynamoKeyName } from "./types";
-import { nameResource, overrideLogicalResourceName } from "../helpers/override-logical-resource-name";
+import { getEnvironmentNameResource } from "../helpers/override-logical-resource-name";
 
 export class ManagementDynamoDB {
   private lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>;
   private dynamoTables: Record<DynamoTablesKeyNames, dynamodb.Table>;
   private scope: Construct;
 
-
   constructor(scope: Construct) {
     this.scope = scope;
     this.lambdaFunctions = { ...this.lambdaFunctions };
     this.dynamoTables = { ...this.dynamoTables };
     this.createDynamoTables();
-    // this.overrideLogicalNameResources();
   }
 
   private createDynamoTables() {
@@ -26,9 +24,9 @@ export class ManagementDynamoDB {
       this.scope,
       ManagementDynamoKeyName.Users,
       {
-        tableName:nameResource(ManagementDynamoKeyName.Users),
+        tableName: getEnvironmentNameResource(ManagementDynamoKeyName.Users),
         partitionKey: {
-          name: "user_id",
+          name: "userId",
           type: dynamodb.AttributeType.STRING,
         },
         removalPolicy: RemovalPolicy.DESTROY,
@@ -61,13 +59,4 @@ export class ManagementDynamoDB {
       );
     }
   }
-
-
-  /* private overrideLogicalNameResources() {
-    for (const k in this.dynamoTables) {
-      overrideLogicalResourceName({
-        resource: this.dynamoTables[k as DynamoTablesKeyNames ],
-      });
-    }
-  } */
 }

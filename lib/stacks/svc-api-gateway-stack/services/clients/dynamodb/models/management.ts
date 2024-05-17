@@ -1,6 +1,7 @@
-export interface UsersModel{
+export interface UsersModel {
+  userId: string;
   name: string;
-  email:string;
+  email: string;
   lastName: string;
   status: boolean;
   online: boolean;
