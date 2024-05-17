@@ -7,6 +7,10 @@ import {
   getEnvironmentNameResource,
   overrideLogicalResourceName,
 } from "../helpers/override-logical-resource-name";
+import * as dotenv from "dotenv";
+
+let envPath = path.resolve(__dirname, "../.env");
+dotenv.config({ path: envPath });
 
 export class ManagementLambdas {
   private scope: Construct;
@@ -27,14 +31,18 @@ export class ManagementLambdas {
       this.createNodeFunctionLambda({
         fileNameImlCode: "get-users.ts",
         lambdaName: ManagementLambdaKeyNames.GetUsers,
-        environment: {},
+        environment: {
+          DEPLOY_ENVIRONMENT: process.env.DEPLOY_ENVIRONMENT ?? "",
+        },
       });
 
     this.getLambdaHandlers[ManagementLambdaKeyNames.GetDependencies] =
       this.createNodeFunctionLambda({
         fileNameImlCode: "get-dependencies.ts",
         lambdaName: ManagementLambdaKeyNames.GetDependencies,
-        environment: {},
+        environment: {
+          DEPLOY_ENVIRONMENT: process.env.DEPLOY_ENVIRONMENT ?? "",
+        },
       });
   }
 
