@@ -1,4 +1,5 @@
 import { APIGatewayProxyResult } from "aws-lambda";
+import { Logger } from "../../../../libs/logger";
 
 export interface HttpResponse {
   statusCode: HttpStatus;
@@ -82,7 +83,7 @@ export const ProxyErrorObject = (error: any): HttpResponse => {
 
 const isDev = () => {
   const isDev = process.env.NODE_ENV !== "prod";
-  console.debug(`isDev: ${isDev}`);
+  Logger.debug(`isDev: ${isDev}`);
   return isDev;
 };
 

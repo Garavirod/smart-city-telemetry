@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
+import { Logger } from "../../../../libs/logger";
 
 export const extractDataFromEvent = <T>(props: {
   event: APIGatewayProxyEvent;
@@ -13,13 +14,13 @@ export const extractDataFromEvent = <T>(props: {
   const { event, propertyToExtract } = props;
 
   if (propertyToExtract === "body") {
-    console.debug(`${propertyToExtract} content >: ${JSON.stringify(event.body)}`)
+    Logger.debug(`${propertyToExtract} content >: ${JSON.stringify(event.body)}`)
     const data = event.body ? (JSON.parse(event.body) as T) : void 0;
     return data;
   }
 
   if (propertyToExtract === "queryStringParameters") {
-    console.debug(`${propertyToExtract} content >: ${JSON.stringify(event.queryStringParameters)}`)
+    Logger.debug(`${propertyToExtract} content >: ${JSON.stringify(event.queryStringParameters)}`)
     const data = event.queryStringParameters
       ? (event.queryStringParameters as T)
       : void 0;
