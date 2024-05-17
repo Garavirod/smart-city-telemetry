@@ -10,13 +10,12 @@ export class ManagementDynamoDB {
   private lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>;
   private dynamoTables: Record<DynamoTablesKeyNames, dynamodb.Table>;
   private scope: Construct;
-  private readonly stackName:string;
 
-  constructor(scope: Construct, id:string) {
+
+  constructor(scope: Construct) {
     this.scope = scope;
     this.lambdaFunctions = { ...this.lambdaFunctions };
     this.dynamoTables = { ...this.dynamoTables };
-    this.stackName = id;
     this.createDynamoTables();
     this.overrideLogicalNameResources();
   }
@@ -67,7 +66,6 @@ export class ManagementDynamoDB {
     for (const k in this.dynamoTables) {
       overrideLogicalResourceName({
         resource: this.dynamoTables[k as DynamoTablesKeyNames ],
-        appName: this.stackName,
       });
     }
   }

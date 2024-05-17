@@ -20,11 +20,10 @@ export class GeneralApiGateway {
   private apiGateway: apigateway.RestApi;
   private apiResourcesMap: Record<string, apigateway.Resource>;
   private lambdaFunctions: Record<LambdasKeyNames, NodejsFunction>;
-  private readonly stackName: string;
 
-  constructor(scope: Construct, id: string) {
+
+  constructor(scope: Construct) {
     this.scope = scope;
-    this.stackName = id;
     this.apiName = "TelemetryApi";
     this.apiDescription = "General API gateway for the dependencies services";
     this.stage = "dev";
@@ -51,7 +50,6 @@ export class GeneralApiGateway {
     // Override logical resource name
     overrideLogicalResourceName({
       resource: this.apiGateway,
-      appName: this.stackName,
     });
   }
 

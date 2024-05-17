@@ -8,11 +8,10 @@ import { overrideLogicalResourceName } from "../helpers/override-logical-resourc
 export class ManagementLambdas {
   private scope: Construct;
   private lambdaHandlers: Record<LambdasKeyNames, NodejsFunction>;
-  private readonly stackName: string;
-  constructor(scope: Construct, stackName: string) {
+
+  constructor(scope: Construct) {
     this.lambdaHandlers = { ...this.lambdaHandlers };
     this.scope = scope;
-    this.stackName = stackName;
     this.createLambdas();
     this.overrideLogicalNameResources();
   }
@@ -40,7 +39,6 @@ export class ManagementLambdas {
     for (const k in this.lambdaHandlers) {
       overrideLogicalResourceName({
         resource: this.getLambdaHandlers[k as LambdasKeyNames],
-        appName: this.stackName,
       });
     }
   }

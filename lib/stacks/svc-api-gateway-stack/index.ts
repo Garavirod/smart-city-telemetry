@@ -13,12 +13,17 @@ export class SvcApiGatewayStack extends cdk.Stack {
   public readonly env: DeployEnvironment;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+    const stackName= "SvcApiGateway"
+    const name = 'svc-test'
+    super(scope, `Dev-${stackName}-stack`, props);
+    this.appName = 'Dev-' + name;
+    this.node.setContext("appName", this.appName);
+    this.node.setContext("env", "Dev");
 
     // constructs
-    const managementLambdas = new ManagementLambdas(this, id);
-    const apiGateway = new GeneralApiGateway(this, id);
-    const managementDynamoDB = new ManagementDynamoDB(this, id);
+    const managementLambdas = new ManagementLambdas(this);
+    const apiGateway = new GeneralApiGateway(this);
+    const managementDynamoDB = new ManagementDynamoDB(this);
 
     // Api gateway settings
     apiGateway.setLambdaHandlers(managementLambdas.getLambdaHandlers);

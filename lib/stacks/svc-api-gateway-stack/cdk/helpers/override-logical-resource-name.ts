@@ -8,14 +8,13 @@ dotenv.config({ path: path });
 
 export const overrideLogicalResourceName = (props: {
   resource: Resource;
-  appName: string;
 }) => {
   const { DEPLOY_ENVIRONMENT } = process.env;
   if (!DEPLOY_ENVIRONMENT) {
     throw Error("No DEPLOY_ENVIRONMENT variable");
   }
   const envName = DEPLOY_ENVIRONMENT as DeployEnvironment;
-  const newName = `${envName}${props.resource.node.id}`;
+  const newName = `${envName}SvcApiGateway${props.resource.node.id}`;
   const sanitizedNewName = newName.replace(/[^a-zA-Z0-9]/g, "");
   (props.resource.node.defaultChild as CfnResource).overrideLogicalId(sanitizedNewName);
 };
