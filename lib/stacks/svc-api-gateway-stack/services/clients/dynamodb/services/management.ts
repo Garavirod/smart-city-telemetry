@@ -6,12 +6,13 @@ import {
 import { ManagementTables } from "../tables/tables";
 import { ManagementTablesIndex } from "../tables/tables-index";
 import { type PaginationServiceResponse } from "./types";
-import { getEnvironmentNameResource } from "../../../../cdk/helpers";
+import { createResourceNameId } from "../../../../cdk/helpers";
 import { Logger } from "../../../../../../libs/logger";
+import { DynamoEnvTables } from "../../environment";
 
 export const getUsers = async (props: { page?: any; pageSize: number }) => {
   try {
-    const table = getEnvironmentNameResource(ManagementTables.Users);
+    const table = DynamoEnvTables.USERS_TABLE;
     const searchResult = await QueryPaginationCommandOperation<UsersModel>({
       TableName: table,
       ScanIndexForward: false,
@@ -56,7 +57,7 @@ export const deleteUserById = async () => {
 
 export const addNewUser = async (item: UsersModel) => {
   try {
-    const table = getEnvironmentNameResource(ManagementTables.Users);
+    const table = createResourceNameId(ManagementTables.Users);
     await PutCommandOperation({
       TableName: table,
       Item: item,

@@ -10,7 +10,7 @@ export type ResourcesAPI = {
 };
 export type APiResourceMethods = {
   httpMethod: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
-  lambdaKeyName: LambdasKeyNames;
+  lambdaFunction: NodejsFunction;
   isproxy: boolean;
   requestParams: RequestParameters[];
 };

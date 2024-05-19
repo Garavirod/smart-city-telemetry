@@ -1,4 +1,4 @@
-import { Construct } from "constructs";
+/* import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import { GeneralApiGateway } from "./cdk/api/general-api-gateway";
 import { ManagementLambdas } from "./cdk/lambda/management-lambdas";
@@ -28,3 +28,47 @@ export class SvcApiGatewayStack extends cdk.Stack {
     });
   }
 }
+ */
+
+import { App } from "aws-cdk-lib";
+import { GenericStack } from "./cdk/GenericStack";
+import { ApiRestBuilder } from "./cdk/api/ApiRestBuilder";
+import { buildApiRestConstructs } from "./cdk/api/management";
+import { createManagementApiResources } from "./cdk/api/resources/management/resources";
+import { DynamoBuilder } from "./cdk/dynamo/DynamoBuilder";
+import { buildDynamoConstructs } from "./cdk/dynamo/management";
+import { LambdaBuilder } from "./cdk/lambda/LambdaBuilder";
+import { buildLambdaConstructs } from "./cdk/lambda/management";
+
+export const buildSvcApiGatewayStack = (app: App) => {
+  const stackName = "SvcApiGateway";
+  const stack = new GenericStack(app, stackName);
+
+  const dynamoBuilder = new DynamoBuilder(stack);
+  const lambdaBuilder = new LambdaBuilder(stack);
+  const apiRestBuilder = new ApiRestBuilder(stack);
+
+  // Dynamo settings
+  buildDynamoConstructs(dynamoBuilder);
+
+  //Lambda settings
+  buildLambdaConstructs({
+    builder: lambdaBuilder,
+    dynamoTables: dynamoBuilder.getDynamoTables,
+  });
+
+  // Dynamo permissions settings
+  dynamoBuilder.grantWritePermissionsToLambdas({
+    dynamoTable: "Users",
+    lambdas: [
+      lambdaBuilder.getLambdaFunctions["getUsers"],
+      lambdaBuilder.getLambdaFunctions["getDependencies"],
+    ],
+  });
+
+  // ApiRest settings
+  const resources = createManagementApiResources({
+    lambdaFunctions: lambdaBuilder.getLambdaFunctions,
+  });
+  buildApiRestConstructs({ builder: apiRestBuilder, resources });
+};
