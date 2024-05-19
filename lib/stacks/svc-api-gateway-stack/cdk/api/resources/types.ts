@@ -1,7 +1,4 @@
-import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { LambdasKeyNames } from "../../lambda/types";
-
 
 export type ResourcesAPI = {
   pathPart: string;
@@ -10,7 +7,7 @@ export type ResourcesAPI = {
 };
 export type APiResourceMethods = {
   httpMethod: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
-  lambdaKeyName: LambdasKeyNames;
+  lambdaFunction: NodejsFunction;
   isproxy: boolean;
   requestParams: RequestParameters[];
 };

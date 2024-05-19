@@ -1,3 +1,4 @@
 export enum DynamoTableNames {
-    'Users'='Users'
+  Users = "Users",
+  Trains = "Trains",
 }

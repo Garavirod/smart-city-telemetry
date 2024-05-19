@@ -13,19 +13,24 @@ on:
         description: Stack service
         options:
           # Add more services as needed.
-          - svc-api-gw
-          - svc-api-ws
+          - SvcApiGateway
+          - SvcApiWebSocket
       selected_env:
         type: choice
         required: true
         description: Deployment Environment
         options:
           #- sbx
-          - dev
-          - prod
-          #- qa
+          - Dev
+          - Prod
+          - Qa
 
 run-name: Deploy ${{ github.event.inputs.stack }} to ${{ github.event.inputs.selected_env }} by ${{ github.triggering_actor }}
+
+env:
+  DEPLOY_ENVIRONMENT: ${{ github.event.inputs.selected_env }}
+  LOGGER_LEVEL: debug
+
 jobs:
   cdk_deployment:
     runs-on: ubuntu-latest

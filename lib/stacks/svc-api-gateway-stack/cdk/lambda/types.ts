@@ -1,12 +1,5 @@
-export enum ManagementLambdaKeyNames {
-  GetUsers = "get-users",
-  GetDependencies = "get-dependencies",
+export enum LambdasFunctionNames {
+  GetUsers = "GetUsers",
+  GetDependencies = "GetDependencies",
+  GetTrains = "GetTrains",
 }
-
-export enum TrenLigeroLambdaKeyNames {
-  GetTrenes = "get-trenes",
-}
-
-export type LambdasKeyNames =
-  | ManagementLambdaKeyNames
-  | TrenLigeroLambdaKeyNames;

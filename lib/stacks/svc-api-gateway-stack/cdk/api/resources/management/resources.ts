@@ -1,47 +1,55 @@
-import { ManagementLambdaKeyNames } from "../../../lambda/types";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RequestParamType, ResourcesAPI } from "../types";
+import { LambdasFunctionNames } from "../../../lambda/types";
 
-export const manageMentResources: ResourcesAPI = {
-  pathPart: "management",
-  methods: [
-    {
-      httpMethod: "GET",
-      lambdaKeyName: ManagementLambdaKeyNames.GetUsers,
-      isproxy: true,
-      requestParams: [
-        {
-          isRequired: true,
-          sourceParamName: "pageSize",
-          paramName: "pageSize",
-          type: RequestParamType.QueryString,
-        },
-      ],
-    },
-    /* {
+type createResourcesOptions = {
+  lambdaFunctions: Record<string, NodejsFunction>;
+};
+
+export const createManagementApiResources = (
+  options: createResourcesOptions
+) => {
+  const resources: ResourcesAPI = {
+    pathPart: "management",
+    methods: [
+      {
+        httpMethod: "GET",
+        lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetUsers],
+        isproxy: true,
+        requestParams: [
+          {
+            isRequired: true,
+            sourceParamName: "pageSize",
+            paramName: "pageSize",
+            type: RequestParamType.QueryString,
+          },
+        ],
+      },
+      /* {
       httpMethod: "POST",
       lambdaIntegration:
         LambdasManagementIntegrations.Instance.getUsersLambdaIntegration,
     }, */
-  ],
-  resources: [
-    {
-      pathPart: "dependencies",
-      methods: [
-        {
-          httpMethod: "GET",
-          lambdaKeyName: ManagementLambdaKeyNames.GetDependencies,
-          isproxy: true,
-          requestParams: [
-            {
-              isRequired: true,
-              sourceParamName: "pageSize",
-              paramName: "pageSize",
-              type: RequestParamType.QueryString,
-            },
-          ],
-        },
-      ],
-      /* resources: [
+    ],
+    resources: [
+      {
+        pathPart: "dependencies",
+        methods: [
+          {
+            httpMethod: "GET",
+            lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
+            isproxy: true,
+            requestParams: [
+              {
+                isRequired: true,
+                sourceParamName: "pageSize",
+                paramName: "pageSize",
+                type: RequestParamType.QueryString,
+              },
+            ],
+          },
+        ],
+        /* resources: [
         {
           pathPart: "{dependency_id}",
           methods: [
@@ -100,8 +108,8 @@ export const manageMentResources: ResourcesAPI = {
           ],
         },
       ], */
-    }, // end map-api-keys
-    /* {
+      }, // end map-api-keys
+      /* {
       pathPart: "users",
       methods: [
         {
@@ -112,5 +120,7 @@ export const manageMentResources: ResourcesAPI = {
         },
       ],
     }, // end users */
-  ],
+    ],
+  };
+  return resources;
 };
