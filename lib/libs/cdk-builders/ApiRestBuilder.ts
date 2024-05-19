@@ -1,5 +1,5 @@
 import { Construct } from "constructs";
-import { createResourceNameId } from "../helpers";
+import { createResourceNameId } from "../../stacks/svc-api-gateway-stack/cdk/helpers";
 import { RestApi } from "aws-cdk-lib/aws-apigateway";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { CfnOutput } from "aws-cdk-lib";
@@ -7,7 +7,7 @@ import {
   APiResourceMethods,
   RequestParameters,
   ResourcesAPI,
-} from "./resources/types";
+} from "../../stacks/svc-api-gateway-stack/cdk/api/resources/types";
 import { randomUUID } from "crypto";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 

@@ -4,7 +4,8 @@ import {
   marshallOptions,
   unmarshallOptions,
 } from "@aws-sdk/lib-dynamodb";
-import { Logger } from "../../../../../../libs/logger";
+import { Logger } from "../../../logger";
+
 
 export class DynamoClientInstance {
   private client: DynamoDBClient;

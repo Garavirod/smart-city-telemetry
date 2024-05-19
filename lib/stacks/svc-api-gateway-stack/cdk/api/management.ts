@@ -1,4 +1,4 @@
-import { ApiRestBuilder } from "./ApiRestBuilder";
+import { ApiRestBuilder } from "../../../../libs/cdk-builders/ApiRestBuilder";
 import { buildCorsConfigurations } from "./cors";
 import { ResourcesAPI } from "./resources/types";
 

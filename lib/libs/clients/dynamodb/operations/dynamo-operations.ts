@@ -21,7 +21,8 @@ import {
   toKeyConditionExpressions,
   toKeyConditionExpressionsBeginWith,
 } from "./helpers";
-import { Logger } from "../../../../../../libs/logger";
+import { Logger } from "../../../logger";
+
 
 export const PutCommandOperation = async (options: PutOptions) => {
   Logger.debug(`PutCommand options >: ${options}`);

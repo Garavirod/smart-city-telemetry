@@ -5,9 +5,9 @@ import {
   SuccessResponse200,
 } from "../../utils/api-response";
 import { QueryParamsPagination } from "../types";
-import { ManagementService } from "../../clients/dynamodb/services";
-import { UserRole, UsersModel } from "../../clients/dynamodb/models/management";
 import { Logger } from "../../../../../libs/logger";
+import { UserRole, UsersModel } from "../../../../../libs/clients/dynamodb/models/management";
+import { ManagementService } from "../../../../../libs/clients/dynamodb/services";
 
 interface QueryParamsExpected extends QueryParamsPagination {}
 

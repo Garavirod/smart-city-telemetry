@@ -3,12 +3,10 @@ import {
   PutCommandOperation,
   QueryPaginationCommandOperation,
 } from "../operations/dynamo-operations";
-import { ManagementTables } from "../tables/tables";
 import { ManagementTablesIndex } from "../tables/tables-index";
 import { type PaginationServiceResponse } from "./types";
-import { createResourceNameId } from "../../../../cdk/helpers";
-import { Logger } from "../../../../../../libs/logger";
 import { DynamoEnvTables } from "../../environment";
+import { Logger } from "../../../logger";
 
 export const getUsers = async (props: { page?: any; pageSize: number }) => {
   try {
@@ -57,7 +55,7 @@ export const deleteUserById = async () => {
 
 export const addNewUser = async (item: UsersModel) => {
   try {
-    const table = createResourceNameId(ManagementTables.Users);
+    const table = DynamoEnvTables.USERS_TABLE;
     await PutCommandOperation({
       TableName: table,
       Item: item,

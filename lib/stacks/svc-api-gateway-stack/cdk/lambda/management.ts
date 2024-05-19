@@ -1,5 +1,5 @@
 import { Table } from "aws-cdk-lib/aws-dynamodb";
-import { LambdaBuilder } from "./LambdaBuilder";
+import { LambdaBuilder } from "../../../../libs/cdk-builders/LambdaBuilder";
 import { DynamoTableNames } from "../dynamo/types";
 import { LambdasFunctionNames } from "./types";
 
@@ -9,9 +9,12 @@ type lambdaConstructOptions = {
 };
 
 export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
+
+  const codeFilepathBase = "/svc-api-gateway-stack/services/handlers/management";
+
   options.builder.createNodeFunctionLambda({
     lambdaName: LambdasFunctionNames.GetUsers,
-    fileNameImlCode: "get-users.ts",
+    pathStackHandlerCode: `${codeFilepathBase}/get-users.ts`,
     environment: {
       USERS_TABLE: `${options.dynamoTables[DynamoTableNames.Users].tableName}`,
     },
@@ -19,7 +22,7 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
 
   options.builder.createNodeFunctionLambda({
     lambdaName: LambdasFunctionNames.GetDependencies,
-    fileNameImlCode: "get-dependencies.ts",
+    pathStackHandlerCode: `${codeFilepathBase}/get-dependencies.ts`,
     environment: {},
   });
 };
