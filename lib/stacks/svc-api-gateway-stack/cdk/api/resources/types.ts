@@ -1,7 +1,4 @@
-import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { LambdasKeyNames } from "../../lambda/types";
-
 
 export type ResourcesAPI = {
   pathPart: string;

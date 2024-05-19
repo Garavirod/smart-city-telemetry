@@ -3,9 +3,10 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { createResourceNameId } from "../helpers";
 import { RemovalPolicy } from "aws-cdk-lib";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { DynamoTableNames } from "./types";
 
 export type createDynamoOptions = {
-  tableName: string;
+  tableName: DynamoTableNames;
   partitionKey: {
     name: string;
     type: dynamodb.AttributeType;
@@ -13,13 +14,13 @@ export type createDynamoOptions = {
 };
 
 export type lambdaPermissionsOption = {
-  dynamoTable: string;
+  dynamoTable: DynamoTableNames;
   lambdas: NodejsFunction[];
 };
 
 export class DynamoBuilder {
   private scope: Construct;
-  private dynamoTables: Record<string, dynamodb.Table>;
+  private dynamoTables: Record<DynamoTableNames, dynamodb.Table>;
   constructor(scope: Construct) {
     this.scope = scope;
     this.dynamoTables = { ...this.dynamoTables };

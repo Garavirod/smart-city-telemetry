@@ -4,10 +4,17 @@ import { createResourceNameId } from "../helpers";
 import { GlobalEnvironmentVars } from "../../../../libs/environment";
 import path = require("path");
 import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { LambdasFunctionNames } from "./types";
+
+type createLambdaFunctionOptions = {
+  lambdaName: LambdasFunctionNames;
+  fileNameImlCode: string;
+  environment: Record<string, string>;
+};
 
 export class LambdaBuilder {
   private scope: Construct;
-  private lambdaFunctions: Record<string, NodejsFunction>;
+  private lambdaFunctions: Record<LambdasFunctionNames, NodejsFunction>;
   constructor(scope: Construct) {
     this.scope = scope;
     this.lambdaFunctions = { ...this.lambdaFunctions };
@@ -19,12 +26,8 @@ export class LambdaBuilder {
    * @param props
    * @returns {NodejsFunction}
    */
-  public createNodeFunctionLambda(props: {
-    lambdaName: string;
-    fileNameImlCode: string;
-    environment: Record<string, string>;
-  }) {
-    const { lambdaName, fileNameImlCode, environment } = props;
+  public createNodeFunctionLambda(options: createLambdaFunctionOptions) {
+    const { lambdaName, fileNameImlCode, environment } = options;
     this.lambdaFunctions[lambdaName] = new NodejsFunction(
       this.scope,
       createResourceNameId(lambdaName),

@@ -1,6 +1,6 @@
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { ManagementLambdaKeyNames } from "../../../lambda/types";
 import { RequestParamType, ResourcesAPI } from "../types";
+import { LambdasFunctionNames } from "../../../lambda/types";
 
 type createResourcesOptions = {
   lambdaFunctions: Record<string, NodejsFunction>;
@@ -14,7 +14,7 @@ export const createManagementApiResources = (
     methods: [
       {
         httpMethod: "GET",
-        lambdaFunction: options.lambdaFunctions["getUsers"],
+        lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetUsers],
         isproxy: true,
         requestParams: [
           {
@@ -37,7 +37,7 @@ export const createManagementApiResources = (
         methods: [
           {
             httpMethod: "GET",
-            lambdaFunction: options.lambdaFunctions["getDependencies"],
+            lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
             isproxy: true,
             requestParams: [
               {

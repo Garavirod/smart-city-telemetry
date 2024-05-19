@@ -39,6 +39,8 @@ import { DynamoBuilder } from "./cdk/dynamo/DynamoBuilder";
 import { buildDynamoConstructs } from "./cdk/dynamo/management";
 import { LambdaBuilder } from "./cdk/lambda/LambdaBuilder";
 import { buildLambdaConstructs } from "./cdk/lambda/management";
+import { LambdasFunctionNames } from "./cdk/lambda/types";
+import { DynamoTableNames } from "./cdk/dynamo/types";
 
 export const buildSvcApiGatewayStack = (app: App) => {
   const stackName = "SvcApiGateway";
@@ -59,10 +61,9 @@ export const buildSvcApiGatewayStack = (app: App) => {
 
   // Dynamo permissions settings
   dynamoBuilder.grantWritePermissionsToLambdas({
-    dynamoTable: "Users",
+    dynamoTable: DynamoTableNames.Users,
     lambdas: [
-      lambdaBuilder.getLambdaFunctions["getUsers"],
-      lambdaBuilder.getLambdaFunctions["getDependencies"],
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.GetUsers],
     ],
   });
 

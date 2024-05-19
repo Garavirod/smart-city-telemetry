@@ -1,4 +1,3 @@
-import { appStackScopes } from "../stacks";
 import { ApiRestBuilder } from "./ApiRestBuilder";
 import { buildCorsConfigurations } from "./cors";
 import { ResourcesAPI } from "./resources/types";
