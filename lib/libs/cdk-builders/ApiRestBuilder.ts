@@ -10,6 +10,7 @@ import {
 } from "../../stacks/svc-api-gateway-stack/cdk/api/resources/types";
 import { randomUUID } from "crypto";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Logger } from "../logger";
 
 type corsOptionsConfig = {
   allowHeaders: string[];
@@ -124,6 +125,7 @@ export class ApiRestBuilder {
             schema: method.model.schema,
           }
         );
+        Logger.debug(`Model schema result >: ${JSON.stringify(method.model.schema)}`)
         requestModels = {
           "application/json": model,
         };

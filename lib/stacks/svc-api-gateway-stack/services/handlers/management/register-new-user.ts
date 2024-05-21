@@ -12,14 +12,10 @@ import { UsersModel } from "../../../../../libs/clients/dynamodb/models/manageme
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
 import { v4 as uuidv4 } from "uuid";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
+import { SignupUsersModel } from "../../../cdk/api/models/management";
 
 interface BodyParamsExpected
-  extends Omit<
-    UsersModel,
-    "userId" | "status" | "createdAt" | "online" | "updatedAt"
-  > {
-  password: string;
-}
+  extends SignupUsersModel {}
 
 export const handler = async (
   event: APIGatewayProxyEvent
