@@ -34,7 +34,7 @@ export class DynamoBuilder {
           name: options.partitionKey.name,
           type: options.partitionKey.type,
         },
-        removalPolicy: RemovalPolicy.DESTROY,
+        removalPolicy: RemovalPolicy.RETAIN,
       }
     );
   }

@@ -25,11 +25,12 @@ export const createManagementApiResources = (
           },
         ],
       },
-      /* {
+      {
       httpMethod: "POST",
-      lambdaIntegration:
-        LambdasManagementIntegrations.Instance.getUsersLambdaIntegration,
-    }, */
+      lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+      isproxy:true,
+      requestParams:[]
+    },
     ],
     resources: [
       {

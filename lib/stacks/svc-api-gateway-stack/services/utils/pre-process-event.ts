@@ -1,13 +1,16 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { Logger } from "../../../../libs/logger";
 
+export enum ParamPropertyType {
+  Body="body",
+  PathParameters="pathParameters",
+  Headers="headers",
+  QueryStringParameters = "queryStringParameters"
+}
+
 export const extractDataFromEvent = <T>(props: {
   event: APIGatewayProxyEvent;
-  propertyToExtract:
-    | "body"
-    | "pathParameters"
-    | "headers"
-    | "queryStringParameters";
+  propertyToExtract:ParamPropertyType;
 }) => {
 
 
