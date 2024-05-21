@@ -1,5 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { ParamPropertyType, extractDataFromEvent } from "../../utils/pre-process-event";
+import {
+  ParamPropertyType,
+  extractDataFromEvent,
+} from "../../utils/pre-process-event";
 import {
   InternalErrorResponse500,
   SuccessResponse200,
@@ -46,7 +49,7 @@ export const handler = async (
     };
 
     // Add user to cognito
-    await ManagementCognitoService.createNewUser({
+    await ManagementCognitoService.signUp({
       userRole: user.role,
       email: user.email,
       password: params.password,
@@ -58,7 +61,6 @@ export const handler = async (
     return SuccessResponse200({
       data: user,
     });
-
   } catch (error) {
     Logger.error(`Handler error ${JSON.stringify(error)}`);
     return InternalErrorResponse500({});

@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { QueryStringParametersPagination } from "../../../cdk/api/interfaces/shared";
-import { extractDataFromEvent } from "../../utils/pre-process-event";
+import { ParamPropertyType, extractDataFromEvent } from "../../utils/pre-process-event";
 import { InternalErrorResponse500, SuccessResponse200 } from "../../utils/api-response";
 
 
@@ -15,7 +15,7 @@ export const handler = async (
   try {
     const params = <QueryParamsExpected>extractDataFromEvent({
       event: event,
-      propertyToExtract: "queryStringParameters",
+      propertyToExtract: ParamPropertyType.QueryStringParameters,
     });
     if (!params) {
       throw new Error("No query string parameters into request");

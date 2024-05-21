@@ -1,7 +1,7 @@
 import { UserRole } from "../../dynamodb/models/management";
 
 export type createAdminUserCognitoOptions = {
-  userPoolId: string;
+  userPoolClientId: string;
   userRole: UserRole;
   userName: string;
   password: string;

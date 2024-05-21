@@ -2,6 +2,7 @@ import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
 import { createResourceNameId } from "../../stacks/svc-api-gateway-stack/cdk/helpers";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 type createUserPoolOptions = {
   userPoolNameId: string;
@@ -57,13 +58,19 @@ export class CognitoBuilder {
     );
   }
 
-  public grantLambdaCreateCognitoUsersPermission(
+  /**
+   * Grant the Lambda function permissions to sign up users in Cognito
+   * @param options {lambdaPermissionCognitoUsersOptions}
+   */
+  public grantLambdaCreateUsersPermission(
     options: lambdaPermissionCognitoUsersOptions
   ) {
     for (let i = 0; i < options.lambdaFunctions.length; i++) {
-      this.userPools[options.userPoolNameId].grant(
-        options.lambdaFunctions[i],
-        "cognito-idp:AdminCreateUser"
+      options.lambdaFunctions[i].addToRolePolicy(
+        new PolicyStatement({
+          actions: ["cognito-idp:SignUp"],
+          resources: [this.userPools[options.userPoolNameId].userPoolArn],
+        })
       );
     }
   }

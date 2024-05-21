@@ -1,20 +1,20 @@
 import { Logger } from "../../../logger";
 import { UserRole } from "../../dynamodb/models/management";
 import { CognitoEnvValues } from "../../environment";
-import { AdminCreateUserCommandOperation } from "../operations/cognito-operations";
+import { SignupUserCommandOperation } from "../operations/cognito-operations";
 
 type newUserCognitoServiceOptions = {
   password: string;
   userRole: UserRole;
   email: string;
 };
-export const createNewUser = async (options: newUserCognitoServiceOptions) => {
+export const signUp = async (options: newUserCognitoServiceOptions) => {
   try {
-    await AdminCreateUserCommandOperation({
+    await SignupUserCommandOperation({
       userName: options.email,
       password: options.password,
       userRole: options.userRole,
-      userPoolId: CognitoEnvValues.USER_POOL_ID,
+      userPoolClientId: CognitoEnvValues.USER_POOL_CLIENT_ID,
     });
   } catch (error) {
     Logger.error(`Error on creating new user via service ${error}`);
