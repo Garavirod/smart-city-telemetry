@@ -34,7 +34,7 @@ export const handler = async (
     const user: UsersModel = {
       userId: uuidv4(),
       name: params.name,
-      email: params.lastName,
+      email: params.email,
       lastName: params.lastName,
       status: true,
       online: false,
