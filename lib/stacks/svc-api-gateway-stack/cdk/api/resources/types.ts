@@ -10,6 +10,10 @@ export type APiResourceMethods = {
   lambdaFunction: NodejsFunction;
   isproxy: boolean;
   requestParams: RequestParameters[];
+  model?:{
+    interfaceModelName:string;
+    schema:any
+  }
 };
 
 export enum RequestParamType {

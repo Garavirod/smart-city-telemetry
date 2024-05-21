@@ -47,6 +47,16 @@ export class DynamoBuilder {
     }
   }
 
+  /**
+   * Give Dynamo read permission to lambda resource
+   * @param options 
+   */
+  public grantReadPermissionsToLambdas(options: lambdaPermissionsOption) {
+    for (let i = 0; i < options.lambdas.length; i++) {
+      this.dynamoTables[options.dynamoTable].grantReadData(options.lambdas[i]);
+    }
+  }
+
   public get getDynamoTables() {
     return this.dynamoTables;
   }

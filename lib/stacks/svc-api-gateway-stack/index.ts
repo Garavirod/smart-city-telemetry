@@ -43,7 +43,7 @@ export const buildSvcApiGatewayStack = (app: App) => {
   });
 
   // Cognito permissions settings
-  cognitoBuilder.grantLambdaCreateCognitoUsersPermission({
+  cognitoBuilder.grantLambdasCreateUsersPermission({
     userPoolNameId: CognitoUsersPoolNames.ManagementUsersPool,
     lambdaFunctions: [
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.RegisterNewUser],

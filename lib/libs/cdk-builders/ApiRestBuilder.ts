@@ -113,6 +113,22 @@ export class ApiRestBuilder {
         lambdaFunction: method.lambdaFunction,
         requestTemplates: params.requestTemplates,
       });
+      let requestModels;
+      if (method.model) {
+        const model = new apigateway.Model(
+          this.scope,
+          createResourceNameId(method.model.interfaceModelName),
+          {
+            restApi: this.apiRest,
+            contentType: "application/json",
+            schema: method.model.schema,
+          }
+        );
+        requestModels = {
+          "application/json": model,
+        };
+      }
+
       // Create methods with integration
       this.apiResourcesMap[props.resourceId].addMethod(
         method.httpMethod,
@@ -121,6 +137,7 @@ export class ApiRestBuilder {
           apiKeyRequired: true,
           // Marked request parameters as required
           requestParameters: params.requiredRequestTemplates,
+          requestModels,
         }
       );
     }

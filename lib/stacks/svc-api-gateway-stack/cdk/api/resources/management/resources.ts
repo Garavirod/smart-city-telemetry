@@ -1,6 +1,7 @@
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RequestParamType, ResourcesAPI } from "../types";
 import { LambdasFunctionNames } from "../../../lambda/types";
+import { SchemaModelBuilder } from "../../models/helpers/generate-schemas-model";
 
 type createResourcesOptions = {
   lambdaFunctions: Record<string, NodejsFunction>;
@@ -26,11 +27,18 @@ export const createManagementApiResources = (
         ],
       },
       {
-      httpMethod: "POST",
-      lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.RegisterNewUser],
-      isproxy:true,
-      requestParams:[]
-    },
+        httpMethod: "POST",
+        model: {
+          interfaceModelName:'SignupUsersModel',
+          schema:SchemaModelBuilder.management({
+            interfaceName: "SignupUsersModel"
+          })
+        },
+        lambdaFunction:
+          options.lambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+        isproxy: true,
+        requestParams: [],
+      },
     ],
     resources: [
       {
@@ -38,7 +46,8 @@ export const createManagementApiResources = (
         methods: [
           {
             httpMethod: "GET",
-            lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
+            lambdaFunction:
+              options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
             isproxy: true,
             requestParams: [
               {

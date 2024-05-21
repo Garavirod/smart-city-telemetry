@@ -62,7 +62,7 @@ export class CognitoBuilder {
    * Grant the Lambda function permissions to sign up users in Cognito
    * @param options {lambdaPermissionCognitoUsersOptions}
    */
-  public grantLambdaCreateUsersPermission(
+  public grantLambdasCreateUsersPermission(
     options: lambdaPermissionCognitoUsersOptions
   ) {
     for (let i = 0; i < options.lambdaFunctions.length; i++) {
