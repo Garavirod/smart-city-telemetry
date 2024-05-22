@@ -39,7 +39,10 @@ export const buildSvcApiGatewayStack = (app: App) => {
   // Dynamo permissions settings
   dynamoBuilder.grantWritePermissionsToLambdas({
     dynamoTable: DynamoTableNames.Users,
-    lambdas: [lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.GetUsers]],
+    lambdas: [
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.GetUsers],
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+    ],
   });
 
   // Cognito permissions settings
