@@ -1,4 +1,8 @@
-import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
+import {
+  StringAttribute,
+  UserPool,
+  UserPoolClient,
+} from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
 import { createResourceNameId } from "../../stacks/svc-api-gateway-stack/cdk/helpers";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -6,6 +10,7 @@ import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 type createUserPoolOptions = {
   userPoolNameId: string;
+  customAttributes?: customAttributeOptions[];
 };
 
 type createUserPoolClientsOptions = {
@@ -16,6 +21,11 @@ type createUserPoolClientsOptions = {
 type lambdaPermissionCognitoUsersOptions = {
   lambdaFunctions: NodejsFunction[];
   userPoolNameId: string;
+};
+
+type customAttributeOptions = {
+  nameAttribute: string;
+  mutable: boolean;
 };
 
 export class CognitoBuilder {
@@ -43,8 +53,23 @@ export class CognitoBuilder {
             mutable: false,
           },
         },
+        customAttributes: this.setCustomAttributesToPoolId(
+          options.customAttributes
+        ),
       }
     );
+  }
+
+  private setCustomAttributesToPoolId(attributes?: customAttributeOptions[]) {
+    if (!attributes) return attributes;
+
+    let attributesResponse: Record<string, StringAttribute> = {};
+    for (const att of attributes) {
+      attributesResponse[att.nameAttribute] = new StringAttribute({
+        mutable: att.mutable,
+      });
+    }
+    return attributesResponse;
   }
 
   public createCognitoUserPoolClient(options: createUserPoolClientsOptions) {

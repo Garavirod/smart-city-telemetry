@@ -4,6 +4,10 @@ import { CognitoUsersPoolClientNames, CognitoUsersPoolNames } from "./types";
 export const buildCognitoConstructs = (builder: CognitoBuilder) => {
   builder.createUserPool({
     userPoolNameId: CognitoUsersPoolNames.ManagementUsersPool,
+    customAttributes:[{
+      nameAttribute: 'role',
+      mutable: true
+    }]
   });
 
   builder.createCognitoUserPoolClient({
