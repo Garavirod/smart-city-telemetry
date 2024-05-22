@@ -17,7 +17,7 @@ export const SignupUserCommandOperation = async (
     Username: options.userName,
     UserAttributes: [
       {
-        Name: "UserRole",
+        Name: "role",
         Value: options.userRole,
       },
       { Name: "email", Value: options.userName },
