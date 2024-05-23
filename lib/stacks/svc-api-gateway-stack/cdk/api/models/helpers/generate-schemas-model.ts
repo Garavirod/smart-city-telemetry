@@ -36,6 +36,7 @@ const generateSchemaModel = (options: generateSchemaModelOptions) => {
 };
 
 export const SchemaModelBuilder = {
+  /** @param interfaceName interface typescript name */
   management: (options: schemaModelGenerationOptions) =>
     generateSchemaModel({
       interfaceName: options.interfaceName,

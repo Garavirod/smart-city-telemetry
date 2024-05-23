@@ -37,9 +37,11 @@ export class ApiRestBuilder {
   private apiRestDescription: string;
   private corsConfig: corsOptionsConfig;
   public apiRest: RestApi;
+  private validators: Record<string, apigateway.RequestValidator>;
 
   constructor(scope: Construct) {
     this.scope = scope;
+    this.validators = {};
   }
 
   public createApiRest(options: createApiRestOptions) {
@@ -106,7 +108,9 @@ export class ApiRestBuilder {
   }) {
     for (const method of props.httpMethods) {
       // Build request parameters
-      const params = this.createRequestAndParamRequests(method.requestParams);
+      const params = this.createRequestAndParamRequests(
+        method.requestParams?.params
+      );
       // Create lambda integration
       const integration = this.createLambdaIntegration({
         isProxy: method.isproxy,
@@ -114,22 +118,7 @@ export class ApiRestBuilder {
         lambdaFunction: method.lambdaFunction,
         requestTemplates: params.requestTemplates,
       });
-      let requestModels;
-      if (method.model) {
-        const model = new apigateway.Model(
-          this.scope,
-          createResourceNameId(method.model.interfaceModelName),
-          {
-            restApi: this.apiRest,
-            contentType: "application/json",
-            schema: method.model.schema,
-          }
-        );
-        Logger.debug(`Model schema result >: ${JSON.stringify(method.model.schema)}`)
-        requestModels = {
-          "application/json": model,
-        };
-      }
+      let requestValidator;
 
       // Create methods with integration
       this.apiResourcesMap[props.resourceId].addMethod(
@@ -139,10 +128,71 @@ export class ApiRestBuilder {
           apiKeyRequired: true,
           // Marked request parameters as required
           requestParameters: params.requiredRequestTemplates,
-          requestModels,
+          requestModels: this.createApiModel(method),
+          requestValidator: this.createValidator(method),
         }
       );
     }
+  }
+
+  private createApiModel(method: APiResourceMethods) {
+    if (!method.model) return method.model;
+
+    const model = new apigateway.Model(
+      this.scope,
+      createResourceNameId(method.model.validatorNameId),
+      {
+        restApi: this.apiRest,
+        contentType: "application/json",
+        schema: method.model.schema,
+      }
+    );
+    Logger.debug(
+      `Model schema result >: ${JSON.stringify(method.model.schema)}`
+    );
+    return {
+      "application/json": model,
+    };
+  }
+
+  private createValidator(method: APiResourceMethods) {
+    let requestValidators = {
+      validateRequestBody: false,
+      validateRequestParameters: false,
+    };
+    let validatorKey = "";
+
+    if (method.model && method.requestParams) {
+      // Validate params and body
+      requestValidators.validateRequestBody = true;
+      requestValidators.validateRequestParameters = true;
+      validatorKey = `${method.model.validatorNameId}-${method.requestParams.validatorNameId}`;
+    } else if (method.model) {
+      // validate body only
+      requestValidators.validateRequestBody = true;
+      validatorKey = method.model.validatorNameId;
+    } else if (method.requestParams) {
+      //validate params only
+      requestValidators.validateRequestParameters = true;
+      validatorKey = method.requestParams.validatorNameId;
+    } else {
+      return undefined;
+    }
+    return this.getValidator(validatorKey, requestValidators);
+  }
+
+  private getValidator(
+    validatorKey: string,
+    requestValidators: Record<string, boolean>
+  ) {
+    if (validatorKey in this.validators) {
+      return this.validators[validatorKey];
+    }
+    this.validators[validatorKey] = this.apiRest.addRequestValidator(
+      createResourceNameId(`${validatorKey}`),
+      requestValidators
+    );
+    return this.validators[validatorKey];
   }
 
   /**

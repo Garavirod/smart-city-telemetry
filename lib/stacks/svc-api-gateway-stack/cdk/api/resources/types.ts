@@ -9,11 +9,14 @@ export type APiResourceMethods = {
   httpMethod: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
   lambdaFunction: NodejsFunction;
   isproxy: boolean;
-  requestParams: RequestParameters[];
-  model?:{
-    interfaceModelName:string;
-    schema:any
-  }
+  requestParams?: {
+    validatorNameId: string;
+    params: RequestParameters[];
+  };
+  model?: {
+    validatorNameId: string;
+    schema: any;
+  };
 };
 
 export enum RequestParamType {
@@ -21,6 +24,7 @@ export enum RequestParamType {
   "QueryString" = "querystring",
   "Path" = "path",
 }
+
 export type RequestParameters = {
   type: RequestParamType;
   paramName: string;

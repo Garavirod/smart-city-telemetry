@@ -2,6 +2,8 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RequestParamType, ResourcesAPI } from "../types";
 import { LambdasFunctionNames } from "../../../lambda/types";
 import { SchemaModelBuilder } from "../../models/helpers/generate-schemas-model";
+import { Validators } from "../../validators";
+import { simplePaginationParams } from "../../../helpers/paginator";
 
 type createResourcesOptions = {
   lambdaFunctions: Record<string, NodejsFunction>;
@@ -17,27 +19,22 @@ export const createManagementApiResources = (
         httpMethod: "GET",
         lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetUsers],
         isproxy: true,
-        requestParams: [
-          {
-            isRequired: true,
-            sourceParamName: "pageSize",
-            paramName: "pageSize",
-            type: RequestParamType.QueryString,
-          },
-        ],
+        requestParams: {
+          validatorNameId: Validators.GenericValidatorNames.SimplePagination,
+          params: simplePaginationParams,
+        },
       },
       {
         httpMethod: "POST",
         model: {
-          interfaceModelName:'SignupUsersModel',
-          schema:SchemaModelBuilder.management({
-            interfaceName: "SignupUsersModel"
-          })
+          validatorNameId: Validators.ManagementValidatorNames.SignupUserValidator,
+          schema: SchemaModelBuilder.management({
+            interfaceName: "SignupUsersModel",
+          }),
         },
         lambdaFunction:
           options.lambdaFunctions[LambdasFunctionNames.RegisterNewUser],
         isproxy: true,
-        requestParams: [],
       },
     ],
     resources: [
@@ -49,14 +46,10 @@ export const createManagementApiResources = (
             lambdaFunction:
               options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
             isproxy: true,
-            requestParams: [
-              {
-                isRequired: true,
-                sourceParamName: "pageSize",
-                paramName: "pageSize",
-                type: RequestParamType.QueryString,
-              },
-            ],
+            requestParams: {
+              validatorNameId: Validators.GenericValidatorNames.SimplePagination,
+              params: simplePaginationParams
+            }
           },
         ],
         /* resources: [
