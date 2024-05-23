@@ -20,7 +20,7 @@ export const createManagementApiResources = (
         lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetUsers],
         isproxy: true,
         requestParams: {
-          validatorNameId: Validators.GenericValidatorNames.SimplePagination,
+          validatorNameId: Validators.GenericValidatorNames.SimplePaginationValidator,
           params: simplePaginationParams,
         },
       },
@@ -47,7 +47,7 @@ export const createManagementApiResources = (
               options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
             isproxy: true,
             requestParams: {
-              validatorNameId: Validators.GenericValidatorNames.SimplePagination,
+              validatorNameId: Validators.GenericValidatorNames.SimplePaginationValidator,
               params: simplePaginationParams
             }
           },

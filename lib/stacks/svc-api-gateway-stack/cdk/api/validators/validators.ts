@@ -1,5 +1,5 @@
 export enum GenericValidatorNames {
-  SimplePagination = "simple-pagination",
+    SimplePaginationValidator = "SimplePaginationValidator",
 }
 
 export enum ManagementValidatorNames {
