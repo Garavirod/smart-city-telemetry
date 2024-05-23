@@ -4,17 +4,16 @@ import { createResourceNameId } from "../../stacks/svc-api-gateway-stack/cdk/hel
 import { GlobalEnvironmentVars } from "../environment";
 import path = require("path");
 import { Runtime } from "aws-cdk-lib/aws-lambda";
-import { LambdasFunctionNames } from "../../stacks/svc-api-gateway-stack/cdk/lambda/types";
 
 type createLambdaFunctionOptions = {
-  lambdaName: LambdasFunctionNames;
+  lambdaName: string;
   pathStackHandlerCode: string;
   environment: Record<string, string>;
 };
 
 export class LambdaBuilder {
   private scope: Construct;
-  private lambdaFunctions: Record<LambdasFunctionNames, NodejsFunction>;
+  private lambdaFunctions: Record<string, NodejsFunction>;
   constructor(scope: Construct) {
     this.scope = scope;
     this.lambdaFunctions = { ...this.lambdaFunctions };

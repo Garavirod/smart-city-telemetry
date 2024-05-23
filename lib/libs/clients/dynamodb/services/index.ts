@@ -1,2 +1,2 @@
-export * as ManagementService from './management'
-export * as TrenLigeroService from './tren-ligero'
+export * as ManagementDynamoService from './management'
+export * as TrenLigeroDynamoService from './tren-ligero'

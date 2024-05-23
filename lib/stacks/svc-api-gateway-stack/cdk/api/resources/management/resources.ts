@@ -1,6 +1,9 @@
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RequestParamType, ResourcesAPI } from "../types";
 import { LambdasFunctionNames } from "../../../lambda/types";
+import { SchemaModelBuilder } from "../../models/helpers/generate-schemas-model";
+import { Validators } from "../../validators";
+import { simplePaginationParams } from "../../../helpers/paginator";
 
 type createResourcesOptions = {
   lambdaFunctions: Record<string, NodejsFunction>;
@@ -16,20 +19,23 @@ export const createManagementApiResources = (
         httpMethod: "GET",
         lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetUsers],
         isproxy: true,
-        requestParams: [
-          {
-            isRequired: true,
-            sourceParamName: "pageSize",
-            paramName: "pageSize",
-            type: RequestParamType.QueryString,
-          },
-        ],
+        requestParams: {
+          validatorNameId: Validators.GenericValidatorNames.SimplePaginationValidator,
+          params: simplePaginationParams,
+        },
       },
-      /* {
-      httpMethod: "POST",
-      lambdaIntegration:
-        LambdasManagementIntegrations.Instance.getUsersLambdaIntegration,
-    }, */
+      {
+        httpMethod: "POST",
+        model: {
+          validatorNameId: Validators.ManagementValidatorNames.SignupUserValidator,
+          schema: SchemaModelBuilder.management({
+            interfaceName: "SignupUsersModel",
+          }),
+        },
+        lambdaFunction:
+          options.lambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+        isproxy: true,
+      },
     ],
     resources: [
       {
@@ -37,16 +43,13 @@ export const createManagementApiResources = (
         methods: [
           {
             httpMethod: "GET",
-            lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
+            lambdaFunction:
+              options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
             isproxy: true,
-            requestParams: [
-              {
-                isRequired: true,
-                sourceParamName: "pageSize",
-                paramName: "pageSize",
-                type: RequestParamType.QueryString,
-              },
-            ],
+            requestParams: {
+              validatorNameId: Validators.GenericValidatorNames.SimplePaginationValidator,
+              params: simplePaginationParams
+            }
           },
         ],
         /* resources: [

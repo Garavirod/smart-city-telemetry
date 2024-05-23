@@ -9,6 +9,9 @@ import { LambdaBuilder } from "../../libs/cdk-builders/LambdaBuilder";
 import { buildLambdaConstructs } from "./cdk/lambda/management";
 import { LambdasFunctionNames } from "./cdk/lambda/types";
 import { DynamoTableNames } from "./cdk/dynamo/types";
+import { CognitoBuilder } from "../../libs/cdk-builders/CognitoBuilder";
+import { CognitoUsersPoolNames } from "./cdk/cognito/types";
+import { buildCognitoConstructs } from "./cdk/cognito/management";
 
 export const buildSvcApiGatewayStack = (app: App) => {
   const stackName = "SvcApiGateway";
@@ -17,20 +20,37 @@ export const buildSvcApiGatewayStack = (app: App) => {
   const dynamoBuilder = new DynamoBuilder(stack);
   const lambdaBuilder = new LambdaBuilder(stack);
   const apiRestBuilder = new ApiRestBuilder(stack);
+  const cognitoBuilder = new CognitoBuilder(stack);
 
   // Dynamo settings
   buildDynamoConstructs(dynamoBuilder);
+
+  // Cognito settings
+  buildCognitoConstructs(cognitoBuilder);
 
   //Lambda settings
   buildLambdaConstructs({
     builder: lambdaBuilder,
     dynamoTables: dynamoBuilder.getDynamoTables,
+    cognitoClients: cognitoBuilder.getCognitoClients,
+    cognitoPools: cognitoBuilder.getCognitoPools,
   });
 
   // Dynamo permissions settings
   dynamoBuilder.grantWritePermissionsToLambdas({
     dynamoTable: DynamoTableNames.Users,
-    lambdas: [lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.GetUsers]],
+    lambdas: [
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.GetUsers],
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+    ],
+  });
+
+  // Cognito permissions settings
+  cognitoBuilder.grantLambdasCreateUsersPermission({
+    userPoolNameId: CognitoUsersPoolNames.ManagementUsersPool,
+    lambdaFunctions: [
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+    ],
   });
 
   // ApiRest settings

@@ -25,7 +25,7 @@ import { Logger } from "../../../logger";
 
 
 export const PutCommandOperation = async (options: PutOptions) => {
-  Logger.debug(`PutCommand options >: ${options}`);
+  Logger.debug(`PutCommand options >: ${JSON.stringify(options)}`);
   const client = new DynamoClientInstance();
   const command = new PutCommand({
     TableName: options.TableName,

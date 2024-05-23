@@ -60,7 +60,6 @@ export const addNewUser = async (item: UsersModel) => {
       TableName: table,
       Item: item,
     });
-    return item;
   } catch (error) {
     Logger.error(`Error on putting new user via service ${error}`);
     throw Error(`${error}`);

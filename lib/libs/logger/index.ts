@@ -1,7 +1,6 @@
 import { GlobalEnvironmentVars } from "../environment";
 import { LogLevel } from "./types";
 
-
 const defaultLogLevel = LogLevel.error;
 
 const getLogLevel = () => {
@@ -46,37 +45,20 @@ const log = (messages: string[], messageLevel: LogLevel) => {
   console[LogLevel[messageLevel] as keyof typeof LogLevel](output);
 };
 
-
 export const Logger = {
-  trace:(...messages: string[]) => {
+  trace: (...messages: string[]) => {
     log(messages, LogLevel.trace);
   },
-  debug:(...messages: string[]) => {
+  debug: (...messages: string[]) => {
     log(messages, LogLevel.debug);
   },
-  info:(...messages: string[]) => {
+  info: (...messages: string[]) => {
     log(messages, LogLevel.info);
   },
-  warn:(...messages: string[]) => {
+  warn: (...messages: string[]) => {
     log(messages, LogLevel.warn);
   },
-  error:(...messages: string[]) => {
+  error: (...messages: string[]) => {
     log(messages, LogLevel.error);
   },
-}
-
-/* export const trace = (...messages: string[]) => {
-  log(messages, LogLevel.trace);
 };
-export const debug = (...messages: string[]) => {
-  log(messages, LogLevel.debug);
-};
-export const info = (...messages: string[]) => {
-  log(messages, LogLevel.info);
-};
-export const warn = (...messages: string[]) => {
-  log(messages, LogLevel.warn);
-};
-export const error = (...messages: string[]) => {
-  log(messages, LogLevel.error);
-}; */
