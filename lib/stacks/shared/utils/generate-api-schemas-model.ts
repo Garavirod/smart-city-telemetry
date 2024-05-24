@@ -1,6 +1,6 @@
 import * as TJS from "typescript-json-schema";
 import * as path from "path";
-import { Logger } from "../../../../../../libs/logger";
+import { Logger } from "../../../libs/logger";
 
 type generateSchemaModelOptions = {
   modelsFileName: string;

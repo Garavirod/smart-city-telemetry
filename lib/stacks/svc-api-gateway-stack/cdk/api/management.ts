@@ -1,10 +1,16 @@
-import { ApiRestBuilder } from "../../../../libs/cdk-builders/ApiRestBuilder";
+import { UserPool } from "aws-cdk-lib/aws-cognito";
+import { ApiRestBuilder } from "../../../../libs/cdk-builders/api-gateway/ApiRestBuilder";
 import { buildCorsConfigurations } from "./cors";
-import { ResourcesAPI } from "./resources/types";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { createManagementApiResources } from "./resources/management/resources";
+import { CognitoUsersPoolNames } from "../../../shared/enums/cognito";
+import { ApiAuthorizersNames } from "../../../shared/enums/api-authorizers";
+
 
 type buildApiRestConstructOptions = {
   builder: ApiRestBuilder;
-  resources: ResourcesAPI;
+  cognitoPools: Record<string, UserPool>;
+  lambdaFunctions: Record<string, NodejsFunction>;
 };
 
 export const buildApiRestConstructs = (
@@ -19,11 +25,29 @@ export const buildApiRestConstructs = (
     cors: buildCorsConfigurations(),
   });
 
-  options.builder.configureExportStack("ApiGatewayUrl");
+  options.builder.createCognitoAuthorizer({
+    authorizerName: ApiAuthorizersNames.AdminAuthorizer,
+    userPools: [
+      options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool],
+      options.cognitoPools[CognitoUsersPoolNames.CommonUsersPool],
+    ],
+  });
+
+  options.builder.createCognitoAuthorizer({
+    authorizerName: ApiAuthorizersNames.CommonAuthorizer,
+    userPools: [options.cognitoPools[CognitoUsersPoolNames.CommonUsersPool]],
+  });
+
   options.builder.configureAPIKeyPlanUsage({
     name: "TelemetryAPiKey",
     description: `APi key usage for ${apiRestName}`,
   });
 
-  options.builder.addApiResourceFromRoot({ resources: options.resources });
+  const managementResources = createManagementApiResources({
+    lambdaFunctions: options.lambdaFunctions,
+  });
+
+  options.builder.addApiResourceFromRoot({ resources: managementResources });
+
+  options.builder.configureExportStack("ApiGatewayUrl");
 };

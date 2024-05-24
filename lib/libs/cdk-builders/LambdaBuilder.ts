@@ -1,6 +1,6 @@
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
-import { createResourceNameId } from "../../stacks/svc-api-gateway-stack/cdk/helpers";
+import { createResourceNameId } from "../../stacks/shared/utils/rename-resource-id";
 import { GlobalEnvironmentVars } from "../environment";
 import path = require("path");
 import { Runtime } from "aws-cdk-lib/aws-lambda";

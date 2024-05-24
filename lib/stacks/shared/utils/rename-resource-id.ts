@@ -1,4 +1,4 @@
-import { GlobalEnvironmentVars } from "../../../../libs/environment";
+import { GlobalEnvironmentVars } from "../../../libs/environment";
 import { DeployEnvironment } from "../types";
 
 export const createResourceNameId = (name: string) => {

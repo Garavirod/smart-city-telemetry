@@ -1,9 +1,13 @@
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { RequestParamType, ResourcesAPI } from "../types";
-import { LambdasFunctionNames } from "../../../lambda/types";
-import { SchemaModelBuilder } from "../../models/helpers/generate-schemas-model";
-import { Validators } from "../../validators";
-import { simplePaginationParams } from "../../../helpers/paginator";
+import {
+  AuthorizationType,
+  ResourcesAPI,
+} from "../../../../../../libs/cdk-builders/api-gateway/types";
+import { LambdasFunctionNames } from "../../../../../shared/enums/lambdas";
+import { SchemaModelBuilder } from "../../../../../shared/utils/generate-api-schemas-model";
+import { simplePaginationParams } from "../../../../../shared/utils/simple-paginator-params";
+import { ApiAuthorizersNames } from "../../../../../shared/enums/api-authorizers";
+import { ValidatorNames } from "../../../../../shared/enums/api-validators";
 
 type createResourcesOptions = {
   lambdaFunctions: Record<string, NodejsFunction>;
@@ -20,21 +24,29 @@ export const createManagementApiResources = (
         lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetUsers],
         isproxy: true,
         requestParams: {
-          validatorNameId: Validators.GenericValidatorNames.SimplePaginationValidator,
+          validatorNameId: ValidatorNames.SimplePaginationValidator,
           params: simplePaginationParams,
+        },
+        auth: {
+          type: AuthorizationType.Authorization,
+          apiAuthorizerName: ApiAuthorizersNames.AdminAuthorizer,
         },
       },
       {
         httpMethod: "POST",
+        lambdaFunction:
+          options.lambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+        isproxy: true,
         model: {
-          validatorNameId: Validators.ManagementValidatorNames.SignupUserValidator,
+          validatorNameId: ValidatorNames.SignupUserValidator,
           schema: SchemaModelBuilder.management({
             interfaceName: "SignupUsersModel",
           }),
         },
-        lambdaFunction:
-          options.lambdaFunctions[LambdasFunctionNames.RegisterNewUser],
-        isproxy: true,
+        auth: {
+          type: AuthorizationType.Authorization,
+          apiAuthorizerName: ApiAuthorizersNames.AdminAuthorizer,
+        },
       },
     ],
     resources: [
@@ -47,9 +59,13 @@ export const createManagementApiResources = (
               options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
             isproxy: true,
             requestParams: {
-              validatorNameId: Validators.GenericValidatorNames.SimplePaginationValidator,
-              params: simplePaginationParams
-            }
+              validatorNameId: ValidatorNames.SimplePaginationValidator,
+              params: simplePaginationParams,
+            },
+            auth: {
+              type: AuthorizationType.Authorization,
+              apiAuthorizerName: ApiAuthorizersNames.AdminAuthorizer,
+            },
           },
         ],
         /* resources: [

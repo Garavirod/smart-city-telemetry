@@ -1,17 +1,17 @@
 import { App } from "aws-cdk-lib";
 import { GenericStack } from "../../libs/cdk-builders/GenericStack";
-import { ApiRestBuilder } from "../../libs/cdk-builders/ApiRestBuilder";
+import { ApiRestBuilder } from "../../libs/cdk-builders/api-gateway/ApiRestBuilder";
 import { buildApiRestConstructs } from "./cdk/api/management";
-import { createManagementApiResources } from "./cdk/api/resources/management/resources";
 import { DynamoBuilder } from "../../libs/cdk-builders/DynamoBuilder";
 import { buildDynamoConstructs } from "./cdk/dynamo/management";
 import { LambdaBuilder } from "../../libs/cdk-builders/LambdaBuilder";
 import { buildLambdaConstructs } from "./cdk/lambda/management";
-import { LambdasFunctionNames } from "./cdk/lambda/types";
-import { DynamoTableNames } from "./cdk/dynamo/types";
+import { LambdasFunctionNames } from "../shared/enums/lambdas";
+import { DynamoTableNames } from "../shared/enums/dynamodb";
 import { CognitoBuilder } from "../../libs/cdk-builders/CognitoBuilder";
-import { CognitoUsersPoolNames } from "./cdk/cognito/types";
 import { buildCognitoConstructs } from "./cdk/cognito/management";
+import { CognitoUsersPoolNames } from "../shared/enums/cognito";
+
 
 export const buildSvcApiGatewayStack = (app: App) => {
   const stackName = "SvcApiGateway";
@@ -54,8 +54,9 @@ export const buildSvcApiGatewayStack = (app: App) => {
   });
 
   // ApiRest settings
-  const resources = createManagementApiResources({
+  buildApiRestConstructs({
+    builder: apiRestBuilder,
     lambdaFunctions: lambdaBuilder.getLambdaFunctions,
+    cognitoPools: cognitoBuilder.getCognitoPools,
   });
-  buildApiRestConstructs({ builder: apiRestBuilder, resources });
 };

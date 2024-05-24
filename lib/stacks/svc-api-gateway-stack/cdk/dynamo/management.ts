@@ -1,6 +1,6 @@
 import { AttributeType } from "aws-cdk-lib/aws-dynamodb";
 import { DynamoBuilder } from "../../../../libs/cdk-builders/DynamoBuilder";
-import { DynamoTableNames } from "./types";
+import { DynamoTableNames } from "../../../shared/enums/dynamodb";
 
 export const buildDynamoConstructs = (builder:DynamoBuilder) => {
   builder.createTable({

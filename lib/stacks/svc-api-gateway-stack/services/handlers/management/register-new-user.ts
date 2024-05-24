@@ -26,11 +26,6 @@ export const handler = async (
       propertyToExtract: ParamPropertyType.Body,
     });
 
-    // TODO: Add model to API rest to validate params before reach lambda out
-    if (!params) {
-      throw new Error(`"No query string parameters"`);
-    }
-
     const user: UsersModel = {
       userId: uuidv4(),
       name: params.name,
