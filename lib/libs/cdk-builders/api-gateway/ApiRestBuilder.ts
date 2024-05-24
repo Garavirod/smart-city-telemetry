@@ -138,7 +138,7 @@ export class ApiRestBuilder {
         lambdaFunction: method.lambdaFunction,
         requestTemplates: params.requestTemplates,
       });
-
+      const authorizationProps = this.getAuthorizerProps(method);
       // Create methods with integration
       this.apiResourcesMap[props.resourceId].addMethod(
         method.httpMethod,
@@ -151,7 +151,8 @@ export class ApiRestBuilder {
           // Validate params or body
           requestValidator: this.createValidator(method),
           // Cognito authorizer
-          authorizer: this.getAuthorizer(method),
+          authorizer: authorizationProps.authorizer,
+          authorizationType: authorizationProps.authorizationType,
         }
       );
     }
@@ -177,10 +178,18 @@ export class ApiRestBuilder {
     };
   }
 
-  private getAuthorizer(method: APiResourceMethods) {
-    return method.auth.type === AuthorizationType.Authorization
-      ? this.authorizerPools[method.auth.apiAuthorizerName!]
-      : void 0;
+  private getAuthorizerProps(method: APiResourceMethods) {
+    if (method.auth.type === AuthorizationType.Authorization) {
+      return {
+        authorizer: this.authorizerPools[method.auth.apiAuthorizerName!],
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      };
+    }
+
+    return {
+      authorizer: undefined,
+      authorizationType: undefined,
+    };
   }
 
   private getApiKeyRequired(method: APiResourceMethods) {

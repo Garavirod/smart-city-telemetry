@@ -7,6 +7,12 @@ export interface SignupUsersModel {
     lastName: string;
     role: UserRole;
     visibleDependencies: Dependencies[];
-  }
+}
+
+
+export interface SignInUserModel {
+  email:string;
+  password:string;
+}
   
   

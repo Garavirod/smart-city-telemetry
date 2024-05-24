@@ -6,3 +6,9 @@ export type createAdminUserCognitoOptions = {
   userName: string;
   password: string;
 };
+
+export type signInOptions = {
+  password: string;
+  email: string;
+  userPoolClientId: string;
+};

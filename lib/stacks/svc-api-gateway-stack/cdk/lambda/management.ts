@@ -33,13 +33,18 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
     pathStackHandlerCode: `${codeFilepathBase}/register-new-user.ts`,
     environment: {
       USERS_TABLE: options.dynamoTables[DynamoTableNames.Users].tableName,
-      USER_POOL_ID:
+      USER_MANAGEMENT_POOL_ID:
         options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool]
           .userPoolId,
-      USER_POOL_CLIENT_ID:
+      USER_POOL_MANAGEMENT_CLIENT_ID:
         options.cognitoClients[
           CognitoUsersPoolClientNames.ManagementUsersPoolCli
         ].userPoolClientId,
+      USER_COMMON_POOL_ID:
+        options.cognitoPools[CognitoUsersPoolNames.CommonUsersPool].userPoolId,
+      USER_POOL_COMMON_CLIENT_ID:
+        options.cognitoClients[CognitoUsersPoolClientNames.CommonUsersPoolCli]
+          .userPoolClientId,
     },
   });
 
