@@ -41,15 +41,23 @@ export const buildSvcApiGatewayStack = (app: App) => {
     dynamoTable: DynamoTableNames.Users,
     lambdas: [
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.GetUsers],
-      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignUp],
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignIn],
     ],
   });
+
+  dynamoBuilder.grantReadPermissionsToLambdas({
+    dynamoTable:DynamoTableNames.Users,
+    lambdas:[
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignIn]
+    ]
+  })
 
   // Cognito permissions settings
   cognitoBuilder.grantLambdasCreateUsersPermission({
     userPoolNameId: CognitoUsersPoolNames.ManagementUsersPool,
     lambdaFunctions: [
-      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignUp],
     ],
   });
 

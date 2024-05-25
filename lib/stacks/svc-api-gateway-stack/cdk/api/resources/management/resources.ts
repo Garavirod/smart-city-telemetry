@@ -34,8 +34,7 @@ export const createManagementApiResources = (
       },
       {
         httpMethod: "POST",
-        lambdaFunction:
-          options.lambdaFunctions[LambdasFunctionNames.RegisterNewUser],
+        lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.SignUp],
         isproxy: true,
         model: {
           validatorNameId: ValidatorNames.SignupUserValidator,
@@ -44,8 +43,21 @@ export const createManagementApiResources = (
           }),
         },
         auth: {
-          type: AuthorizationType.Authorization,
-          apiAuthorizerName: ApiAuthorizersNames.AdminAuthorizer,
+          type: AuthorizationType.None,
+        },
+      },
+      {
+        httpMethod: "POST",
+        lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.SignIn],
+        isproxy: true,
+        model: {
+          validatorNameId: ValidatorNames.SignInValidator,
+          schema: SchemaModelBuilder.management({
+            interfaceName: "SignInUserModel",
+          }),
+        },
+        auth: {
+          type: AuthorizationType.None,
         },
       },
     ],

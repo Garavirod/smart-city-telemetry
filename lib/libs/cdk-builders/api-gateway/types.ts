@@ -10,6 +10,7 @@ export type ResourcesAPI = {
 export enum AuthorizationType {
   "ApiKeys" = "ApiKeys",
   "Authorization" = "Authorization",
+  "None"="None"
 }
 
 export type APiResourceMethods = {
