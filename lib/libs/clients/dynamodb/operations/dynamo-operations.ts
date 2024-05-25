@@ -24,7 +24,7 @@ import {
   toKeyConditionExpressionsBeginWith,
 } from "./helpers";
 import { Logger } from "../../../logger";
-import { UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { UpdateItemCommand, UpdateItemInput } from "@aws-sdk/client-dynamodb";
 
 export const PutCommandOperation = async (options: PutOptions) => {
   Logger.debug(`PutCommand options >: ${JSON.stringify(options)}`);
@@ -54,15 +54,18 @@ export const GetCommandOperation = async (options: GetOptions) => {
  * @param options
  */
 export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
+  Logger.debug(`options arg > ${JSON.stringify(options)}`);
   const client = new DynamoClientInstance();
   const expressions = getUpdateExpressions(options.expressions);
-  const command = new UpdateItemCommand({
+  const input: UpdateItemInput = {
     TableName: options.TableName,
     Key: options.key,
     ExpressionAttributeNames: expressions.attributeNames,
     ExpressionAttributeValues: expressions.attributeValues,
     UpdateExpression: expressions.updateExpression,
-  });
+  };
+  Logger.debug(`Input params > ${JSON.stringify(input)}`);
+  const command = new UpdateItemCommand(input);
   await client.getDynamoDBClient.send(command);
   client.destroyDynamoClients();
 };
@@ -140,6 +143,8 @@ export const QueryPaginationCommandOperation = async <T>(
       ScanIndexForward: options.ScanIndexForward,
       Limit: limit,
     };
+
+    Logger.debug(`Input QueryPagination ${JSON.stringify(command)}`);
 
     const paginator = await paginateQuery(
       { client: client.getDynamoDBClient, ...config },
