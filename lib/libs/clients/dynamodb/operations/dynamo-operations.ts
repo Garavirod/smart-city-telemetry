@@ -11,10 +11,12 @@ import {
   PutOptions,
   QueryPaginateResult,
   QueryPaginationOptions,
+  UpdateOptions,
 } from "./types";
 import { DynamoClientInstance } from "../client/dynamo-client";
 
 import {
+  getUpdateExpressions,
   toExpressionAttributeNames,
   toExpressionAttributeValues,
   toFilterExpressions,
@@ -22,7 +24,7 @@ import {
   toKeyConditionExpressionsBeginWith,
 } from "./helpers";
 import { Logger } from "../../../logger";
-
+import { UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 
 export const PutCommandOperation = async (options: PutOptions) => {
   Logger.debug(`PutCommand options >: ${JSON.stringify(options)}`);
@@ -48,10 +50,28 @@ export const GetCommandOperation = async (options: GetOptions) => {
 };
 
 /**
- * 
+ * Perform SDK Dynamo UpdateItemCommand
+ * @param options
+ */
+export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
+  const client = new DynamoClientInstance();
+  const expressions = getUpdateExpressions(options.expressions);
+  const command = new UpdateItemCommand({
+    TableName: options.TableName,
+    Key: options.key,
+    ExpressionAttributeNames: expressions.attributeNames,
+    ExpressionAttributeValues: expressions.attributeValues,
+    UpdateExpression: expressions.updateExpression,
+  });
+  await client.getDynamoDBClient.send(command);
+  client.destroyDynamoClients();
+};
+
+/**
+ *
  * @param
  * @link {SearchOptions}
- * @returns 
+ * @returns
  */
 export const QueryPaginationCommandOperation = async <T>(
   options: QueryPaginationOptions

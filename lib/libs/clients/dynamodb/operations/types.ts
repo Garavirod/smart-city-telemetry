@@ -1,6 +1,5 @@
 import { SearchColumnTables } from "../tables/table-search-columns";
 
-
 export type PutOptions = {
   TableName: string;
   Item: any;
@@ -9,6 +8,12 @@ export type PutOptions = {
 export type GetOptions = {
   TableName: string;
   key: any;
+};
+
+export type UpdateOptions = {
+  TableName: string;
+  key: any;
+  expressions: UpdateExpression[];
 };
 
 export type QueryPaginationOptions = {
@@ -42,6 +47,11 @@ export interface SearchExpression<T> {
   value: string | number | string[] | number[] | boolean;
 }
 
+export interface UpdateExpression {
+  column: string;
+  newValue: string | number | string[] | number[] | boolean;
+}
+
 export interface PageOptions {
   pageSize: number;
   startingToken?: string;
@@ -54,7 +64,6 @@ export interface SearchOptions<TColumn, TableIndex> extends PageOptions {
   index: TableIndex;
 }
 
-
-export interface SearchByIndexOptions{
-  indexName:string;
+export interface SearchByIndexOptions {
+  indexName: string;
 }

@@ -9,55 +9,56 @@ import {
   SuccessResponse200,
 } from "../../utils/api-response";
 import { Logger } from "../../../../../libs/logger";
-import { UserRole, UsersModel } from "../../../../../libs/clients/dynamodb/models/management";
+import { UserRole } from "../../../../../libs/clients/dynamodb/models/management";
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
-import { v4 as uuidv4 } from "uuid";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
 import { SignInUserModel } from "../../../cdk/api/models/management";
 import { UsersTableIndex } from "../../../../../libs/clients/dynamodb/services/types";
 
-interface BodyParamsExpected
-  extends SignInUserModel {}
+interface BodyParamsExpected extends SignInUserModel {}
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-
     const params = <BodyParamsExpected>extractDataFromEvent({
       event: event,
       propertyToExtract: ParamPropertyType.Body,
     });
 
-    // TODO Get user by email from dynamo
-    // ToDO create service for get item in dynamo
-    // DynamoService.getUserByKey({index:email})
     const user = await ManagementDynamoService.getUserByGSIndex({
-      tableColumn:'email',
+      tableColumn: "email",
       tableIndex: UsersTableIndex.EmailICreatedAtIndex,
-      value: params.email
-    })
+      value: params.email,
+    });
 
-    if(!user){
+    if (!user) {
       return BadRequestResponse400({
-        message: `No user registered with an email "${params.email}"`
-      })
+        message: `No user registered with an email "${params.email}"`,
+      });
     }
 
     // Add user to cognito
     const token = await ManagementCognitoService.signIn({
       email: user.email,
       password: params.password,
-      role:UserRole.CommonUser // user.role from dynamo
+      role: UserRole.CommonUser, // user.role from dynamo
     });
 
-
-    // TODO
-    // Update Dynamo user online prop, create service
-    // DynamoService.setUserOnlineStatus(true);
+    // Update User online prop
+    await ManagementDynamoService.updateUserAttributes({
+      userId: user.userId,
+      attributesToUpdate: [
+        {
+          column: "online",
+          newValue: true,
+        },
+      ],
+    });
 
     return SuccessResponse200({
-      // TODO Return user information and token
+      data: { token, userId: user.userId },
+      message: "Sign In successfully",
     });
   } catch (error) {
     Logger.error(`Handler error ${JSON.stringify(error)}`);

@@ -30,7 +30,7 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
 
   options.builder.createNodeFunctionLambda({
     lambdaName: LambdasFunctionNames.SignUp,
-    pathStackHandlerCode: `${codeFilepathBase}/register-new-user.ts`,
+    pathStackHandlerCode: `${codeFilepathBase}/sign-up-user.ts`,
     environment: {
       USERS_TABLE: options.dynamoTables[DynamoTableNames.Users].tableName,
       USER_MANAGEMENT_POOL_ID:options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool].userPoolId,
@@ -43,7 +43,7 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
 
   options.builder.createNodeFunctionLambda({
     lambdaName: LambdasFunctionNames.SignIn,
-    pathStackHandlerCode: `${codeFilepathBase}/sign-in.ts`,
+    pathStackHandlerCode: `${codeFilepathBase}/sign-in-user.ts`,
     environment: {
       USERS_TABLE: options.dynamoTables[DynamoTableNames.Users].tableName,
       USER_MANAGEMENT_POOL_ID: options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool].userPoolId,

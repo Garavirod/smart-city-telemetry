@@ -2,10 +2,17 @@ import { UsersModel } from "../models/management";
 import {
   PutCommandOperation,
   QueryPaginationCommandOperation,
+  UpdateItemCommandOperation,
 } from "../operations/dynamo-operations";
-import { UsersTableColumnSearch, UsersTableIndex, type PaginationServiceResponse } from "./types";
+import {
+  UsersTableColumnSearch,
+  UsersTableIndex,
+  type PaginationServiceResponse,
+} from "./types";
 import { DynamoEnvTableIndices, DynamoEnvTables } from "../../environment";
 import { Logger } from "../../../logger";
+import { UpdateExpression } from "../operations/types";
+
 
 export const getUsers = async (props: { page?: any; pageSize: number }) => {
   try {
@@ -16,7 +23,7 @@ export const getUsers = async (props: { page?: any; pageSize: number }) => {
       searchOptions: {
         startingToken: props.page,
         pageSize: props.pageSize,
-        index:UsersTableIndex.EmailICreatedAtIndex,
+        index: UsersTableIndex.EmailICreatedAtIndex,
         expressions: [
           {
             column: "status",
@@ -95,6 +102,24 @@ export const getUserByGSIndex = async (options: getUserIndexOptions) => {
     return response.Count > 0 ? response.Items[0] : void 0;
   } catch (error) {
     Logger.error(`Error on getting item via service ${error}`);
+    throw Error(`${error}`);
+  }
+};
+
+type updateItemOptions = {
+  attributesToUpdate: UpdateExpression[];
+  userId: string;
+};
+export const updateUserAttributes = async (options: updateItemOptions) => {
+  try {
+    const table = DynamoEnvTables.USERS_TABLE;
+    await UpdateItemCommandOperation({
+      TableName: table,
+      key: options.userId,
+      expressions: options.attributesToUpdate,
+    });
+  } catch (error) {
+    Logger.error(`Error on updating item via service ${error}`);
     throw Error(`${error}`);
   }
 };
