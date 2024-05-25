@@ -103,6 +103,22 @@ export const SuccessResponse200 = (props: {
   };
 };
 
+export const BadRequestResponse400 = (props: {
+  message?: string;
+  data?: any;
+  extras?: any;
+}): APIGatewayProxyResult => {
+  const { message, extras, data } = props;
+  return {
+    statusCode: 400,
+    body: JSON.stringify({
+      message: message ? message : "Bad Request",
+      data,
+      extras,
+    }),
+  };
+};
+
 export const InternalErrorResponse500 = (props: {
   error?: any;
   data?: any;

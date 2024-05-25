@@ -4,6 +4,7 @@ import {
   extractDataFromEvent,
 } from "../../utils/pre-process-event";
 import {
+  BadRequestResponse400,
   InternalErrorResponse500,
   SuccessResponse200,
 } from "../../utils/api-response";
@@ -13,6 +14,7 @@ import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/se
 import { v4 as uuidv4 } from "uuid";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
 import { SignInUserModel } from "../../../cdk/api/models/management";
+import { UsersTableIndex } from "../../../../../libs/clients/dynamodb/services/types";
 
 interface BodyParamsExpected
   extends SignInUserModel {}
@@ -30,10 +32,21 @@ export const handler = async (
     // TODO Get user by email from dynamo
     // ToDO create service for get item in dynamo
     // DynamoService.getUserByKey({index:email})
+    const user = await ManagementDynamoService.getUserByGSIndex({
+      tableColumn:'email',
+      tableIndex: UsersTableIndex.EmailICreatedAtIndex,
+      value: params.email
+    })
+
+    if(!user){
+      return BadRequestResponse400({
+        message: `No user registered with an email "${params.email}"`
+      })
+    }
 
     // Add user to cognito
     const token = await ManagementCognitoService.signIn({
-      email: params.email,
+      email: user.email,
       password: params.password,
       role:UserRole.CommonUser // user.role from dynamo
     });

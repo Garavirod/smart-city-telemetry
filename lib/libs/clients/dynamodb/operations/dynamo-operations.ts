@@ -47,6 +47,12 @@ export const GetCommandOperation = async (options: GetOptions) => {
   return response;
 };
 
+/**
+ * 
+ * @param
+ * @link {SearchOptions}
+ * @returns 
+ */
 export const QueryPaginationCommandOperation = async <T>(
   options: QueryPaginationOptions
 ): Promise<QueryPaginateResult<T>> => {

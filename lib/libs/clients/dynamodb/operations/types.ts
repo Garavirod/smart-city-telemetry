@@ -1,5 +1,5 @@
 import { SearchColumnTables } from "../tables/table-search-columns";
-import { TableIndex } from "../tables/tables-index";
+
 
 export type PutOptions = {
   TableName: string;
@@ -13,7 +13,7 @@ export type GetOptions = {
 
 export type QueryPaginationOptions = {
   TableName: string;
-  searchOptions: SearchOptions<SearchColumnTables, TableIndex>;
+  searchOptions: SearchOptions<string, string>;
   ScanIndexForward: boolean;
 };
 
@@ -52,4 +52,9 @@ export interface SearchOptions<TColumn, TableIndex> extends PageOptions {
   filterExpressionAfterQueryDone?: Array<SearchExpression<TColumn>>;
   filterExpressionConjunction?: FilterExpressionConjunctions;
   index: TableIndex;
+}
+
+
+export interface SearchByIndexOptions{
+  indexName:string;
 }

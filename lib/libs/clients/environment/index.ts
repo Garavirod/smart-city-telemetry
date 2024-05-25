@@ -8,6 +8,10 @@ export const DynamoEnvTables = {
   USERS_TABLE: process.env.USERS_TABLE ?? "",
 };
 
+export const DynamoEnvTableIndices = {
+  USERS_TABLE_EMAIL_INDEX: process.env.USERS_TABLE_EMAIL_INDEX ?? "",
+}
+
 
 export const CognitoEnvValues = {
   USER_MANAGEMENT_POOL_ID: process.env.USER_MANAGEMENT_POOL_ID ?? "",

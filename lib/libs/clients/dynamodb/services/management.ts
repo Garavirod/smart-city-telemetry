@@ -3,9 +3,8 @@ import {
   PutCommandOperation,
   QueryPaginationCommandOperation,
 } from "../operations/dynamo-operations";
-import { ManagementTablesIndex } from "../tables/tables-index";
-import { type PaginationServiceResponse } from "./types";
-import { DynamoEnvTables } from "../../environment";
+import { UsersTableColumnSearch, UsersTableIndex, type PaginationServiceResponse } from "./types";
+import { DynamoEnvTableIndices, DynamoEnvTables } from "../../environment";
 import { Logger } from "../../../logger";
 
 export const getUsers = async (props: { page?: any; pageSize: number }) => {
@@ -17,7 +16,7 @@ export const getUsers = async (props: { page?: any; pageSize: number }) => {
       searchOptions: {
         startingToken: props.page,
         pageSize: props.pageSize,
-        index: ManagementTablesIndex.UsersTableIndex,
+        index:UsersTableIndex.EmailICreatedAtIndex,
         expressions: [
           {
             column: "status",
@@ -64,4 +63,46 @@ export const addNewUser = async (item: UsersModel) => {
     Logger.error(`Error on putting new user via service ${error}`);
     throw Error(`${error}`);
   }
+};
+
+type getUserIndexOptions = {
+  tableIndex: UsersTableIndex;
+  tableColumn: UsersTableColumnSearch;
+  value: string;
+};
+export const getUserByGSIndex = async (options: getUserIndexOptions) => {
+  try {
+    const table = DynamoEnvTables.USERS_TABLE;
+    const index = getUsersTableGSIEnv(options.tableIndex);
+    const pageSize = 1;
+    let startingToken = undefined;
+    const response = await QueryPaginationCommandOperation<UsersModel>({
+      TableName: table,
+      ScanIndexForward: true,
+      searchOptions: {
+        pageSize,
+        startingToken,
+        index,
+        expressions: [
+          {
+            column: options.tableColumn,
+            value: options.value,
+            operator: "=",
+          },
+        ],
+      },
+    });
+    return response.Count > 0 ? response.Items[0] : void 0;
+  } catch (error) {
+    Logger.error(`Error on getting item via service ${error}`);
+    throw Error(`${error}`);
+  }
+};
+
+const getUsersTableGSIEnv = (index: UsersTableIndex) => {
+  const envIndices = {
+    [UsersTableIndex.EmailICreatedAtIndex]:
+      DynamoEnvTableIndices.USERS_TABLE_EMAIL_INDEX,
+  };
+  return envIndices[index];
 };
