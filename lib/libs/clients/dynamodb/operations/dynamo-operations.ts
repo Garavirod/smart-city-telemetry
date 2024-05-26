@@ -44,7 +44,7 @@ export const GetCommandOperation = async (options: GetOptions) => {
     TableName: options.TableName,
     Key: options.key,
   });
-  const response = await client.getDynamoDBClient.send(command);
+  const response = await client.getDynamoDBDocumentClient.send(command);
   client.destroyDynamoClients();
   return response;
 };

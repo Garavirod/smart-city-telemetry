@@ -27,6 +27,10 @@ export class DynamoClientInstance {
     return this.client;
   }
 
+  public get getDynamoDBDocumentClient() {
+    return this.dynamoDocumentDBclient;
+  }
+
   public destroyDynamoClients() {
     Logger.debug('Destroying dynamo client');
     this.dynamoDocumentDBclient.destroy();
