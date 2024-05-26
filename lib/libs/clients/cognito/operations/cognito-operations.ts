@@ -3,10 +3,12 @@ import {
   SignUpCommand,
   InitiateAuthCommand,
   InitiateAuthRequest,
+  AuthFlowType,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoClientInstance } from "../client/CognitoClient";
 import { createAdminUserCognitoOptions, signInOptions } from "./types";
 import { Logger } from "../../../logger";
+import { CognitoEnvValues } from "../../environment";
 
 export const SignupUserCommandOperation = async (
   options: createAdminUserCognitoOptions
@@ -40,8 +42,8 @@ export const SignInCommand = async (options: signInOptions) => {
   const cognitoClient = new CognitoClientInstance();
 
   const input: InitiateAuthRequest = {
-    AuthFlow: "USER_PASSWORD_AUTH",
-    ClientId: process.env.USER_POOL_CLIENT_ID!,
+    AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
+    ClientId: CognitoEnvValues.USER_POOL_MANAGEMENT_CLIENT_ID,
     AuthParameters: {
       USERNAME: options.email,
       PASSWORD: options.password,

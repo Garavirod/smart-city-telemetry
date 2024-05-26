@@ -20,7 +20,7 @@ const generateSchemaModel = (options: generateSchemaModelOptions) => {
 
   // Interface models file
   const program = TJS.getProgramFromFiles([
-    path.join(__dirname, `../${options.modelsFileName}`),
+    path.join(__dirname, `../../svc-api-gateway-stack/cdk/api/models/${options.modelsFileName}`),
   ]);
 
   // We can either get the schema for one file and one type...

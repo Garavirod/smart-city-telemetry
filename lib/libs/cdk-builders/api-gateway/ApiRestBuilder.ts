@@ -45,7 +45,7 @@ export class ApiRestBuilder {
   private corsConfig: corsOptionsConfig;
   public apiRest: RestApi;
   private validators: Record<string, apigateway.RequestValidator>;
-  private authorizerPools: Record<string, apigateway.Authorizer>;
+  private authorizerPools: Record<string, apigateway.CognitoUserPoolsAuthorizer>;
 
   constructor(scope: Construct) {
     this.scope = scope;
@@ -81,7 +81,7 @@ export class ApiRestBuilder {
         createResourceNameId(options.authorizerName),
         {
           cognitoUserPools: options.userPools,
-        }
+        },
       );
   }
 

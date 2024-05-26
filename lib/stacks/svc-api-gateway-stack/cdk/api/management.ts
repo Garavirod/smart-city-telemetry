@@ -6,7 +6,6 @@ import { createManagementApiResources } from "./resources/management/resources";
 import { CognitoUsersPoolNames } from "../../../shared/enums/cognito";
 import { ApiAuthorizersNames } from "../../../shared/enums/api-authorizers";
 
-
 type buildApiRestConstructOptions = {
   builder: ApiRestBuilder;
   cognitoPools: Record<string, UserPool>;
@@ -29,13 +28,7 @@ export const buildApiRestConstructs = (
     authorizerName: ApiAuthorizersNames.AdminAuthorizer,
     userPools: [
       options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool],
-      options.cognitoPools[CognitoUsersPoolNames.CommonUsersPool],
     ],
-  });
-
-  options.builder.createCognitoAuthorizer({
-    authorizerName: ApiAuthorizersNames.CommonAuthorizer,
-    userPools: [options.cognitoPools[CognitoUsersPoolNames.CommonUsersPool]],
   });
 
   options.builder.configureAPIKeyPlanUsage({

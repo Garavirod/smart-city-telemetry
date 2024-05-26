@@ -18,49 +18,7 @@ export const createManagementApiResources = (
 ) => {
   const resources: ResourcesAPI = {
     pathPart: "management",
-    methods: [
-      {
-        httpMethod: "GET",
-        lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetUsers],
-        isproxy: true,
-        requestParams: {
-          validatorNameId: ValidatorNames.SimplePaginationValidator,
-          params: simplePaginationParams,
-        },
-        auth: {
-          type: AuthorizationType.Authorization,
-          apiAuthorizerName: ApiAuthorizersNames.AdminAuthorizer,
-        },
-      },
-      {
-        httpMethod: "POST",
-        lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.SignUp],
-        isproxy: true,
-        model: {
-          validatorNameId: ValidatorNames.SignupUserValidator,
-          schema: SchemaModelBuilder.management({
-            interfaceName: "SignupUsersModel",
-          }),
-        },
-        auth: {
-          type: AuthorizationType.None,
-        },
-      },
-      {
-        httpMethod: "POST",
-        lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.SignIn],
-        isproxy: true,
-        model: {
-          validatorNameId: ValidatorNames.SignInValidator,
-          schema: SchemaModelBuilder.management({
-            interfaceName: "SignInUserModel",
-          }),
-        },
-        auth: {
-          type: AuthorizationType.None,
-        },
-      },
-    ],
+    methods: [], // end management methods
     resources: [
       {
         pathPart: "dependencies",
@@ -139,18 +97,68 @@ export const createManagementApiResources = (
           ],
         },
       ], */
-      }, // end map-api-keys
-      /* {
-      pathPart: "users",
-      methods: [
-        {
-          httpMethod: "GET",
-          lambdaIntegration:
-            LambdasManagementIntegrations.Instance
-              .getDependenciesLambdaIntegration,
-        },
-      ],
-    }, // end users */
+      }, // end dependencies
+      {
+        pathPart: "users",
+        methods: [
+          {
+            httpMethod: "GET",
+            lambdaFunction:
+              options.lambdaFunctions[LambdasFunctionNames.GetUsers],
+            isproxy: true,
+            requestParams: {
+              validatorNameId: ValidatorNames.SimplePaginationValidator,
+              params: simplePaginationParams,
+            },
+            auth: {
+              type: AuthorizationType.Authorization,
+              apiAuthorizerName: ApiAuthorizersNames.AdminAuthorizer,
+            },
+          },
+        ], // end users methods
+        resources: [
+          {
+            pathPart: "signin",
+            methods: [
+              {
+                httpMethod: "POST",
+                lambdaFunction:
+                  options.lambdaFunctions[LambdasFunctionNames.SignIn],
+                isproxy: true,
+                model: {
+                  validatorNameId: ValidatorNames.SignInValidator,
+                  schema: SchemaModelBuilder.management({
+                    interfaceName: "SignInUserModel",
+                  }),
+                },
+                auth: {
+                  type: AuthorizationType.None,
+                },
+              },
+            ],
+          },
+          {
+            pathPart: "signup",
+            methods: [
+              {
+                httpMethod: "POST",
+                lambdaFunction:
+                  options.lambdaFunctions[LambdasFunctionNames.SignUp],
+                isproxy: true,
+                model: {
+                  validatorNameId: ValidatorNames.SignupUserValidator,
+                  schema: SchemaModelBuilder.management({
+                    interfaceName: "SignupUsersModel",
+                  }),
+                },
+                auth: {
+                  type: AuthorizationType.None,
+                },
+              },
+            ],
+          },
+        ],
+      }, // end users
     ],
   };
   return resources;

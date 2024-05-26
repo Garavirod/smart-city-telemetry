@@ -15,23 +15,9 @@ export const buildCognitoConstructs = (builder: CognitoBuilder) => {
     ],
   });
 
-  builder.createUserPool({
-    userPoolNameId: CognitoUsersPoolNames.CommonUsersPool,
-    customAttributes: [
-      {
-        nameAttribute: "role",
-        mutable: true,
-      },
-    ],
-  });
-
   builder.createCognitoUserPoolClient({
     userPoolClientNameId: CognitoUsersPoolClientNames.ManagementUsersPoolCli,
     userPoolNameId: CognitoUsersPoolNames.ManagementUsersPool,
   });
 
-  builder.createCognitoUserPoolClient({
-    userPoolClientNameId: CognitoUsersPoolClientNames.CommonUsersPoolCli,
-    userPoolNameId: CognitoUsersPoolNames.CommonUsersPool,
-  });
 };

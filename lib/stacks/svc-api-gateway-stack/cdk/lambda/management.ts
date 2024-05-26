@@ -35,21 +35,17 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
       USERS_TABLE: options.dynamoTables[DynamoTableNames.Users].tableName,
       USER_MANAGEMENT_POOL_ID:options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool].userPoolId,
       USER_POOL_MANAGEMENT_CLIENT_ID:options.cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli].userPoolClientId,
-      USER_COMMON_POOL_ID:options.cognitoPools[CognitoUsersPoolNames.CommonUsersPool].userPoolId,
-      USER_POOL_COMMON_CLIENT_ID:options.cognitoClients[CognitoUsersPoolClientNames.CommonUsersPoolCli].userPoolClientId,
     },
   });
 
 
   options.builder.createNodeFunctionLambda({
     lambdaName: LambdasFunctionNames.SignIn,
-    pathStackHandlerCode: `${codeFilepathBase}/sign-in-user.ts`,
+    pathStackHandlerCode: `${codeFilepathBase}/sign-in-users.ts`,
     environment: {
       USERS_TABLE: options.dynamoTables[DynamoTableNames.Users].tableName,
       USER_MANAGEMENT_POOL_ID: options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool].userPoolId,
       USER_POOL_MANAGEMENT_CLIENT_ID:options.cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli].userPoolClientId,
-      USER_COMMON_POOL_ID:options.cognitoPools[CognitoUsersPoolNames.CommonUsersPool].userPoolId,
-      USER_POOL_COMMON_CLIENT_ID:options.cognitoClients[CognitoUsersPoolClientNames.CommonUsersPoolCli].userPoolClientId,
     },
   });
 

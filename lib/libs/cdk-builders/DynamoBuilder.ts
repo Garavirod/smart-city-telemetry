@@ -35,6 +35,7 @@ export class DynamoBuilder {
           type: options.partitionKey.type,
         },
         removalPolicy: RemovalPolicy.RETAIN,
+        //billingMode: dynamodb.BillingMode.PAY_PER_REQUEST, // Pay-per-request mode to avoid provisioned throughput charges
       }
     );
   }
@@ -49,7 +50,7 @@ export class DynamoBuilder {
 
   /**
    * Give Dynamo read permission to lambda resource
-   * @param options 
+   * @param options
    */
   public grantReadPermissionsToLambdas(options: lambdaPermissionsOption) {
     for (let i = 0; i < options.lambdas.length; i++) {

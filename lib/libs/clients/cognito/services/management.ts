@@ -20,16 +20,15 @@ type signInOptions = {
 
 export const signUp = async (options: newUserCognitoServiceOptions) => {
   try {
-    const poolClient =
-      options.userRole === UserRole.AdminUser
-        ? CognitoEnvValues.USER_POOL_MANAGEMENT_CLIENT_ID
-        : CognitoEnvValues.USER_POOL_COMMON_CLIENT_ID;
-    await SignupUserCommandOperation({
+    const poolClient = CognitoEnvValues.USER_POOL_MANAGEMENT_CLIENT_ID;
+    const input = {
       userName: options.email,
       password: options.password,
       userRole: options.userRole,
       userPoolClientId: poolClient,
-    });
+    };
+    Logger.debug(`signUp input ${JSON.stringify(input)}`);
+    await SignupUserCommandOperation(input);
   } catch (error) {
     Logger.error(`Error on creating new user via service ${error}`);
     throw Error(`${error}`);
@@ -38,15 +37,14 @@ export const signUp = async (options: newUserCognitoServiceOptions) => {
 
 export const signIn = async (options: signInOptions) => {
   try {
-    const poolClient =
-      options.role === UserRole.AdminUser
-        ? CognitoEnvValues.USER_POOL_MANAGEMENT_CLIENT_ID
-        : CognitoEnvValues.USER_POOL_COMMON_CLIENT_ID;
-    await SignInCommand({
+    const poolClient = CognitoEnvValues.USER_POOL_MANAGEMENT_CLIENT_ID;
+    const input = {
       email: options.email,
       password: options.password,
       userPoolClientId: poolClient,
-    });
+    };
+    Logger.debug(`SignIn input ${JSON.stringify(input)}`);
+    await SignInCommand(input);
   } catch (error) {
     Logger.error(`Error on creating new user via service ${error}`);
     throw Error(`${error}`);
