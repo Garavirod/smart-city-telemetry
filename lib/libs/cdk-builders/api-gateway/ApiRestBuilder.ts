@@ -292,12 +292,10 @@ export class ApiRestBuilder {
       });
       // add nested resources
       if (r.resources) {
-        for (const re of r.resources) {
-          this.nestedResources({
-            parent: resourceId,
-            resources: re.resources ?? [],
-          });
-        }
+        this.nestedResources({
+          parent: resourceId,
+          resources: r.resources ?? [],
+        });
       }
     }
   }
