@@ -6,13 +6,12 @@ import {
 } from "../operations/dynamo-operations";
 import {
   UsersTableColumnSearch,
-  UsersTableIndex,
   type PaginationServiceResponse,
 } from "./types";
-import { DynamoEnvTableIndices, DynamoEnvTables } from "../../environment";
+import { DynamoEnvTables } from "../../environment";
 import { Logger } from "../../../logger";
 import { UpdateExpression } from "../operations/types";
-
+import { DynamoTableIndex } from "../../../../stacks/shared/enums/dynamodb";
 
 export const getUsers = async (props: { page?: any; pageSize: number }) => {
   try {
@@ -23,7 +22,7 @@ export const getUsers = async (props: { page?: any; pageSize: number }) => {
       searchOptions: {
         startingToken: props.page,
         pageSize: props.pageSize,
-        index: UsersTableIndex.EmailICreatedAtIndex,
+        index: DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
         expressions: [
           {
             column: "status",
@@ -72,15 +71,25 @@ export const addNewUser = async (item: UsersModel) => {
   }
 };
 
+
+export const getUserByEmail = async (email:string) => {
+  const user = await getUserByGSIndex({
+    tableColumn: 'email',
+    tableIndex: DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
+    value: email
+  });
+  return user;
+}
+
 type getUserIndexOptions = {
-  tableIndex: UsersTableIndex;
+  tableIndex: string;
   tableColumn: UsersTableColumnSearch;
   value: string;
 };
-export const getUserByGSIndex = async (options: getUserIndexOptions) => {
+const getUserByGSIndex = async (options: getUserIndexOptions) => {
   try {
     const table = DynamoEnvTables.USERS_TABLE;
-    const index = getUsersTableGSIEnv(options.tableIndex);
+    const index = options.tableIndex;
     const pageSize = 1;
     let startingToken = undefined;
     const response = await QueryPaginationCommandOperation<UsersModel>({
@@ -122,12 +131,4 @@ export const updateUserAttributes = async (options: updateItemOptions) => {
     Logger.error(`Error on updating item via service ${error}`);
     throw Error(`${error}`);
   }
-};
-
-const getUsersTableGSIEnv = (index: UsersTableIndex) => {
-  const envIndices = {
-    [UsersTableIndex.EmailICreatedAtIndex]:
-      DynamoEnvTableIndices.USERS_TABLE_EMAIL_INDEX,
-  };
-  return envIndices[index];
 };

@@ -1,6 +1,5 @@
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { LambdaBuilder } from "../../../../libs/cdk-builders/LambdaBuilder";
-import { DynamoTableNames } from "../../../shared/enums/dynamodb";
 import { LambdasFunctionNames } from "../../../shared/enums/lambdas";
 
 import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
@@ -8,6 +7,7 @@ import {
   CognitoUsersPoolClientNames,
   CognitoUsersPoolNames,
 } from "../../../shared/enums/cognito";
+import { DynamoTableIndex, DynamoTableNames } from "../../../shared/enums/dynamodb";
 
 type lambdaConstructOptions = {
   builder: LambdaBuilder;
@@ -24,7 +24,7 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
     lambdaName: LambdasFunctionNames.GetUsers,
     pathStackHandlerCode: `${codeFilepathBase}/get-users.ts`,
     environment: {
-      USERS_TABLE: options.dynamoTables[DynamoTableNames.Users].tableName,
+      USERS_TABLE: options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
     },
   });
 
@@ -32,7 +32,7 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
     lambdaName: LambdasFunctionNames.SignUp,
     pathStackHandlerCode: `${codeFilepathBase}/sign-up-user.ts`,
     environment: {
-      USERS_TABLE: options.dynamoTables[DynamoTableNames.Users].tableName,
+      USERS_TABLE: options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
       USER_MANAGEMENT_POOL_ID:options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool].userPoolId,
       USER_POOL_MANAGEMENT_CLIENT_ID:options.cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli].userPoolClientId,
     },
@@ -43,9 +43,10 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
     lambdaName: LambdasFunctionNames.SignIn,
     pathStackHandlerCode: `${codeFilepathBase}/sign-in-users.ts`,
     environment: {
-      USERS_TABLE: options.dynamoTables[DynamoTableNames.Users].tableName,
+      USERS_TABLE: options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
       USER_MANAGEMENT_POOL_ID: options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool].userPoolId,
       USER_POOL_MANAGEMENT_CLIENT_ID:options.cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli].userPoolClientId,
+      USERS_TABLE_EMAIL_INDEX: DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex
     },
   });
 

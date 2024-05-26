@@ -13,7 +13,7 @@ import { UserRole } from "../../../../../libs/clients/dynamodb/models/management
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
 import { SignInUserModel } from "../../../cdk/api/models/management";
-import { UsersTableIndex } from "../../../../../libs/clients/dynamodb/services/types";
+
 
 interface BodyParamsExpected extends SignInUserModel {}
 
@@ -26,11 +26,7 @@ export const handler = async (
       propertyToExtract: ParamPropertyType.Body,
     });
 
-    const user = await ManagementDynamoService.getUserByGSIndex({
-      tableColumn: "email",
-      tableIndex: UsersTableIndex.EmailICreatedAtIndex,
-      value: params.email,
-    });
+    const user = await ManagementDynamoService.getUserByEmail(params.email);
 
     if (!user) {
       return BadRequestResponse400({
@@ -56,8 +52,8 @@ export const handler = async (
       ],
     });
 
-    // TODO: 
-    // run web Socket function notifyWebSocketClients 
+    // TODO:
+    // run web Socket function notifyWebSocketClients
 
     return SuccessResponse200({
       data: { token, userId: user.userId },

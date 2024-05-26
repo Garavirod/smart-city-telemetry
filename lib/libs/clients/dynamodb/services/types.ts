@@ -4,8 +4,4 @@ export type PaginationServiceResponse<T> = {
   count: number;
 };
 
-export enum UsersTableIndex {
-  "EmailICreatedAtIndex" = "email-createdAt-index",
-}
-
 export type UsersTableColumnSearch = "email" | "UserId";

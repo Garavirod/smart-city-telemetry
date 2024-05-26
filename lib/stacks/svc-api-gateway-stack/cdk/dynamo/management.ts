@@ -1,12 +1,12 @@
-import { AttributeType, ProjectionType } from "aws-cdk-lib/aws-dynamodb";
+import { AttributeType } from "aws-cdk-lib/aws-dynamodb";
 import { DynamoBuilder } from "../../../../libs/cdk-builders/DynamoBuilder";
+import { UsersTableIndex } from "../../../shared/enums/dynamodb/dynamodb-indices";
 import { DynamoTableNames } from "../../../shared/enums/dynamodb";
-import { UsersTableIndex } from "../../../../libs/clients/dynamodb/services/types";
 
 export const buildDynamoConstructs = (builder: DynamoBuilder) => {
   // Tables
   builder.createTable({
-    tableName: DynamoTableNames.Users,
+    tableName: DynamoTableNames.TableNames.Users,
     partitionKey: {
       name: "userId",
       type: AttributeType.STRING,
@@ -14,12 +14,17 @@ export const buildDynamoConstructs = (builder: DynamoBuilder) => {
   });
 
   // GSI
-  builder.getDynamoTables[DynamoTableNames.Users].addGlobalSecondaryIndex({
+  builder.createGSI({
+    dynamoTable: DynamoTableNames.TableNames.Users,
     indexName: UsersTableIndex.EmailICreatedAtIndex,
-    partitionKey: { name: "email", type: AttributeType.STRING },
-    sortKey: { name: "createdAt", type: AttributeType.STRING },
-    projectionType: ProjectionType.ALL,
+    partitionKey: {
+      prop: "email",
+      type: "string",
+    },
+    sortKey: {
+      prop: "createdAt",
+      type: "string",
+    },
   });
-
   return builder;
 };

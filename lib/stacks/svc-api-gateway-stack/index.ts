@@ -7,10 +7,10 @@ import { buildDynamoConstructs } from "./cdk/dynamo/management";
 import { LambdaBuilder } from "../../libs/cdk-builders/LambdaBuilder";
 import { buildLambdaConstructs } from "./cdk/lambda/management";
 import { LambdasFunctionNames } from "../shared/enums/lambdas";
-import { DynamoTableNames } from "../shared/enums/dynamodb";
 import { CognitoBuilder } from "../../libs/cdk-builders/CognitoBuilder";
 import { buildCognitoConstructs } from "./cdk/cognito/management";
 import { CognitoUsersPoolNames } from "../shared/enums/cognito";
+import { DynamoTableNames } from "../shared/enums/dynamodb";
 
 
 export const buildSvcApiGatewayStack = (app: App) => {
@@ -38,7 +38,7 @@ export const buildSvcApiGatewayStack = (app: App) => {
 
   // Dynamo permissions settings
   dynamoBuilder.grantWritePermissionsToLambdas({
-    dynamoTable: DynamoTableNames.Users,
+    dynamoTable: DynamoTableNames.TableNames.Users,
     lambdas: [
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.GetUsers],
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignUp],
@@ -47,7 +47,7 @@ export const buildSvcApiGatewayStack = (app: App) => {
   });
 
   dynamoBuilder.grantReadPermissionsToLambdas({
-    dynamoTable:DynamoTableNames.Users,
+    dynamoTable:DynamoTableNames.TableNames.Users,
     lambdas:[
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignIn]
     ]
