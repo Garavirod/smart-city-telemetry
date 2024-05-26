@@ -33,7 +33,7 @@ export const PutCommandOperation = async (options: PutOptions) => {
     TableName: options.TableName,
     Item: options.Item,
   });
-  await client.getDynamoDBClient.send(command);
+  await client.getDynamoDBDocumentClient.send(command);
   client.destroyDynamoClients();
   Logger.debug("PutCommand successfully done!");
 };
@@ -66,7 +66,7 @@ export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
   };
   Logger.debug(`Input params > ${JSON.stringify(input)}`);
   const command = new UpdateItemCommand(input);
-  await client.getDynamoDBClient.send(command);
+  await client.getDynamoDBDocumentClient.send(command);
   client.destroyDynamoClients();
 };
 
@@ -147,7 +147,7 @@ export const QueryPaginationCommandOperation = async <T>(
     Logger.debug(`Input QueryPagination ${JSON.stringify(command)}`);
 
     const paginator = await paginateQuery(
-      { client: client.getDynamoDBClient, ...config },
+      { client: client.getDynamoDBDocumentClient, ...config },
       command
     );
 
