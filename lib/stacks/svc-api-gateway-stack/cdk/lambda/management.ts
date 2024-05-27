@@ -86,6 +86,8 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
         options.cognitoClients[
           CognitoUsersPoolClientNames.ManagementUsersPoolCli
         ].userPoolClientId,
+      USERS_TABLE:
+        options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
     },
   });
 };

@@ -43,13 +43,15 @@ export const buildSvcApiGatewayStack = (app: App) => {
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.GetUsers],
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignUp],
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignIn],
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.VerificationCode],
     ],
   });
 
   dynamoBuilder.grantReadPermissionsToLambdas({
     dynamoTable:DynamoTableNames.TableNames.Users,
     lambdas:[
-      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignIn]
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignIn],
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.VerificationCode],
     ]
   })
 
