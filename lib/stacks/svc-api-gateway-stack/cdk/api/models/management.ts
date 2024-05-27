@@ -1,18 +1,23 @@
-import { Dependencies, UserRole } from "../../../../../libs/clients/dynamodb/models/management";
+import {
+  Dependencies,
+  UserRole,
+} from "../../../../../libs/clients/dynamodb/models/management";
 
 export interface SignupUsersModel {
-    password: string;
-    name: string;
-    email: string;
-    lastName: string;
-    role: UserRole;
-    visibleDependencies: Dependencies[];
+  password: string;
+  name: string;
+  email: string;
+  lastName: string;
+  role: UserRole;
+  visibleDependencies: Dependencies[];
 }
-
 
 export interface SignInUserModel {
-  email:string;
-  password:string;
+  email: string;
+  password: string;
 }
-  
-  
+
+export interface VerificationCodeModel {
+  email: string;
+  code: string;
+}

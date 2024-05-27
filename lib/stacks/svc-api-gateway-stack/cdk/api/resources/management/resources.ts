@@ -157,6 +157,28 @@ export const createManagementApiResources = (
               },
             ],
           },
+          {
+            pathPart: "verification",
+            methods: [
+              {
+                httpMethod: "POST",
+                lambdaFunction:
+                  options.lambdaFunctions[
+                    LambdasFunctionNames.VerificationCode
+                  ],
+                isproxy: true,
+                model: {
+                  validatorNameId: ValidatorNames.VerificationCodeValidator,
+                  schema: SchemaModelBuilder.management({
+                    interfaceName: "VerificationCodeModel",
+                  }),
+                },
+                auth: {
+                  type: AuthorizationType.None,
+                },
+              },
+            ],
+          },
         ],
       }, // end users
     ],

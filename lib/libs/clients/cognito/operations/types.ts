@@ -12,3 +12,9 @@ export type signInOptions = {
   email: string;
   userPoolClientId: string;
 };
+
+export type confirmationCodeOptions = {
+  userPoolClientId: string;
+  email: string;
+  code: string;
+};

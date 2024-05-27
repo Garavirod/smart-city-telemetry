@@ -61,6 +61,11 @@ export const buildSvcApiGatewayStack = (app: App) => {
     ],
   });
 
+  cognitoBuilder.addPreSignupLambdaTrigger({
+    userPoolNameId: CognitoUsersPoolNames.ManagementUsersPool,
+    lambdaFunction: lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.PreSignUp]
+  })
+
   // ApiRest settings
   buildApiRestConstructs({
     builder: apiRestBuilder,

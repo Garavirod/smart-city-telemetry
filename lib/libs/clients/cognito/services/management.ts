@@ -2,7 +2,8 @@ import { Logger } from "../../../logger";
 import { UserRole } from "../../dynamodb/models/management";
 import { CognitoEnvValues } from "../../environment";
 import {
-  SignInCommand,
+  ConfirmationCodeCommandOperation,
+  SignInCommandOperation,
   SignupUserCommandOperation,
 } from "../operations/cognito-operations";
 
@@ -18,6 +19,11 @@ type signInOptions = {
   email: string;
 };
 
+type verificationCodeOptions = {
+  email: string;
+  code: string;
+};
+
 export const signUp = async (options: newUserCognitoServiceOptions) => {
   try {
     const poolClient = CognitoEnvValues.USER_POOL_MANAGEMENT_CLIENT_ID;
@@ -27,7 +33,6 @@ export const signUp = async (options: newUserCognitoServiceOptions) => {
       userRole: options.userRole,
       userPoolClientId: poolClient,
     };
-    Logger.debug(`signUp input ${JSON.stringify(input)}`);
     await SignupUserCommandOperation(input);
   } catch (error) {
     Logger.error(`Error on signUp user via service ${error}`);
@@ -41,12 +46,25 @@ export const signIn = async (options: signInOptions) => {
     const input = {
       email: options.email,
       password: options.password,
-      userPoolClientId: poolClient
+      userPoolClientId: poolClient,
     };
-    Logger.debug(`SignIn input ${JSON.stringify(input)}`);
-    await SignInCommand(input);
+    await SignInCommandOperation(input);
   } catch (error) {
     Logger.error(`Error on SignIn user via service ${error}`);
+    throw Error(`${error}`);
+  }
+};
+
+export const VerificationCode = async (options: verificationCodeOptions) => {
+  try {
+    const poolClient = CognitoEnvValues.USER_POOL_MANAGEMENT_CLIENT_ID;
+    await ConfirmationCodeCommandOperation({
+      userPoolClientId: poolClient,
+      email: options.email,
+      code: options.code
+    });
+  } catch (error) {
+    Logger.error(`Error on VerificationCode via service ${error}`);
     throw Error(`${error}`);
   }
 };

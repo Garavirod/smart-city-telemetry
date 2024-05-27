@@ -5,4 +5,5 @@ export enum ValidatorNames {
   //Management
   SignupUserValidator = "SignupUserValidator",
   SignInValidator = "SignInValidator",
+  VerificationCodeValidator = "VerificationCodeValidator",
 }

@@ -4,17 +4,16 @@ import {
   extractDataFromEvent,
 } from "../../utils/pre-process-event";
 import {
+  BadRequestResponse400,
   InternalErrorResponse500,
   SuccessResponse200,
 } from "../../utils/api-response";
 import { Logger } from "../../../../../libs/logger";
-import { UsersModel } from "../../../../../libs/clients/dynamodb/models/management";
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
-import { v4 as uuidv4 } from "uuid";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
-import { SignupUsersModel } from "../../../cdk/api/models/management";
+import { VerificationCodeModel } from "../../../cdk/api/models/management";
 
-interface BodyParamsExpected extends SignupUsersModel {}
+interface BodyParamsExpected extends VerificationCodeModel {}
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -25,35 +24,39 @@ export const handler = async (
       propertyToExtract: ParamPropertyType.Body,
     });
 
-    const user: UsersModel = {
-      userId: uuidv4(),
-      name: params.name,
-      email: params.email,
-      lastName: params.lastName,
-      status: true,
-      online: false,
-      role: params.role,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      visibleDependencies: params.visibleDependencies,
-      isVerified: false,
-    };
+    const user = await ManagementDynamoService.getUserByEmail(params.email);
+
+    if (!user) {
+      return BadRequestResponse400({
+        message: `No user registered with an email "${params.email}"`,
+      });
+    }
 
     // Add user to cognito
-    await ManagementCognitoService.signUp({
-      userRole: user.role,
-      email: user.email,
-      password: params.password,
+    await ManagementCognitoService.VerificationCode({
+      email: params.email,
+      code: params.code,
     });
 
-    // Add user to dynamo db
-    await ManagementDynamoService.addNewUser(user);
+    // Update User online prop
+    await ManagementDynamoService.updateUserAttributes({
+      userId: user.userId,
+      attributesToUpdate: [
+        {
+          column: "isVerified",
+          newValue: true,
+        },
+      ],
+    });
 
     return SuccessResponse200({
-      data: user,
+      data: { userId: user.userId },
+      message: "Verification code successfully done.",
     });
   } catch (error) {
     Logger.error(`Handler error ${JSON.stringify(error)}`);
-    return InternalErrorResponse500({});
+    return InternalErrorResponse500({
+        message: "Error on verifying code"
+    });
   }
 };

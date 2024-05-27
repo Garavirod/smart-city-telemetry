@@ -7,7 +7,10 @@ import {
   CognitoUsersPoolClientNames,
   CognitoUsersPoolNames,
 } from "../../../shared/enums/cognito";
-import { DynamoTableIndex, DynamoTableNames } from "../../../shared/enums/dynamodb";
+import {
+  DynamoTableIndex,
+  DynamoTableNames,
+} from "../../../shared/enums/dynamodb";
 
 type lambdaConstructOptions = {
   builder: LambdaBuilder;
@@ -24,7 +27,8 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
     lambdaName: LambdasFunctionNames.GetUsers,
     pathStackHandlerCode: `${codeFilepathBase}/get-users.ts`,
     environment: {
-      USERS_TABLE: options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
+      USERS_TABLE:
+        options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
     },
   });
 
@@ -32,21 +36,33 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
     lambdaName: LambdasFunctionNames.SignUp,
     pathStackHandlerCode: `${codeFilepathBase}/sign-up-user.ts`,
     environment: {
-      USERS_TABLE: options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
-      USER_MANAGEMENT_POOL_ID:options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool].userPoolId,
-      USER_POOL_MANAGEMENT_CLIENT_ID:options.cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli].userPoolClientId,
+      USERS_TABLE:
+        options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
+      USER_MANAGEMENT_POOL_ID:
+        options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool]
+          .userPoolId,
+      USER_POOL_MANAGEMENT_CLIENT_ID:
+        options.cognitoClients[
+          CognitoUsersPoolClientNames.ManagementUsersPoolCli
+        ].userPoolClientId,
     },
   });
-
 
   options.builder.createNodeFunctionLambda({
     lambdaName: LambdasFunctionNames.SignIn,
     pathStackHandlerCode: `${codeFilepathBase}/sign-in-users.ts`,
     environment: {
-      USERS_TABLE: options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
-      USER_MANAGEMENT_POOL_ID: options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool].userPoolId,
-      USER_POOL_MANAGEMENT_CLIENT_ID:options.cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli].userPoolClientId,
-      USERS_TABLE_EMAIL_INDEX: DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex
+      USERS_TABLE:
+        options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
+      USER_MANAGEMENT_POOL_ID:
+        options.cognitoPools[CognitoUsersPoolNames.ManagementUsersPool]
+          .userPoolId,
+      USER_POOL_MANAGEMENT_CLIENT_ID:
+        options.cognitoClients[
+          CognitoUsersPoolClientNames.ManagementUsersPoolCli
+        ].userPoolClientId,
+      USERS_TABLE_EMAIL_INDEX:
+        DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
     },
   });
 
@@ -54,5 +70,22 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
     lambdaName: LambdasFunctionNames.GetDependencies,
     pathStackHandlerCode: `${codeFilepathBase}/get-dependencies.ts`,
     environment: {},
+  });
+
+  options.builder.createNodeFunctionLambda({
+    lambdaName: LambdasFunctionNames.PreSignUp,
+    pathStackHandlerCode: `${codeFilepathBase}/pre-sign-up-users.ts`,
+    environment: {},
+  });
+
+  options.builder.createNodeFunctionLambda({
+    lambdaName: LambdasFunctionNames.VerificationCode,
+    pathStackHandlerCode: `${codeFilepathBase}/verification-code.ts`,
+    environment: {
+      USER_POOL_MANAGEMENT_CLIENT_ID:
+        options.cognitoClients[
+          CognitoUsersPoolClientNames.ManagementUsersPoolCli
+        ].userPoolClientId,
+    },
   });
 };

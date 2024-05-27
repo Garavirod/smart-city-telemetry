@@ -123,16 +123,17 @@ export const InternalErrorResponse500 = (props: {
   error?: any;
   data?: any;
   extras?: any;
+  message?: any;
 }): APIGatewayProxyResult => {
-  const { error, extras, data } = props;
-  let message = "Request failed - Unknown error";
+  const { error, extras, data, message:customMessage } = props;
+  let message = "Unknown error";
   if (error instanceof Error) {
     message = error.message;
   }
   return {
     statusCode: 500,
     body: JSON.stringify({
-      message: `Request failed - ${message}`,
+      message: `Request failed - ${customMessage ?? message}`,
       data,
       extras,
     }),

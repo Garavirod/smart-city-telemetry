@@ -4,11 +4,16 @@ import {
   InitiateAuthCommand,
   InitiateAuthRequest,
   AuthFlowType,
+  ConfirmSignUpCommandInput,
+  ConfirmSignUpCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoClientInstance } from "../client/CognitoClient";
-import { createAdminUserCognitoOptions, signInOptions } from "./types";
+import {
+  confirmationCodeOptions,
+  createAdminUserCognitoOptions,
+  signInOptions,
+} from "./types";
 import { Logger } from "../../../logger";
-import { CognitoEnvValues } from "../../environment";
 
 export const SignupUserCommandOperation = async (
   options: createAdminUserCognitoOptions
@@ -38,12 +43,12 @@ export const SignupUserCommandOperation = async (
   );
 };
 
-export const SignInCommand = async (options: signInOptions) => {
+export const SignInCommandOperation = async (options: signInOptions) => {
   const cognitoClient = new CognitoClientInstance();
 
   const input: InitiateAuthRequest = {
     AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
-    ClientId: CognitoEnvValues.USER_POOL_MANAGEMENT_CLIENT_ID,
+    ClientId: options.userPoolClientId,
     AuthParameters: {
       USERNAME: options.email,
       PASSWORD: options.password,
@@ -60,4 +65,27 @@ export const SignInCommand = async (options: signInOptions) => {
   );
 
   return response.AuthenticationResult?.IdToken;
+};
+
+export const ConfirmationCodeCommandOperation = async (
+  options: confirmationCodeOptions
+) => {
+  const cognitoClient = new CognitoClientInstance();
+
+  const input: ConfirmSignUpCommandInput = {
+    ClientId: options.userPoolClientId,
+    Username: options.email,
+    ConfirmationCode: options.code,
+  };
+
+  Logger.debug(`ConfirmationCodeCommand Input >: ${JSON.stringify(input)}`);
+
+  const command = new ConfirmSignUpCommand(input);
+  const response = await cognitoClient.getClient.send(command);
+
+  Logger.debug(
+    `Confirmation code successfully done >: ${JSON.stringify(
+      response.$metadata
+    )}`
+  );
 };
