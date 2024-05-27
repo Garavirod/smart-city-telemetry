@@ -104,13 +104,14 @@ export const getUpdateExpressions = (
 ) => {
   const attributeNames: Record<string, any> = {};
   const attributeValues: Record<string, any> = {};
-  let updateExpression = "SET ";
+  let updateExpressions:string[] = [];
 
   expressions.forEach(({ column, newValue }) => {
     attributeNames[`#${column}`] = column;
     attributeValues[`:${column}`] = `${newValue}`;
-    updateExpression += `#${column} = :${column}, `;
+    updateExpressions.push(`#${column} = :${column}`);
   });
+  const updateExpression = "SET "+updateExpressions.join(', ');
   return {
     attributeNames,
     attributeValues,

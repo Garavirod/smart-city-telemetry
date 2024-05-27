@@ -12,6 +12,7 @@ import { Logger } from "../../../../../libs/logger";
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
 import { VerificationCodeModel } from "../../../cdk/api/models/management";
+import { ExpiredCodeException } from "@aws-sdk/client-cognito-identity-provider";
 
 interface BodyParamsExpected extends VerificationCodeModel {}
 
@@ -55,8 +56,13 @@ export const handler = async (
     });
   } catch (error) {
     Logger.error(`Handler error ${JSON.stringify(error)}`);
+    if(error instanceof ExpiredCodeException){
+      return InternalErrorResponse500({
+          message: "Code has expired"
+      });
+    }
     return InternalErrorResponse500({
-        message: "Error on verifying code"
-    });
+      message: "Error on verifying code"
+  });
   }
 };
