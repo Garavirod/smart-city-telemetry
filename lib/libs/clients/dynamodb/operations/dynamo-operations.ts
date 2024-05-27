@@ -25,6 +25,7 @@ import {
 } from "./helpers";
 import { Logger } from "../../../logger";
 import { UpdateItemCommand, UpdateItemInput } from "@aws-sdk/client-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
 
 export const PutCommandOperation = async (options: PutOptions) => {
   Logger.debug(`PutCommand options >: ${JSON.stringify(options)}`);
@@ -59,9 +60,9 @@ export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
   const expressions = getUpdateExpressions(options.expressions);
   const input: UpdateItemInput = {
     TableName: options.TableName,
-    Key:options.key,
+    Key: marshall(options.key),
     ExpressionAttributeNames: expressions.attributeNames,
-    ExpressionAttributeValues: expressions.attributeValues,
+    ExpressionAttributeValues:  marshall(expressions.attributeValues),
     UpdateExpression: expressions.updateExpression,
   };
   Logger.debug(`Input params > ${JSON.stringify(input)}`);
