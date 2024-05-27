@@ -1,8 +1,4 @@
-import {
-  CodeMismatchException,
-  ExpiredCodeException,
-  UsernameExistsException,
-} from "@aws-sdk/client-cognito-identity-provider";
+
 import { Logger } from "../../../logger";
 import { UserRole } from "../../dynamodb/models/management";
 import { CognitoEnvValues } from "../../environment";
@@ -42,10 +38,7 @@ export const signUp = async (options: newUserCognitoServiceOptions) => {
     await SignupUserCommandOperation(input);
   } catch (error) {
     Logger.error(`Error on signUp user via service ${error}`);
-    if (error instanceof UsernameExistsException) {
-      throw UsernameExistsException;
-    }
-    throw Error(`Error on signUp user via service ${error}`);
+    throw error;
   }
 };
 
@@ -61,7 +54,7 @@ export const signIn = async (options: signInOptions) => {
     return response.AuthenticationResult?.IdToken;
   } catch (error) {
     Logger.error(`Error on SignIn user via service ${error}`);
-    throw Error(`${error}`);
+    throw error;
   }
 };
 
@@ -75,9 +68,7 @@ export const VerificationCode = async (options: verificationCodeOptions) => {
     });
   } catch (error) {
     Logger.error(`Error on VerificationCode via service ${error}`);
-    if (error instanceof ExpiredCodeException) throw ExpiredCodeException;
-    if (error instanceof CodeMismatchException) throw CodeMismatchException;
-    throw Error(`${error}`);
+    throw error;
   }
 };
 
@@ -93,6 +84,6 @@ export const regenerateVerificationCode = async (email: string) => {
     );
   } catch (error) {
     Logger.error(`Error on regenerateVerificationCode via service ${error}`);
-    throw Error(`${error}`);
+    throw error;
   }
 };
