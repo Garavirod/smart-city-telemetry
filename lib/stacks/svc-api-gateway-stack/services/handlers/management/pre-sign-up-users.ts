@@ -1,5 +1,6 @@
 import { Context, Callback } from "aws-lambda";
 import { Logger } from "../../../../../libs/logger";
+import { GlobalEnvironmentVars } from "../../../../../libs/environment";
 
 interface CognitoUserPoolTriggerEvent {
   version: string;
@@ -29,6 +30,9 @@ export const handler = async (
   callback: Callback
 ): Promise<CognitoUserPoolTriggerEvent> => {
   try {
+    Logger.debug(`This must be shown ether Dev or Testing environment`)
+    Logger.debug(`Environment >: ${GlobalEnvironmentVars.DEPLOY_ENVIRONMENT}`);
+    Logger.debug(`Event: ${JSON.stringify(event)}`);
     event.response.autoConfirmUser = true;
     event.response.autoVerifyEmail = true; // Optionally auto-verify email
     return event;

@@ -108,7 +108,7 @@ export const getUpdateExpressions = (
 
   expressions.forEach(({ column, newValue }) => {
     attributeNames[`#${column}`] = column;
-    attributeValues[`:${column}`] = `${newValue}`;
+    attributeValues[`:${column}`] = newValue;
     updateExpressions.push(`#${column} = :${column}`);
   });
   const updateExpression = "SET "+updateExpressions.join(', ');

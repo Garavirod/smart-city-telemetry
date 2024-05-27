@@ -71,15 +71,14 @@ export const addNewUser = async (item: UsersModel) => {
   }
 };
 
-
-export const getUserByEmail = async (email:string) => {
+export const getUserByEmail = async (email: string) => {
   const user = await getUserByGSIndex({
-    tableColumn: 'email',
+    tableColumn: "email",
     tableIndex: DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
-    value: email
+    value: email,
   });
   return user;
-}
+};
 
 type getUserIndexOptions = {
   tableIndex: string;
@@ -124,7 +123,7 @@ export const updateUserAttributes = async (options: updateItemOptions) => {
     const table = DynamoEnvTables.USERS_TABLE;
     await UpdateItemCommandOperation({
       TableName: table,
-      key: options.userId,
+      key: { userId: options.userId },
       expressions: options.attributesToUpdate,
     });
   } catch (error) {

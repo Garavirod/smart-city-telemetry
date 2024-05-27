@@ -12,7 +12,7 @@ export type GetOptions = {
 
 export type UpdateOptions = {
   TableName: string;
-  key: any;
+  key: Record<string,any>;
   expressions: UpdateExpression[];
 };
 
