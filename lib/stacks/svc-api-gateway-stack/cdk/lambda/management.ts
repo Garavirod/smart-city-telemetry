@@ -90,4 +90,17 @@ export const buildLambdaConstructs = (options: lambdaConstructOptions) => {
         options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
     },
   });
+
+  options.builder.createNodeFunctionLambda({
+    lambdaName: LambdasFunctionNames.ResendCode,
+    pathStackHandlerCode: `${codeFilepathBase}/resend-code.ts`,
+    environment: {
+      USER_POOL_MANAGEMENT_CLIENT_ID:
+        options.cognitoClients[
+          CognitoUsersPoolClientNames.ManagementUsersPoolCli
+        ].userPoolClientId,
+      USERS_TABLE:
+        options.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
+    },
+  });
 };

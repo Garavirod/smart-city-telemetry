@@ -77,6 +77,7 @@ export const getUserByEmail = async (email: string) => {
     tableIndex: DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
     value: email,
   });
+  Logger.debug(`getUserByEmail response >: ${JSON.stringify(user)}`);
   return user;
 };
 

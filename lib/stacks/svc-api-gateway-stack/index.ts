@@ -52,6 +52,7 @@ export const buildSvcApiGatewayStack = (app: App) => {
     lambdas:[
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.SignIn],
       lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.VerificationCode],
+      lambdaBuilder.getLambdaFunctions[LambdasFunctionNames.ResendCode],
     ]
   })
 

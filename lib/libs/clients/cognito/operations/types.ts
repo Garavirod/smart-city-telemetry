@@ -18,3 +18,9 @@ export type confirmationCodeOptions = {
   email: string;
   code: string;
 };
+
+
+export type resendConfirmationCodeOptions = {
+  userPoolClientId: string;
+  email: string;
+};

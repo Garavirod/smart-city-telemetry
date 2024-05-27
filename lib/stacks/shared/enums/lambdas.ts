@@ -6,4 +6,5 @@ export enum LambdasFunctionNames {
   SignIn = "SignIn",
   PreSignUp = "PreSignUp",
   VerificationCode = "VerificationCode",
+  ResendCode = "ResendCode",
 }

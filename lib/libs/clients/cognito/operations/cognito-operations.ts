@@ -6,11 +6,14 @@ import {
   AuthFlowType,
   ConfirmSignUpCommandInput,
   ConfirmSignUpCommand,
+  ResendConfirmationCodeCommand,
+  ResendConfirmationCodeCommandInput,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoClientInstance } from "../client/CognitoClient";
 import {
   confirmationCodeOptions,
   createAdminUserCognitoOptions,
+  resendConfirmationCodeOptions,
   signInOptions,
 } from "./types";
 import { Logger } from "../../../logger";
@@ -88,4 +91,30 @@ export const ConfirmationCodeCommandOperation = async (
       response.$metadata
     )}`
   );
+};
+
+export const ResendConfirmationCodeCommandOperation = async (
+  options: resendConfirmationCodeOptions
+) => {
+  const cognitoClient = new CognitoClientInstance();
+
+  const input: ResendConfirmationCodeCommandInput = {
+    ClientId: options.userPoolClientId,
+    Username: options.email,
+  };
+
+  Logger.debug(
+    `ResendConfirmationCodeCommand Input >: ${JSON.stringify(input)}`
+  );
+
+  const command = new ResendConfirmationCodeCommand(input);
+  const response = await cognitoClient.getClient.send(command);
+
+  Logger.debug(
+    `Re-send confirmation code successfully done >: ${JSON.stringify(
+      response.$metadata
+    )}`
+  );
+
+  return response;
 };

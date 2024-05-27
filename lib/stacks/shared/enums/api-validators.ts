@@ -1,4 +1,3 @@
-
 export enum ValidatorNames {
   // General
   SimplePaginationValidator = "SimplePaginationValidator",
@@ -6,4 +5,5 @@ export enum ValidatorNames {
   SignupUserValidator = "SignupUserValidator",
   SignInValidator = "SignInValidator",
   VerificationCodeValidator = "VerificationCodeValidator",
+  EmailValidator = "EmailValidator",
 }

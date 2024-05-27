@@ -178,7 +178,27 @@ export const createManagementApiResources = (
                 },
               },
             ],
-          },
+          }, //end verification code
+          {
+            pathPart: "resend",
+            methods: [
+              {
+                httpMethod: "POST",
+                lambdaFunction:
+                  options.lambdaFunctions[LambdasFunctionNames.ResendCode],
+                isproxy: true,
+                model: {
+                  validatorNameId: ValidatorNames.EmailValidator,
+                  schema: SchemaModelBuilder.management({
+                    interfaceName: "EmailModel",
+                  }),
+                },
+                auth: {
+                  type: AuthorizationType.None,
+                },
+              },
+            ],
+          },// end resend
         ],
       }, // end users
     ],

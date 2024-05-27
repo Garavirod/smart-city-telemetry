@@ -21,3 +21,7 @@ export interface VerificationCodeModel {
   email: string;
   code: string;
 }
+
+export interface EmailModel {
+  email: string;
+}

@@ -9,11 +9,12 @@ import {
   SuccessResponse200,
 } from "../../utils/api-response";
 import { Logger } from "../../../../../libs/logger";
+import { UserRole } from "../../../../../libs/clients/dynamodb/models/management";
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
-import { SignInUserModel } from "../../../cdk/api/models/management";
+import { EmailModel } from "../../../cdk/api/models/management";
 
-interface BodyParamsExpected extends SignInUserModel {}
+interface BodyParamsExpected extends EmailModel {}
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -32,39 +33,14 @@ export const handler = async (
       });
     }
 
-    // Add user to cognito
-    const token = await ManagementCognitoService.signIn({
-      email: user.email,
-      password: params.password,
-      role: user.role,
-    });
-
-    if (!token) {
-      return InternalErrorResponse500({
-        message: "Token could not be generated, please try again.",
-      });
-    }
-
-    // Update User online prop
-    await ManagementDynamoService.updateUserAttributes({
-      userId: user.userId,
-      attributesToUpdate: [
-        {
-          column: "online",
-          newValue: true,
-        },
-      ],
-    });
-
-    // TODO:
-    // run web Socket function notifyWebSocketClients
+    await ManagementCognitoService.regenerateVerificationCode(user.email);
 
     return SuccessResponse200({
-      data: { token, userId: user.userId },
-      message: "Sign In successfully",
+      data: { userId: user.userId, destination: user.email },
+      message: "Code sent successfully",
     });
   } catch (error) {
-    Logger.error(`Handler error ${JSON.stringify(error)}`);
+    Logger.error(`Handler error ${error}`);
     return InternalErrorResponse500({});
   }
 };

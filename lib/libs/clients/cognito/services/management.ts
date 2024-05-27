@@ -1,8 +1,14 @@
+import {
+  CodeMismatchException,
+  ExpiredCodeException,
+  UsernameExistsException,
+} from "@aws-sdk/client-cognito-identity-provider";
 import { Logger } from "../../../logger";
 import { UserRole } from "../../dynamodb/models/management";
 import { CognitoEnvValues } from "../../environment";
 import {
   ConfirmationCodeCommandOperation,
+  ResendConfirmationCodeCommandOperation,
   SignInCommandOperation,
   SignupUserCommandOperation,
 } from "../operations/cognito-operations";
@@ -36,7 +42,10 @@ export const signUp = async (options: newUserCognitoServiceOptions) => {
     await SignupUserCommandOperation(input);
   } catch (error) {
     Logger.error(`Error on signUp user via service ${error}`);
-    throw Error(`${error}`);
+    if (error instanceof UsernameExistsException) {
+      throw UsernameExistsException;
+    }
+    throw Error(`Error on signUp user via service ${error}`);
   }
 };
 
@@ -62,10 +71,28 @@ export const VerificationCode = async (options: verificationCodeOptions) => {
     await ConfirmationCodeCommandOperation({
       userPoolClientId: poolClient,
       email: options.email,
-      code: options.code
+      code: options.code,
     });
   } catch (error) {
     Logger.error(`Error on VerificationCode via service ${error}`);
+    if (error instanceof ExpiredCodeException) throw ExpiredCodeException;
+    if (error instanceof CodeMismatchException) throw CodeMismatchException;
+    throw Error(`${error}`);
+  }
+};
+
+export const regenerateVerificationCode = async (email: string) => {
+  try {
+    const poolClient = CognitoEnvValues.USER_POOL_MANAGEMENT_CLIENT_ID;
+    const response = await ResendConfirmationCodeCommandOperation({
+      email: email,
+      userPoolClientId: poolClient,
+    });
+    Logger.debug(
+      `Code send successfully to ${response.CodeDeliveryDetails?.Destination}`
+    );
+  } catch (error) {
+    Logger.error(`Error on regenerateVerificationCode via service ${error}`);
     throw Error(`${error}`);
   }
 };
