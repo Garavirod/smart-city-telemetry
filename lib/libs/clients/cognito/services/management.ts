@@ -48,7 +48,8 @@ export const signIn = async (options: signInOptions) => {
       password: options.password,
       userPoolClientId: poolClient,
     };
-    await SignInCommandOperation(input);
+    const response = await SignInCommandOperation(input);
+    return response.AuthenticationResult?.IdToken;
   } catch (error) {
     Logger.error(`Error on SignIn user via service ${error}`);
     throw Error(`${error}`);

@@ -64,7 +64,7 @@ export const SignInCommandOperation = async (options: signInOptions) => {
     `Signup User successfully done >: ${JSON.stringify(response.$metadata)}`
   );
 
-  return response.AuthenticationResult?.IdToken;
+  return response;
 };
 
 export const ConfirmationCodeCommandOperation = async (

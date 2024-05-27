@@ -14,7 +14,6 @@ import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/se
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
 import { SignInUserModel } from "../../../cdk/api/models/management";
 
-
 interface BodyParamsExpected extends SignInUserModel {}
 
 export const handler = async (
@@ -40,6 +39,12 @@ export const handler = async (
       password: params.password,
       role: UserRole.CommonUser, // user.role from dynamo
     });
+
+    if (!token) {
+      return InternalErrorResponse500({
+        message: "Token could not be generated, please try again.",
+      });
+    }
 
     // Update User online prop
     await ManagementDynamoService.updateUserAttributes({
