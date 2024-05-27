@@ -30,7 +30,7 @@ export const signUp = async (options: newUserCognitoServiceOptions) => {
     Logger.debug(`signUp input ${JSON.stringify(input)}`);
     await SignupUserCommandOperation(input);
   } catch (error) {
-    Logger.error(`Error on creating new user via service ${error}`);
+    Logger.error(`Error on signUp user via service ${error}`);
     throw Error(`${error}`);
   }
 };
@@ -41,12 +41,12 @@ export const signIn = async (options: signInOptions) => {
     const input = {
       email: options.email,
       password: options.password,
-      userPoolClientId: poolClient,
+      userPoolClientId: poolClient
     };
     Logger.debug(`SignIn input ${JSON.stringify(input)}`);
     await SignInCommand(input);
   } catch (error) {
-    Logger.error(`Error on creating new user via service ${error}`);
+    Logger.error(`Error on SignIn user via service ${error}`);
     throw Error(`${error}`);
   }
 };

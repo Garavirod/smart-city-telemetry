@@ -56,7 +56,7 @@ export class CognitoBuilder {
         customAttributes: this.setCustomAttributesToPoolId(
           options.customAttributes
         ),
-      }
+      },
     );
   }
 
@@ -79,7 +79,10 @@ export class CognitoBuilder {
       {
         userPool: this.userPools[options.userPoolNameId],
         generateSecret: false,
-      }
+        authFlows:{
+          userPassword: true, // This enables the USER_PASSWORD_AUTH flow    
+        }
+      },
     );
   }
 
