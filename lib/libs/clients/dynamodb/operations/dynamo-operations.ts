@@ -59,14 +59,14 @@ export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
   const expressions = getUpdateExpressions(options.expressions);
   const input: UpdateItemInput = {
     TableName: options.TableName,
-    Key: options.key,
+    Key:options.key,
     ExpressionAttributeNames: expressions.attributeNames,
     ExpressionAttributeValues: expressions.attributeValues,
     UpdateExpression: expressions.updateExpression,
   };
   Logger.debug(`Input params > ${JSON.stringify(input)}`);
   const command = new UpdateItemCommand(input);
-  await client.getDynamoDBDocumentClient.send(command);
+  await client.getDynamoDBClient.send(command);
   client.destroyDynamoClients();
 };
 
