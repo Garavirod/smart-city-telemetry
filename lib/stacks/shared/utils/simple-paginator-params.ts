@@ -1,4 +1,4 @@
-import { RequestParamType, RequestParameters } from "../api/resources/types";
+import { RequestParamType, RequestParameters } from "../../../libs/cdk-builders/api-gateway/types";
 
 /**
  * query string params pageSize and page. Both are required

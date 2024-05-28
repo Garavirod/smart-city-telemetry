@@ -103,20 +103,53 @@ export const SuccessResponse200 = (props: {
   };
 };
 
+export const BadRequestResponse400 = (props: {
+  message?: string;
+  data?: any;
+  extras?: any;
+}): APIGatewayProxyResult => {
+  const { message, extras, data } = props;
+  return {
+    statusCode: 400,
+    body: JSON.stringify({
+      message: message ? message : "Bad Request",
+      data,
+      extras,
+    }),
+  };
+};
+
+export const UnprocessableRequestResponse403 = (props: {
+  message?: string;
+  data?: any;
+  extras?: any;
+}): APIGatewayProxyResult => {
+  const { message, extras, data } = props;
+  return {
+    statusCode: 403,
+    body: JSON.stringify({
+      message: message ? message : "This request can not be done.",
+      data,
+      extras,
+    }),
+  };
+};
+
 export const InternalErrorResponse500 = (props: {
   error?: any;
   data?: any;
   extras?: any;
+  message?: any;
 }): APIGatewayProxyResult => {
-  const { error, extras, data } = props;
-  let message = "Request failed - Unknown error";
+  const { error, extras, data, message: customMessage } = props;
+  let message = "Unknown error";
   if (error instanceof Error) {
     message = error.message;
   }
   return {
     statusCode: 500,
     body: JSON.stringify({
-      message: `Request failed - ${message}`,
+      message: `Request failed - ${customMessage ?? message}`,
       data,
       extras,
     }),

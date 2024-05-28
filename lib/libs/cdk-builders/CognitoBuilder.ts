@@ -2,11 +2,14 @@ import {
   StringAttribute,
   UserPool,
   UserPoolClient,
+  UserPoolOperation,
 } from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
-import { createResourceNameId } from "../../stacks/svc-api-gateway-stack/cdk/helpers";
+import { createResourceNameId } from "../../stacks/shared/utils/rename-resource-id";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { GlobalEnvironmentVars } from "../environment";
+import { Logger } from "../logger";
 
 type createUserPoolOptions = {
   userPoolNameId: string;
@@ -28,6 +31,10 @@ type customAttributeOptions = {
   mutable: boolean;
 };
 
+type preSignupLambdaTriggerOptions = {
+  lambdaFunction: NodejsFunction;
+  userPoolNameId: string;
+};
 export class CognitoBuilder {
   private readonly scope: Construct;
   private userPools: Record<string, UserPool>;
@@ -60,6 +67,23 @@ export class CognitoBuilder {
     );
   }
 
+  /**
+   * This method only must be used on Dev or Qa environments
+   * @param options
+   */
+  public addPreSignupLambdaTrigger(options: preSignupLambdaTriggerOptions) {
+    if (GlobalEnvironmentVars.DEPLOY_ENVIRONMENT !== "Prod") {
+      this.userPools[options.userPoolNameId].addTrigger(
+        UserPoolOperation.PRE_SIGN_UP,
+        options.lambdaFunction
+      );
+    } else {
+      Logger.warn(
+        `Deploy environment value ${GlobalEnvironmentVars.DEPLOY_ENVIRONMENT}`
+      );
+    }
+  }
+
   private setCustomAttributesToPoolId(attributes?: customAttributeOptions[]) {
     if (!attributes) return attributes;
 
@@ -79,6 +103,9 @@ export class CognitoBuilder {
       {
         userPool: this.userPools[options.userPoolNameId],
         generateSecret: false,
+        authFlows: {
+          userPassword: true, // This enables the USER_PASSWORD_AUTH flow
+        },
       }
     );
   }
@@ -94,6 +121,23 @@ export class CognitoBuilder {
       options.lambdaFunctions[i].addToRolePolicy(
         new PolicyStatement({
           actions: ["cognito-idp:SignUp"],
+          resources: [this.userPools[options.userPoolNameId].userPoolArn],
+        })
+      );
+    }
+  }
+
+  /**
+   * Grant the Lambda function permissions to sign In users in Cognito
+   * @param options {lambdaPermissionCognitoUsersOptions}
+   */
+  public grantLambdasSignInUsersPermission(
+    options: lambdaPermissionCognitoUsersOptions
+  ) {
+    for (let i = 0; i < options.lambdaFunctions.length; i++) {
+      options.lambdaFunctions[i].addToRolePolicy(
+        new PolicyStatement({
+          actions: ["cognito-idp:InitiateAuth"],
           resources: [this.userPools[options.userPoolNameId].userPoolArn],
         })
       );

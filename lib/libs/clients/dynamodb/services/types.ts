@@ -3,3 +3,5 @@ export type PaginationServiceResponse<T> = {
   nextPage: string | undefined;
   count: number;
 };
+
+export type UsersTableColumnSearch = "email" | "UserId";

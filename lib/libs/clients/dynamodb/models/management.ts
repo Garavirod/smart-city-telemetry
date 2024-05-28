@@ -9,6 +9,7 @@ export interface UsersModel {
   createdAt: string;
   updatedAt: string;
   visibleDependencies: Dependencies[];
+  isVerified:boolean;
 }
 
 export enum UserRole {

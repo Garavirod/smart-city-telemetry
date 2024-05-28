@@ -6,3 +6,21 @@ export type createAdminUserCognitoOptions = {
   userName: string;
   password: string;
 };
+
+export type signInOptions = {
+  password: string;
+  email: string;
+  userPoolClientId: string;
+};
+
+export type confirmationCodeOptions = {
+  userPoolClientId: string;
+  email: string;
+  code: string;
+};
+
+
+export type resendConfirmationCodeOptions = {
+  userPoolClientId: string;
+  email: string;
+};

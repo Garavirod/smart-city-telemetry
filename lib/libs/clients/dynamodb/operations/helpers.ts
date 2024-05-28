@@ -1,12 +1,17 @@
-import { FilterExpressionConjunctions, SearchExpression } from "./types";
+import {
+  FilterExpressionConjunctions,
+  SearchExpression,
+  UpdateExpression,
+} from "./types";
 
 export const toExpressionAttributeNames = <T>(
-  expressions: Array<SearchExpression<T>>
+  expressions: Array<SearchExpression<T>> | UpdateExpression[]
 ) => {
   const names: Record<string, any> = {};
   expressions.forEach(({ column }) => (names[`#${column}`] = column));
   return names;
 };
+
 export const toExpressionAttributeValues = <T>(
   expressions: Array<SearchExpression<T>>
 ) => {
@@ -84,6 +89,7 @@ export const toKeyConditionExpressions = <T>(
     })
     .join(` ${conjunction} `);
 };
+
 // ! NOTE: This function only works with the begins_with operator on sort keys
 export const toKeyConditionExpressionsBeginWith = <T>(
   expression: Array<SearchExpression<T>>
@@ -91,4 +97,24 @@ export const toKeyConditionExpressionsBeginWith = <T>(
   return `#${expression[1].column} ${expression[1].operator} :${expression[1].column}
               AND
             begins_with(#${expression[0].column}, :${expression[0].column})`;
+};
+
+export const getUpdateExpressions = (
+  expressions: Array<UpdateExpression>
+) => {
+  const attributeNames: Record<string, any> = {};
+  const attributeValues: Record<string, any> = {};
+  let updateExpressions:string[] = [];
+
+  expressions.forEach(({ column, newValue }) => {
+    attributeNames[`#${column}`] = column;
+    attributeValues[`:${column}`] = newValue;
+    updateExpressions.push(`#${column} = :${column}`);
+  });
+  const updateExpression = "SET "+updateExpressions.join(', ');
+  return {
+    attributeNames,
+    attributeValues,
+    updateExpression,
+  };
 };

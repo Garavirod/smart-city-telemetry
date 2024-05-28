@@ -1,16 +1,18 @@
 import { Construct } from "constructs";
-import { createResourceNameId } from "../../stacks/svc-api-gateway-stack/cdk/helpers";
+import { createResourceNameId } from "../../../stacks/shared/utils/rename-resource-id";
 import { RestApi } from "aws-cdk-lib/aws-apigateway";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { CfnOutput } from "aws-cdk-lib";
 import {
   APiResourceMethods,
+  AuthorizationType,
   RequestParameters,
   ResourcesAPI,
-} from "../../stacks/svc-api-gateway-stack/cdk/api/resources/types";
+} from "./types";
 import { randomUUID } from "crypto";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { Logger } from "../logger";
+import { Logger } from "../../logger";
+import { UserPool } from "aws-cdk-lib/aws-cognito";
 
 type corsOptionsConfig = {
   allowHeaders: string[];
@@ -30,6 +32,11 @@ type apiKeyUsagePlanOptions = {
   name: string;
   description: string;
 };
+
+type setAuthorizerOptions = {
+  authorizerName: string;
+  userPools: UserPool[];
+};
 export class ApiRestBuilder {
   private scope: Construct;
   private apiResourcesMap: Record<string, apigateway.Resource>;
@@ -38,10 +45,12 @@ export class ApiRestBuilder {
   private corsConfig: corsOptionsConfig;
   public apiRest: RestApi;
   private validators: Record<string, apigateway.RequestValidator>;
+  private authorizerPools: Record<string, apigateway.CognitoUserPoolsAuthorizer>;
 
   constructor(scope: Construct) {
     this.scope = scope;
     this.validators = {};
+    this.authorizerPools = {};
   }
 
   public createApiRest(options: createApiRestOptions) {
@@ -63,6 +72,17 @@ export class ApiRestBuilder {
         allowOrigins: this.corsConfig.allowOrigins,
       },
     });
+  }
+
+  public createCognitoAuthorizer(options: setAuthorizerOptions) {
+    this.authorizerPools[options.authorizerName] =
+      new apigateway.CognitoUserPoolsAuthorizer(
+        this.scope,
+        createResourceNameId(options.authorizerName),
+        {
+          cognitoUserPools: options.userPools,
+        },
+      );
   }
 
   public get getApiRest() {
@@ -118,18 +138,21 @@ export class ApiRestBuilder {
         lambdaFunction: method.lambdaFunction,
         requestTemplates: params.requestTemplates,
       });
-      let requestValidator;
-
+      const authorizationProps = this.getAuthorizerProps(method);
       // Create methods with integration
       this.apiResourcesMap[props.resourceId].addMethod(
         method.httpMethod,
         integration,
         {
-          apiKeyRequired: true,
+          apiKeyRequired: this.getApiKeyRequired(method),
           // Marked request parameters as required
           requestParameters: params.requiredRequestTemplates,
           requestModels: this.createApiModel(method),
+          // Validate params or body
           requestValidator: this.createValidator(method),
+          // Cognito authorizer
+          authorizer: authorizationProps.authorizer,
+          authorizationType: authorizationProps.authorizationType,
         }
       );
     }
@@ -153,6 +176,26 @@ export class ApiRestBuilder {
     return {
       "application/json": model,
     };
+  }
+
+  private getAuthorizerProps(method: APiResourceMethods) {
+    if (method.auth.type === AuthorizationType.Authorization) {
+      return {
+        authorizer: this.authorizerPools[method.auth.apiAuthorizerName!],
+        authorizationType: apigateway.AuthorizationType.COGNITO,
+      };
+    }
+
+    return {
+      authorizer: undefined,
+      authorizationType: undefined,
+    };
+  }
+
+  private getApiKeyRequired(method: APiResourceMethods) {
+    return method.auth.type === AuthorizationType.ApiKeys
+      ? method.auth.apiKeyRequired
+      : void 0;
   }
 
   private createValidator(method: APiResourceMethods) {
@@ -249,12 +292,10 @@ export class ApiRestBuilder {
       });
       // add nested resources
       if (r.resources) {
-        for (const re of r.resources) {
-          this.nestedResources({
-            parent: resourceId,
-            resources: re.resources ?? [],
-          });
-        }
+        this.nestedResources({
+          parent: resourceId,
+          resources: r.resources ?? [],
+        });
       }
     }
   }

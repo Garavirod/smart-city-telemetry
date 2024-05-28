@@ -11,10 +11,12 @@ import {
   PutOptions,
   QueryPaginateResult,
   QueryPaginationOptions,
+  UpdateOptions,
 } from "./types";
 import { DynamoClientInstance } from "../client/dynamo-client";
 
 import {
+  getUpdateExpressions,
   toExpressionAttributeNames,
   toExpressionAttributeValues,
   toFilterExpressions,
@@ -22,7 +24,8 @@ import {
   toKeyConditionExpressionsBeginWith,
 } from "./helpers";
 import { Logger } from "../../../logger";
-
+import { UpdateItemCommand, UpdateItemInput } from "@aws-sdk/client-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
 
 export const PutCommandOperation = async (options: PutOptions) => {
   Logger.debug(`PutCommand options >: ${JSON.stringify(options)}`);
@@ -31,7 +34,7 @@ export const PutCommandOperation = async (options: PutOptions) => {
     TableName: options.TableName,
     Item: options.Item,
   });
-  await client.getDynamoDBClient.send(command);
+  await client.getDynamoDBDocumentClient.send(command);
   client.destroyDynamoClients();
   Logger.debug("PutCommand successfully done!");
 };
@@ -42,11 +45,38 @@ export const GetCommandOperation = async (options: GetOptions) => {
     TableName: options.TableName,
     Key: options.key,
   });
-  const response = await client.getDynamoDBClient.send(command);
+  const response = await client.getDynamoDBDocumentClient.send(command);
   client.destroyDynamoClients();
   return response;
 };
 
+/**
+ * Perform SDK Dynamo UpdateItemCommand
+ * @param options
+ */
+export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
+  Logger.debug(`options arg > ${JSON.stringify(options)}`);
+  const client = new DynamoClientInstance();
+  const expressions = getUpdateExpressions(options.expressions);
+  const input: UpdateItemInput = {
+    TableName: options.TableName,
+    Key: marshall(options.key),
+    ExpressionAttributeNames: expressions.attributeNames,
+    ExpressionAttributeValues:  marshall(expressions.attributeValues),
+    UpdateExpression: expressions.updateExpression,
+  };
+  Logger.debug(`Input params > ${JSON.stringify(input)}`);
+  const command = new UpdateItemCommand(input);
+  await client.getDynamoDBClient.send(command);
+  client.destroyDynamoClients();
+};
+
+/**
+ *
+ * @param
+ * @link {SearchOptions}
+ * @returns
+ */
 export const QueryPaginationCommandOperation = async <T>(
   options: QueryPaginationOptions
 ): Promise<QueryPaginateResult<T>> => {
@@ -115,8 +145,10 @@ export const QueryPaginationCommandOperation = async <T>(
       Limit: limit,
     };
 
+    Logger.debug(`Input QueryPagination ${JSON.stringify(command)}`);
+
     const paginator = await paginateQuery(
-      { client: client.getDynamoDBClient, ...config },
+      { client: client.getDynamoDBDocumentClient, ...config },
       command
     );
 

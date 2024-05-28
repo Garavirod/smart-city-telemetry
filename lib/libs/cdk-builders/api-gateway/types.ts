@@ -1,3 +1,4 @@
+import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 export type ResourcesAPI = {
@@ -5,6 +6,13 @@ export type ResourcesAPI = {
   methods: APiResourceMethods[];
   resources?: ResourcesAPI[];
 };
+
+export enum AuthorizationType {
+  "ApiKeys" = "ApiKeys",
+  "Authorization" = "Authorization",
+  "None"="None"
+}
+
 export type APiResourceMethods = {
   httpMethod: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
   lambdaFunction: NodejsFunction;
@@ -16,6 +24,11 @@ export type APiResourceMethods = {
   model?: {
     validatorNameId: string;
     schema: any;
+  };
+  auth: {
+    type: AuthorizationType;
+    apiKeyRequired?:boolean;
+    apiAuthorizerName?:string;
   };
 };
 

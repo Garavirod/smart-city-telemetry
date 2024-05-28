@@ -1,9 +1,10 @@
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
-import { createResourceNameId } from "../../stacks/svc-api-gateway-stack/cdk/helpers";
+import { createResourceNameId } from "../../stacks/shared/utils/rename-resource-id";
 import { GlobalEnvironmentVars } from "../environment";
 import path = require("path");
 import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { Duration } from "aws-cdk-lib";
 
 type createLambdaFunctionOptions = {
   lambdaName: string;
@@ -39,6 +40,8 @@ export class LambdaBuilder {
           LOGGER_LEVEL: GlobalEnvironmentVars.LOGGER_LEVEL,
           ...environment,
         },
+        memorySize: 128, // Keep memory size low
+        timeout: Duration.seconds(10), // Keep timeout short
       }
     );
   }
