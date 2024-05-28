@@ -7,6 +7,7 @@ import {
   BadRequestResponse400,
   InternalErrorResponse500,
   SuccessResponse200,
+  UnprocessableRequestResponse403,
 } from "../../utils/api-response";
 import { Logger } from "../../../../../libs/logger";
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
@@ -60,12 +61,12 @@ export const handler = async (
   } catch (error) {
     Logger.error(`Handler error ${JSON.stringify(error)}`);
     if (error instanceof ExpiredCodeException) {
-      return InternalErrorResponse500({
+      return UnprocessableRequestResponse403({
         message: "Code has expired, please generate a new one.",
       });
     }
     if (error instanceof CodeMismatchException) {
-      return InternalErrorResponse500({
+      return UnprocessableRequestResponse403({
         message: "Invalid code format, please review the code.",
       });
     }
