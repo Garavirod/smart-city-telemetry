@@ -8,7 +8,7 @@ import * as PermissionStack from '../lib/stacks/svc-permissions-stack';
 test('SQS Queue Created', () => {
   const app = new cdk.App();
     // WHEN
-  const stack1 = new ApiGatewayStack.SvcApiGatewayStack(app, 'SvcApiGatewayStack');
+  const stack1 = new ApiGatewayStack.ApiGatewayStack(app, 'ApiGatewayStack');
   const template1 = Template.fromStack(stack1);
 
   /* const stack2 = new PermissionStack.SvcPermissionsStack(app, 'SvcPermissionsStack');

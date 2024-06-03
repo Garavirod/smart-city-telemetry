@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { QueryStringParametersPagination } from "../../../cdk/api/interfaces/shared";
+import { QueryStringParametersPagination } from "../../../cdk/builders/api/interfaces/shared";
 import { ParamPropertyType, extractDataFromEvent } from "../../utils/pre-process-event";
 import { InternalErrorResponse500, SuccessResponse200 } from "../../utils/api-response";
 

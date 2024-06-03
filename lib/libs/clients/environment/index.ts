@@ -10,5 +10,10 @@ export const DynamoEnvTables = {
 
 export const CognitoEnvValues = {
   USER_MANAGEMENT_POOL_ID: process.env.USER_MANAGEMENT_POOL_ID ?? "",
-  USER_POOL_MANAGEMENT_CLIENT_ID: process.env.USER_POOL_MANAGEMENT_CLIENT_ID ?? "",
-}
+  USER_POOL_MANAGEMENT_CLIENT_ID:
+    process.env.USER_POOL_MANAGEMENT_CLIENT_ID ?? "",
+};
+
+export const WebSocketEnvValues = {
+  WEBSOCKET_API_ENDPOINT: process.env.WEBSOCKET_API_ENDPOINT ?? "",
+};

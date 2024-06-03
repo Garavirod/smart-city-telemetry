@@ -2,12 +2,12 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import {
   AuthorizationType,
   ResourcesAPI,
-} from "../../../../../../libs/cdk-builders/api-gateway/types";
-import { LambdasFunctionNames } from "../../../../../shared/enums/lambdas";
-import { SchemaModelBuilder } from "../../../../../shared/utils/generate-api-schemas-model";
-import { simplePaginationParams } from "../../../../../shared/utils/simple-paginator-params";
-import { ApiAuthorizersNames } from "../../../../../shared/enums/api-authorizers";
-import { ValidatorNames } from "../../../../../shared/enums/api-validators";
+} from "../../../../../../../libs/cdk-builders/api-gateway/types";
+import { LambdasFunctionNames } from "../../../../../../shared/enums/lambdas";
+import { SchemaModelBuilder } from "../../../../../../shared/utils/generate-api-schemas-model";
+import { simplePaginationParams } from "../../../../../../shared/utils/simple-paginator-params";
+import { ApiAuthorizersNames } from "../../../../../../shared/enums/api-authorizers";
+import { ValidatorNames } from "../../../../../../shared/enums/api-validators";
 
 type createResourcesOptions = {
   lambdaFunctions: Record<string, NodejsFunction>;

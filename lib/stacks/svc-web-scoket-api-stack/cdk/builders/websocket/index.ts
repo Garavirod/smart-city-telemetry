@@ -1,40 +1,56 @@
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { WebSocketApiBuilder } from "../../../../../libs/cdk-builders/web-socket-api/WebSocketApiBuilder";
 import { LambdasFunctionNames } from "../../../../shared/enums/lambdas";
+import { SvcWebSocketApiStack } from "../../../stack";
 
-type buildWebSocketOptions = {
-  builder: WebSocketApiBuilder;
-  lambdaFunctions: Record<string, NodejsFunction>;
-};
+export const runWebSocketApiBuilder = (stack: SvcWebSocketApiStack) => {
+  const builder = new WebSocketApiBuilder(stack);
 
-export const runWebSocketApiBuilder = (options: buildWebSocketOptions) => {
   // Web socket creation
   const webSocketName = "web-socket-api";
-  options.builder.createWebsocket({
+  const webSocketApi = builder.createWebsocket({
     webSocketNameId: webSocketName,
     webSocketDescription: `Web socket for the resource ${webSocketName}`,
     lambdaConnection:
-      options.lambdaFunctions[LambdasFunctionNames.NotifyNewConnection],
+      stack.LambdaFunctions[LambdasFunctionNames.NotifyNewConnection],
     lambdaDisconnect:
-      options.lambdaFunctions[LambdasFunctionNames.NotifyDisconnection],
+      stack.LambdaFunctions[LambdasFunctionNames.NotifyDisconnection],
   });
 
+  stack.addWebSocketAPI(webSocketApi);
+
   // Define stage
-  options.builder.createStage({
+  builder.createStage({
     stageId: "WebSocketStage",
-    stageName: "dev", // TODO set this according environment
+    stageName: "dev", // TODO set this according environment,
+    webSocket: webSocketApi,
   });
 
   // Define routes
-  options.builder.createRoute({
+  builder.createRoute({
+    webSocket: webSocketApi,
     routeName: "newSignIn",
     integration:
-      options.lambdaFunctions[LambdasFunctionNames.NotifySignInConnection],
+      stack.LambdaFunctions[LambdasFunctionNames.NotifySignInConnection],
   });
 
-  options.builder.createRoute({
+  builder.createRoute({
+    webSocket: webSocketApi,
     routeName: "trainLocation",
     integration:
-      options.lambdaFunctions[LambdasFunctionNames.NotifyTrainLocation],
+      stack.LambdaFunctions[LambdasFunctionNames.NotifyTrainLocation],
   });
+
+  // Permissions
+  builder.grantLambdaPermissionToInvokeAPI({
+    webSocket:webSocketApi,
+    lambdaFunctions:[
+
+    ]
+  })
+
+  // Export resources
+  /* options.builder.createStackExportation({
+    exportId: 'WebSocketApiEndpoint',
+    exportName: 'WebSocketApiEndpoint'
+  }) */
 };

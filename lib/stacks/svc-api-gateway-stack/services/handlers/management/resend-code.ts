@@ -12,7 +12,7 @@ import { Logger } from "../../../../../libs/logger";
 import { UserRole } from "../../../../../libs/clients/dynamodb/models/management";
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
-import { EmailModel } from "../../../cdk/api/models/management";
+import { EmailModel } from "../../../cdk/builders/api/models/management";
 
 interface BodyParamsExpected extends EmailModel {}
 

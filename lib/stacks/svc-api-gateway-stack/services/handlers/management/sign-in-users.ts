@@ -11,7 +11,7 @@ import {
 import { Logger } from "../../../../../libs/logger";
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
-import { SignInUserModel } from "../../../cdk/api/models/management";
+import { SignInUserModel } from "../../../cdk/builders/api/models/management";
 
 interface BodyParamsExpected extends SignInUserModel {}
 

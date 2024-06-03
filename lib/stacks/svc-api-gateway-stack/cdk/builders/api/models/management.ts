@@ -1,7 +1,7 @@
 import {
   Dependencies,
   UserRole,
-} from "../../../../../libs/clients/dynamodb/models/management";
+} from "../../../../../../libs/clients/dynamodb/models/management";
 
 export interface SignupUsersModel {
   password: string;

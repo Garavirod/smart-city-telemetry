@@ -12,7 +12,7 @@ import {
 import { Logger } from "../../../../../libs/logger";
 import { ManagementDynamoService } from "../../../../../libs/clients/dynamodb/services";
 import { ManagementCognitoService } from "../../../../../libs/clients/cognito/services";
-import { VerificationCodeModel } from "../../../cdk/api/models/management";
+import { VerificationCodeModel } from "../../../cdk/builders/api/models/management";
 import {
   ExpiredCodeException,
   CodeMismatchException,

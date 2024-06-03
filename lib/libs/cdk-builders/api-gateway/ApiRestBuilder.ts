@@ -31,6 +31,7 @@ type createApiRestOptions = {
 type apiKeyUsagePlanOptions = {
   name: string;
   description: string;
+  apiRest: RestApi;
 };
 
 type setAuthorizerOptions = {
@@ -43,9 +44,11 @@ export class ApiRestBuilder {
   private apiRestName: string;
   private apiRestDescription: string;
   private corsConfig: corsOptionsConfig;
-  public apiRest: RestApi;
   private validators: Record<string, apigateway.RequestValidator>;
-  private authorizerPools: Record<string, apigateway.CognitoUserPoolsAuthorizer>;
+  private authorizerPools: Record<
+    string,
+    apigateway.CognitoUserPoolsAuthorizer
+  >;
 
   constructor(scope: Construct) {
     this.scope = scope;
@@ -59,7 +62,7 @@ export class ApiRestBuilder {
     this.corsConfig = options.cors;
     this.apiResourcesMap = { ...this.apiResourcesMap };
     // api gateway creation
-    this.apiRest = new apigateway.RestApi(this.scope, this.apiRestName, {
+    return new apigateway.RestApi(this.scope, this.apiRestName, {
       description: this.apiRestDescription,
       deployOptions: {
         stageName: options.apiStage,
@@ -81,24 +84,20 @@ export class ApiRestBuilder {
         createResourceNameId(options.authorizerName),
         {
           cognitoUserPools: options.userPools,
-        },
+        }
       );
-  }
-
-  public get getApiRest() {
-    return this.apiRest;
   }
 
   public setCorsConfiguration(cors: corsOptionsConfig) {
     this.corsConfig = cors;
   }
 
-  public configureExportStack(exportName: string) {
+  /* public configureExportStack(exportName: string) {
     const nameStackExportationUrl = exportName;
     new CfnOutput(this.scope, nameStackExportationUrl, {
       value: this.apiRest.url,
     });
-  }
+  } */
 
   public configureAPIKeyPlanUsage(options: apiKeyUsagePlanOptions) {
     const apiKeName = createResourceNameId(options.name);
@@ -109,8 +108,8 @@ export class ApiRestBuilder {
     const usagePlan = new apigateway.UsagePlan(this.scope, usagePlanName, {
       apiStages: [
         {
-          api: this.apiRest,
-          stage: this.apiRest.deploymentStage,
+          api: options.apiRest,
+          stage: options.apiRest.deploymentStage,
         },
       ],
     });
@@ -125,6 +124,7 @@ export class ApiRestBuilder {
   private addHttpMethodToResource(props: {
     resourceId: string;
     httpMethods: APiResourceMethods[];
+    restApi: RestApi;
   }) {
     for (const method of props.httpMethods) {
       // Build request parameters
@@ -147,9 +147,9 @@ export class ApiRestBuilder {
           apiKeyRequired: this.getApiKeyRequired(method),
           // Marked request parameters as required
           requestParameters: params.requiredRequestTemplates,
-          requestModels: this.createApiModel(method),
+          requestModels: this.createApiModel(method, props.restApi),
           // Validate params or body
-          requestValidator: this.createValidator(method),
+          requestValidator: this.createValidator(method, props.restApi),
           // Cognito authorizer
           authorizer: authorizationProps.authorizer,
           authorizationType: authorizationProps.authorizationType,
@@ -158,14 +158,14 @@ export class ApiRestBuilder {
     }
   }
 
-  private createApiModel(method: APiResourceMethods) {
+  private createApiModel(method: APiResourceMethods, restApi: RestApi) {
     if (!method.model) return method.model;
 
     const model = new apigateway.Model(
       this.scope,
       createResourceNameId(method.model.validatorNameId),
       {
-        restApi: this.apiRest,
+        restApi,
         contentType: "application/json",
         schema: method.model.schema,
       }
@@ -198,7 +198,7 @@ export class ApiRestBuilder {
       : void 0;
   }
 
-  private createValidator(method: APiResourceMethods) {
+  private createValidator(method: APiResourceMethods, restApi: RestApi) {
     let requestValidators = {
       validateRequestBody: false,
       validateRequestParameters: false,
@@ -221,17 +221,18 @@ export class ApiRestBuilder {
     } else {
       return undefined;
     }
-    return this.getValidator(validatorKey, requestValidators);
+    return this.getValidator(validatorKey, requestValidators, restApi);
   }
 
   private getValidator(
     validatorKey: string,
-    requestValidators: Record<string, boolean>
+    requestValidators: Record<string, boolean>,
+    restApi: RestApi
   ) {
     if (validatorKey in this.validators) {
       return this.validators[validatorKey];
     }
-    this.validators[validatorKey] = this.apiRest.addRequestValidator(
+    this.validators[validatorKey] = restApi.addRequestValidator(
       createResourceNameId(`${validatorKey}`),
       requestValidators
     );
@@ -279,6 +280,7 @@ export class ApiRestBuilder {
   private nestedResources(props: {
     parent: string;
     resources: ResourcesAPI[];
+    restApi: RestApi;
   }) {
     for (const r of props.resources) {
       const resourceId = randomUUID();
@@ -289,12 +291,14 @@ export class ApiRestBuilder {
       this.addHttpMethodToResource({
         httpMethods: r.methods,
         resourceId: resourceId,
+        restApi: props.restApi,
       });
       // add nested resources
       if (r.resources) {
         this.nestedResources({
           parent: resourceId,
           resources: r.resources ?? [],
+          restApi: props.restApi,
         });
       }
     }
@@ -304,20 +308,25 @@ export class ApiRestBuilder {
    * Create a resource endpoint from the root of the api
    * @param props
    */
-  public addApiResourceFromRoot(props: { resources: ResourcesAPI }) {
+  public addApiResourceFromRoot(props: {
+    resources: ResourcesAPI;
+    restApi: RestApi;
+  }) {
     const resourceId = randomUUID();
-    this.apiResourcesMap[resourceId] = this.apiRest.root.addResource(
+    this.apiResourcesMap[resourceId] = props.restApi.root.addResource(
       props.resources.pathPart
     );
     // Add al methods
     this.addHttpMethodToResource({
       resourceId: resourceId,
       httpMethods: props.resources.methods,
+      restApi: props.restApi,
     });
     // Nested resources
     this.nestedResources({
       parent: resourceId,
       resources: props.resources.resources ?? [],
+      restApi: props.restApi,
     });
   }
 
