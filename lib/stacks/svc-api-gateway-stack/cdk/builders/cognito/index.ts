@@ -27,8 +27,7 @@ export const runCognitoBuilder = (stack: ApiGatewayStack) => {
       builder.addCognitoUserPoolClient({
         userPoolClientNameId:
           CognitoUsersPoolClientNames.ManagementUsersPoolCli,
-        userPool:
-          cognitoUserPools[CognitoUsersPoolNames.ManagementUsersPool],
+        userPool: cognitoUserPools[CognitoUsersPoolNames.ManagementUsersPool],
       }),
   };
 

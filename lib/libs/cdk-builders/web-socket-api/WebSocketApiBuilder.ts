@@ -3,8 +3,6 @@ import { Construct } from "constructs";
 import { createResourceNameId } from "../../../stacks/shared/utils/rename-resource-id";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { WebSocketLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
-import { CfnOutput } from "aws-cdk-lib";
-import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 type createWebsocketApiOptions = {
   webSocketNameId: string;
@@ -29,12 +27,6 @@ type createExportStackOptions = {
   exportName: string;
   exportId: string;
 };
-
-type grantLambdaPermissionsInvokeOptions = {
-  webSocket: apigatewayv2.WebSocketApi;
-  lambdaFunctions: NodejsFunction[];
-};
-
 export class WebSocketApiBuilder {
   private scope: Construct;
   constructor(scope: Construct) {
@@ -91,17 +83,5 @@ export class WebSocketApiBuilder {
     });
   } */
 
-  public grantLambdaPermissionToInvokeAPI(
-    options: grantLambdaPermissionsInvokeOptions
-  ) {
-    for (let i = 0; i < options.lambdaFunctions.length; i++) {
-      options.lambdaFunctions[i].addToRolePolicy(
-        new PolicyStatement({
-          effect: Effect.ALLOW,
-          actions: ["execute-api:ManageConnections"],
-          resources: [`${options.webSocket.arnForExecuteApi()}/@connections/*`],
-        })
-      );
-    }
-  }
+
 }

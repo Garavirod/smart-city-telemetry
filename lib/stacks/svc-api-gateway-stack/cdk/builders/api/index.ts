@@ -20,7 +20,7 @@ export const runApiRestBuilder = (stack: ApiGatewayStack) => {
   builder.createCognitoAuthorizer({
     authorizerName: ApiAuthorizersNames.AdminAuthorizer,
     userPools: [
-      stack.cognitoUserPools[CognitoUsersPoolNames.ManagementUsersPool],
+      stack.getCognitoUserPool(CognitoUsersPoolNames.ManagementUsersPool),
     ],
   });
 
@@ -31,7 +31,7 @@ export const runApiRestBuilder = (stack: ApiGatewayStack) => {
   });
 
   const managementResources = createManagementApiResources({
-    lambdaFunctions: stack.lambdaFunctions,
+    lambdaFunctions: stack.getLambdaFunctions(),
   });
 
   builder.addApiResourceFromRoot({

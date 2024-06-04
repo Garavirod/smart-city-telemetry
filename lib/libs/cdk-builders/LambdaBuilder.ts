@@ -7,8 +7,9 @@ import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { Duration } from "aws-cdk-lib";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { UserPool, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
-import { PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Logger } from "../logger";
+import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 
 type addLambdaFunctionOptions = {
   lambdaName: string;
@@ -29,6 +30,11 @@ type lambdaPermissionCognitoUsersOptions = {
 type preSignupLambdaTriggerOptions = {
   lambdaFunction: NodejsFunction;
   userPool: UserPool;
+};
+
+type grantLambdaPermissionsInvokeOptions = {
+  webSocket: WebSocketApi;
+  lambdaFunctions: NodejsFunction[];
 };
 
 export class LambdaBuilder {
@@ -69,7 +75,7 @@ export class LambdaBuilder {
    * Give Dynamo writing permission to lambda resources
    * @param options
    */
-  public grantWritePermissionsToLambdas(options: lambdaPermissionsOption) {
+  public grantWritePermissionsToDynamo(options: lambdaPermissionsOption) {
     for (let i = 0; i < options.lambdas.length; i++) {
       options.dynamoTable.grantReadWriteData(options.lambdas[i]);
     }
@@ -132,6 +138,21 @@ export class LambdaBuilder {
     } else {
       Logger.warn(
         `Deploy environment value ${GlobalEnvironmentVars.DEPLOY_ENVIRONMENT}`
+      );
+    }
+  }
+
+
+  public grantPermissionToInvokeAPI(
+    options: grantLambdaPermissionsInvokeOptions
+  ) {
+    for (let i = 0; i < options.lambdaFunctions.length; i++) {
+      options.lambdaFunctions[i].addToRolePolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ["execute-api:ManageConnections"],
+          resources: [`${options.webSocket.arnForExecuteApi()}/@connections/*`],
+        })
       );
     }
   }

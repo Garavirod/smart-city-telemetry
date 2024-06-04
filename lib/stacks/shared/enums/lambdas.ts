@@ -8,6 +8,7 @@ export enum LambdasFunctionNames {
   PreSignUp = "PreSignUp",
   VerificationCode = "VerificationCode",
   ResendCode = "ResendCode",
+  CaptureTrainCoords = "CaptureTrainCoords",
   // SvcWebSocketApi
   NotifyTrainLocation = "NotifyTrainLocation",
   NotifySignInConnection = "NotifySignInConnection",

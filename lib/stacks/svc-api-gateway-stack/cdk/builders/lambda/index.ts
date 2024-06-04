@@ -10,93 +10,92 @@ import {
 } from "../../../../shared/enums/dynamodb";
 import { ApiGatewayStack } from "../../../stack";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { WebSocketApiStack } from "../../../../svc-web-scoket-api-stack/stack";
 
-export const runLambdaBuilder = (stack: ApiGatewayStack) => {
+export const runLambdaBuilder = (stack: ApiGatewayStack, webSocketApiStack:WebSocketApiStack) => {
   const builder = new LambdaBuilder(stack);
   const codeFilepathBase =
-    "/svc-api-gateway-stack/services/handlers/management";
+    "/svc-api-gateway-stack/services/handlers";
 
   // LAMBDAS
   const lambdaFunctions: Record<string, NodejsFunction> = {
     [LambdasFunctionNames.GetUsers]: builder.createNodeFunctionLambda({
       lambdaName: LambdasFunctionNames.GetUsers,
-      pathStackHandlerCode: `${codeFilepathBase}/get-users.ts`,
+      pathStackHandlerCode: `${codeFilepathBase}/management/get-users.ts`,
       environment: {
-        USERS_TABLE:
-          stack.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
+        USERS_TABLE: stack.getTableId(DynamoTableNames.TableNames.Users),
       },
     }),
     [LambdasFunctionNames.SignUp]: builder.createNodeFunctionLambda({
       lambdaName: LambdasFunctionNames.SignUp,
-      pathStackHandlerCode: `${codeFilepathBase}/sign-up-user.ts`,
+      pathStackHandlerCode: `${codeFilepathBase}/management/sign-up-user.ts`,
       environment: {
-        USERS_TABLE:
-          stack.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
-        USER_MANAGEMENT_POOL_ID:
-          stack.cognitoUserPools[CognitoUsersPoolNames.ManagementUsersPool]
-            .userPoolId,
-        USER_POOL_MANAGEMENT_CLIENT_ID:
-          stack.cognitoUserPoolClients[
-            CognitoUsersPoolClientNames.ManagementUsersPoolCli
-          ].userPoolClientId,
+        USERS_TABLE: stack.getTableId(DynamoTableNames.TableNames.Users),
+        USER_MANAGEMENT_POOL_ID: stack.getCognitoUserPool(
+          CognitoUsersPoolNames.ManagementUsersPool
+        ).userPoolId,
+        USER_POOL_MANAGEMENT_CLIENT_ID: stack.getCognitoUserClientId(
+          CognitoUsersPoolClientNames.ManagementUsersPoolCli
+        ),
       },
     }),
     [LambdasFunctionNames.SignIn]: builder.createNodeFunctionLambda({
       lambdaName: LambdasFunctionNames.SignIn,
-      pathStackHandlerCode: `${codeFilepathBase}/sign-in-users.ts`,
+      pathStackHandlerCode: `${codeFilepathBase}/management/sign-in-users.ts`,
       environment: {
-        USERS_TABLE:
-          stack.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
-        USER_MANAGEMENT_POOL_ID:
-          stack.cognitoUserPools[CognitoUsersPoolNames.ManagementUsersPool]
-            .userPoolId,
-        USER_POOL_MANAGEMENT_CLIENT_ID:
-          stack.cognitoUserPoolClients[
-            CognitoUsersPoolClientNames.ManagementUsersPoolCli
-          ].userPoolClientId,
+        USERS_TABLE: stack.getTableId(DynamoTableNames.TableNames.Users),
+        USER_MANAGEMENT_POOL_ID: stack.getCognitoUserPool(
+          CognitoUsersPoolNames.ManagementUsersPool
+        ).userPoolId,
+        USER_POOL_MANAGEMENT_CLIENT_ID: stack.getCognitoUserClientId(
+          CognitoUsersPoolClientNames.ManagementUsersPoolCli
+        ),
         USERS_TABLE_EMAIL_INDEX:
           DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
       },
     }),
     [LambdasFunctionNames.GetDependencies]: builder.createNodeFunctionLambda({
       lambdaName: LambdasFunctionNames.GetDependencies,
-      pathStackHandlerCode: `${codeFilepathBase}/get-dependencies.ts`,
+      pathStackHandlerCode: `${codeFilepathBase}/management/get-dependencies.ts`,
       environment: {},
     }),
     [LambdasFunctionNames.PreSignUp]: builder.createNodeFunctionLambda({
       lambdaName: LambdasFunctionNames.PreSignUp,
-      pathStackHandlerCode: `${codeFilepathBase}/pre-sign-up-users.ts`,
+      pathStackHandlerCode: `${codeFilepathBase}/management/pre-sign-up-users.ts`,
       environment: {},
     }),
     [LambdasFunctionNames.VerificationCode]: builder.createNodeFunctionLambda({
       lambdaName: LambdasFunctionNames.VerificationCode,
-      pathStackHandlerCode: `${codeFilepathBase}/verification-code.ts`,
+      pathStackHandlerCode: `${codeFilepathBase}/management/verification-code.ts`,
       environment: {
-        USER_POOL_MANAGEMENT_CLIENT_ID:
-          stack.cognitoUserPoolClients[
-            CognitoUsersPoolClientNames.ManagementUsersPoolCli
-          ].userPoolClientId,
-        USERS_TABLE:
-          stack.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
+        USER_POOL_MANAGEMENT_CLIENT_ID: stack.getCognitoUserClientId(
+          CognitoUsersPoolClientNames.ManagementUsersPoolCli
+        ),
+        USERS_TABLE: stack.getTableId(DynamoTableNames.TableNames.Users),
       },
     }),
     [LambdasFunctionNames.ResendCode]: builder.createNodeFunctionLambda({
       lambdaName: LambdasFunctionNames.ResendCode,
-      pathStackHandlerCode: `${codeFilepathBase}/resend-code.ts`,
+      pathStackHandlerCode: `${codeFilepathBase}/management/resend-code.ts`,
       environment: {
-        USER_POOL_MANAGEMENT_CLIENT_ID:
-          stack.cognitoUserPoolClients[
-            CognitoUsersPoolClientNames.ManagementUsersPoolCli
-          ].userPoolClientId,
-        USERS_TABLE:
-          stack.dynamoTables[DynamoTableNames.TableNames.Users].tableName,
+        USER_POOL_MANAGEMENT_CLIENT_ID: stack.getCognitoUserClientId(
+          CognitoUsersPoolClientNames.ManagementUsersPoolCli
+        ),
+        USERS_TABLE: stack.getTableId(DynamoTableNames.TableNames.Users),
+      },
+    }),
+    [LambdasFunctionNames.CaptureTrainCoords]: builder.createNodeFunctionLambda({
+      lambdaName: LambdasFunctionNames.CaptureTrainCoords,
+      pathStackHandlerCode: `${codeFilepathBase}/trains/capture-train-coords.ts`,
+      environment: {
+        WEB_SOCKET_ENDPOINT: webSocketApiStack.getWebSocketAPIEndpoint(),
       },
     }),
   };
 
   // DYNAMO PERMISSIONS
-  builder.grantWritePermissionsToLambdas({
-    dynamoTable: stack.dynamoTables[DynamoTableNames.TableNames.Users],
+  builder.grantWritePermissionsToDynamo({
+    dynamoTable: stack.getTable(DynamoTableNames.TableNames.Users),
     lambdas: [
       lambdaFunctions[LambdasFunctionNames.GetUsers],
       lambdaFunctions[LambdasFunctionNames.SignUp],
@@ -106,7 +105,7 @@ export const runLambdaBuilder = (stack: ApiGatewayStack) => {
   });
 
   builder.grantReadPermissionsToLambdas({
-    dynamoTable: stack.dynamoTables[DynamoTableNames.TableNames.Users],
+    dynamoTable: stack.getTable(DynamoTableNames.TableNames.Users),
     lambdas: [
       lambdaFunctions[LambdasFunctionNames.SignIn],
       lambdaFunctions[LambdasFunctionNames.VerificationCode],
@@ -116,14 +115,26 @@ export const runLambdaBuilder = (stack: ApiGatewayStack) => {
 
   // COGNITO PERMISSIONS
   builder.grantLambdasCreateUsersPermission({
-    userPool: stack.cognitoUserPools[CognitoUsersPoolNames.ManagementUsersPool],
+    userPool: stack.getCognitoUserPool(
+      CognitoUsersPoolNames.ManagementUsersPool
+    ),
     lambdaFunctions: [lambdaFunctions[LambdasFunctionNames.SignUp]],
   });
 
   builder.addPreSignupLambdaTrigger({
-    userPool: stack.cognitoUserPools[CognitoUsersPoolNames.ManagementUsersPool],
+    userPool: stack.getCognitoUserPool(
+      CognitoUsersPoolNames.ManagementUsersPool
+    ),
     lambdaFunction: lambdaFunctions[LambdasFunctionNames.PreSignUp],
   });
 
-  return {lambdaFunctions};
+  // Websocket permissions
+  builder.grantPermissionToInvokeAPI({
+    webSocket: webSocketApiStack.getWebSocket(),
+    lambdaFunctions:[
+      lambdaFunctions[LambdasFunctionNames.CaptureTrainCoords]
+    ]
+  })
+
+  return { lambdaFunctions };
 };

@@ -1,1 +1,1 @@
-export * as SvcWebSocketApiBuilders from './builders';
+export * as WebSocketApiCDKBuilders from './builders';

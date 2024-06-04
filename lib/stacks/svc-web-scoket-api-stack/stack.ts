@@ -3,49 +3,44 @@ import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
-
-type addDynamoTableOptions = {
-  tableName: string;
-  table: Table;
-};
-
-type addLambdaFunctionOptions = {
-  lambdaName: string;
-  function: NodejsFunction;
-};
-
-export class SvcWebSocketApiStack extends Stack {
+import { WebSocketApiCDKBuilders } from "./cdk";
+export class WebSocketApiStack extends Stack {
   private lambdaFunctions: Record<string, NodejsFunction>;
   private dynamoTables: Record<string, Table>;
-  private websocket: WebSocketApi | null;
+  private websocket: WebSocketApi;
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
-    this.lambdaFunctions = {};
-    this.dynamoTables = {};
-    this.websocket = null;
+    this.createDynamoConstructs();
+    this.createLambdaConstructs();
   }
 
-  public addLambdaFunction(options: addLambdaFunctionOptions) {
-    this.lambdaFunctions[options.lambdaName] = options.function;
+  private createLambdaConstructs() {
+    const { lambdaFunctions } = WebSocketApiCDKBuilders.runLambdaBuilder(this);
+    this.lambdaFunctions = lambdaFunctions;
   }
 
-  public addDynamoTable(options: addDynamoTableOptions) {
-    this.dynamoTables[options.tableName] = options.table;
+  private createDynamoConstructs() {
+    const { dynamoTables } = WebSocketApiCDKBuilders.runDynamoBuilder(this);
+    this.dynamoTables = dynamoTables;
   }
 
-  public addWebSocketAPI(webSocketApi: WebSocketApi) {
-    this.websocket = webSocketApi;
+  public getTable(tableName: string) {
+    return this.dynamoTables[tableName];
   }
 
-  public get DynamoTables() {
-    return this.dynamoTables;
+  public getTableId(tableName: string) {
+    return this.dynamoTables[tableName].tableName;
   }
 
-  public get LambdaFunctions() {
-    return this.lambdaFunctions;
+  public getLambda(nameId: string) {
+    return this.lambdaFunctions[nameId];
   }
 
-  public get WebSocketAPI() {
-    return this.websocket!;
+  public getWebSocketAPIEndpoint() {
+    return this.websocket.apiEndpoint;
+  }
+
+  public getWebSocket(){
+    return this.websocket;
   }
 }
