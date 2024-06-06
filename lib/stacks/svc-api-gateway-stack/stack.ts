@@ -1,79 +1,92 @@
 import { Stack, StackProps } from "aws-cdk-lib";
 import { RestApi } from "aws-cdk-lib/aws-apigateway";
-import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
-import { Table } from "aws-cdk-lib/aws-dynamodb";
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
-import { ApiGatewayCDKBuilders } from "./cdk";
-import { WebSocketApiStack } from "../svc-web-scoket-api-stack/stack";
+import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
+import { WebSocketCDKBuilder } from "../../libs/cdk-builders/web-socket-api";
+import { LambdasFunctionNames } from "../shared/enums/lambdas";
+import { createTables } from "./cdk/builders/dynamo";
+import { createCognitoPools } from "./cdk/builders/cognito";
+import {
+  CognitoUserPoolClients,
+  CognitoUserPools,
+  DynamoDBTables,
+  LambdaFunctions,
+} from "../shared/types";
+import { createUsersLambdas } from "./cdk/builders/lambda/users";
+import { createDependenciesLambdas } from "./cdk/builders/lambda/dependencies";
+import { createWebSocketConnLambdas } from "./cdk/builders/lambda/web-socket-connections";
+import { createTrainsLambdas } from "./cdk/builders/lambda/trains";
 
 export class ApiGatewayStack extends Stack {
-  private lambdaFunctions: Record<string, NodejsFunction>;
-  private dynamoTables: Record<string, Table>;
-  private cognitoUserPools: Record<string, UserPool>;
-  private cognitoUserPoolClients: Record<string, UserPoolClient>;
+  private lambdaFunctions: LambdaFunctions;
+  private dynamoTables: DynamoDBTables;
+  private cognitoUserPools: CognitoUserPools;
+  private cognitoUserPoolClients: CognitoUserPoolClients;
   private restApi: RestApi;
+  private websocket: WebSocketApi;
 
-  constructor(scope: Construct, id: string, webSocketApiStack:WebSocketApiStack, props?: StackProps) {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
-    this.createDynamoConstructs();
-    this.createCognitoConstructs();
-    this.createLambdaConstructs(webSocketApiStack);
-    this.createApiRestConstructs();
+    this.createStackConstructs();
   }
 
-  private createLambdaConstructs(webSocketApiStack:WebSocketApiStack) {
-    const { lambdaFunctions } = ApiGatewayCDKBuilders.runLambdaBuilder(this, webSocketApiStack);
-    this.lambdaFunctions = lambdaFunctions;
-  }
+  private createStackConstructs() {
+    // Websocket settings
+    this.websocket = WebSocketCDKBuilder.createWebsocket({
+      scope: this,
+      webSocketNameId: "Web-socket=api",
+      webSocketDescription: `Web socket for the resource web-socket=api`,
+    });
 
-  private createCognitoConstructs() {
+    WebSocketCDKBuilder.createStage({
+      scope: this,
+      stageId: "WebSocketStage",
+      stageName: "dev", // TODO set this according environment,
+      webSocket: this.websocket,
+    });
+
+    // Dynamo Settings
+    this.dynamoTables = createTables(this);
+
+    // Cognito settings
     const { cognitoUserPoolClients, cognitoUserPools } =
-      ApiGatewayCDKBuilders.runCognitoBuilder(this);
-
+      createCognitoPools(this);
     this.cognitoUserPools = cognitoUserPools;
     this.cognitoUserPoolClients = cognitoUserPoolClients;
-  }
 
-  private createDynamoConstructs() {
-    const { dynamoTables } = ApiGatewayCDKBuilders.runDynamoBuilder(this);
-    this.dynamoTables = dynamoTables;
-  }
+    // Lambda settings
+    this.lambdaFunctions = {
+      ...createUsersLambdas({
+        webSocket: this.websocket,
+        tables: this.dynamoTables,
+        cognitoClients: this.cognitoUserPoolClients,
+        cognitoPools: this.cognitoUserPools,
+        stack: this,
+      }),
+      ...createDependenciesLambdas(this, this.dynamoTables),
+      ...createWebSocketConnLambdas(this, this.dynamoTables),
+      ...createTrainsLambdas(this, this.dynamoTables),
+    };
 
-  private createApiRestConstructs() {
-    const { restApi } = ApiGatewayCDKBuilders.runApiRestBuilder(this);
-    this.restApi = restApi;
-  }
+    // Create Websocket route
+    /* This is t he route where the GPS train sensor will publish the message (Locations) */
+    WebSocketCDKBuilder.createRoute({
+      webSocket: this.websocket,
+      routeName: "$connect",
+      integration:
+        this.lambdaFunctions[LambdasFunctionNames.CreateNewConnection],
+    });
+    WebSocketCDKBuilder.createRoute({
+      webSocket: this.websocket,
+      routeName: "$disconnect",
+      integration: this.lambdaFunctions[LambdasFunctionNames.DeleteConnection],
+    });
 
-  public getTable(tableName: string) {
-    return this.dynamoTables[tableName];
-  }
-
-  public getTableId(tableName: string) {
-    return this.dynamoTables[tableName].tableName;
-  }
-
-  public getLambda(nameId: string) {
-    return this.lambdaFunctions[nameId];
-  }
-
-  public getLambdaFunctions() {
-    return this.lambdaFunctions;
-  }
-
-  public getCognitoUserClient(clientName: string) {
-    return this.cognitoUserPoolClients[clientName];
-  }
-
-  public getCognitoUserClientId(clientName: string) {
-    return this.cognitoUserPoolClients[clientName].userPoolClientId;
-  }
-
-  public getCognitoUserPool(poolId: string) {
-    return this.cognitoUserPools[poolId];
-  }
-
-  public getRestApi() {
-    return this.restApi;
+    WebSocketCDKBuilder.createRoute({
+      webSocket: this.websocket,
+      routeName: "trainLocation",
+      integration:
+        this.lambdaFunctions[LambdasFunctionNames.NotifyTrainLocation],
+    });
   }
 }

@@ -7,8 +7,7 @@ import { WebSocketLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integra
 type createWebsocketApiOptions = {
   webSocketNameId: string;
   webSocketDescription: string;
-  lambdaConnection: NodejsFunction;
-  lambdaDisconnect: NodejsFunction;
+  scope: Construct;
 };
 
 type createRouteOption = {
@@ -21,67 +20,53 @@ type createStageOptions = {
   stageId: string;
   stageName: string;
   webSocket: apigatewayv2.WebSocketApi;
+  scope: Construct;
 };
 
 type createExportStackOptions = {
   exportName: string;
   exportId: string;
 };
-export class WebSocketApiBuilder {
-  private scope: Construct;
-  constructor(scope: Construct) {
-    this.scope = scope;
-  }
 
-  public createWebsocket(options: createWebsocketApiOptions) {
-    return new apigatewayv2.WebSocketApi(
-      this.scope,
-      createResourceNameId(options.webSocketNameId),
-      {
-        description: options.webSocketDescription,
-        connectRouteOptions: {
-          integration: new WebSocketLambdaIntegration(
-            createResourceNameId("lambda-connections"),
-            options.lambdaConnection
-          ),
-        },
-        disconnectRouteOptions: {
-          integration: new WebSocketLambdaIntegration(
-            createResourceNameId("lambda-disconnections"),
-            options.lambdaDisconnect
-          ),
-        },
-      }
-    );
-  }
+export function createWebsocket(options: createWebsocketApiOptions) {
+  return new apigatewayv2.WebSocketApi(
+    options.scope,
+    createResourceNameId(options.webSocketNameId),
+    {
+      description: options.webSocketDescription,
+      /* connectRouteOptions: {
+        integration: new WebSocketLambdaIntegration(
+          createResourceNameId("lambda-connections"),
+          options.lambdaConnection
+        ),
+      },
+      disconnectRouteOptions: {
+        integration: new WebSocketLambdaIntegration(
+          createResourceNameId("lambda-disconnections"),
+          options.lambdaDisconnect
+        ),
+      }, */
+    }
+  );
+}
 
-  public createRoute(options: createRouteOption) {
-    options.webSocket.addRoute(options.routeName, {
-      integration: new WebSocketLambdaIntegration(
-        createResourceNameId(`${options.routeName}-route-int`),
-        options.integration
-      ),
-    });
-  }
+export function createRoute(options: createRouteOption) {
+  options.webSocket.addRoute(options.routeName, {
+    integration: new WebSocketLambdaIntegration(
+      createResourceNameId(`${options.routeName}-route-int`),
+      options.integration
+    ),
+  });
+}
 
-  public createStage(options: createStageOptions) {
-    new apigatewayv2.WebSocketStage(
-      this.scope,
-      createResourceNameId(options.stageId),
-      {
-        webSocketApi: options.webSocket,
-        stageName: options.stageName,
-        autoDeploy: true,
-      }
-    );
-  }
-
-  /* public createStackExportation(options: createExportStackOptions) {
-    new CfnOutput(this.scope, createResourceNameId(options.exportId), {
-      value: this.webSocket.apiEndpoint,
-      exportName: options.exportName,
-    });
-  } */
-
-
+export function createStage(options: createStageOptions) {
+  new apigatewayv2.WebSocketStage(
+    options.scope,
+    createResourceNameId(options.stageId),
+    {
+      webSocketApi: options.webSocket,
+      stageName: options.stageName,
+      autoDeploy: true,
+    }
+  );
 }

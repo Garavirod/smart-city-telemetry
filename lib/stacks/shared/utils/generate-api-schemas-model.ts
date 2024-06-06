@@ -5,14 +5,13 @@ import { Logger } from "../../../libs/logger";
 type generateSchemaModelOptions = {
   modelsFileName: string;
   interfaceName: string;
-  directoryToSaveSchema: string;
 };
 
 type schemaModelGenerationOptions = {
   interfaceName: string;
 };
 
-const generateSchemaModel = (options: generateSchemaModelOptions) => {
+export const generateSchemaModel = (options: generateSchemaModelOptions) => {
   // Settings for the schema generator
   const settings: TJS.PartialArgs = {
     required: true,
@@ -20,7 +19,10 @@ const generateSchemaModel = (options: generateSchemaModelOptions) => {
 
   // Interface models file
   const program = TJS.getProgramFromFiles([
-    path.join(__dirname, `../../svc-api-gateway-stack/cdk/builders/api/models/${options.modelsFileName}`),
+    path.join(
+      __dirname,
+      `../../svc-api-gateway-stack/cdk/builders/api/models/${options.modelsFileName}`
+    ),
   ]);
 
   // We can either get the schema for one file and one type...
@@ -33,14 +35,4 @@ const generateSchemaModel = (options: generateSchemaModelOptions) => {
     );
   }
   return schema;
-};
-
-export const SchemaModelBuilder = {
-  /** @param interfaceName interface typescript name */
-  management: (options: schemaModelGenerationOptions) =>
-    generateSchemaModel({
-      interfaceName: options.interfaceName,
-      modelsFileName: "management.ts",
-      directoryToSaveSchema: "management",
-    }),
 };

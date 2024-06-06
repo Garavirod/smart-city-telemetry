@@ -1,5 +1,4 @@
 export enum LambdasFunctionNames {
-  //SvcApiGateway
   GetUsers = "GetUsers",
   GetDependencies = "GetDependencies",
   GetTrains = "GetTrains",
@@ -8,10 +7,7 @@ export enum LambdasFunctionNames {
   PreSignUp = "PreSignUp",
   VerificationCode = "VerificationCode",
   ResendCode = "ResendCode",
-  CaptureTrainCoords = "CaptureTrainCoords",
-  // SvcWebSocketApi
   NotifyTrainLocation = "NotifyTrainLocation",
-  NotifySignInConnection = "NotifySignInConnection",
-  NotifyNewConnection = "NotifyNewConnection",
-  NotifyDisconnection = "NotifyDisconnection",
+  CreateNewConnection = "CreateNewConnection",
+  DeleteConnection = "DeleteConnection",
 }

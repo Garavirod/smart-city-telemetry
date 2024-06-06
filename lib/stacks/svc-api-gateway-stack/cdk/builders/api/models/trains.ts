@@ -1,5 +1,5 @@
 export interface TrainCoordsModel {
-    idTrain: string;
+    trainId: string;
     velocity: number;
     coords: {
         latitude:number;

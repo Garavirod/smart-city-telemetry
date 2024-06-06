@@ -22,3 +22,13 @@ export enum Dependencies {
   Sensors = "sensors",
   SewersMonitor = "sewers-monitor",
 }
+
+export enum ConnectionType {
+  OnlineUsers="online_users",
+  TrainLocation="train_location",
+}
+
+export interface ConnectionModel {
+  connectionId:string;
+  connectionType: ConnectionType;
+}

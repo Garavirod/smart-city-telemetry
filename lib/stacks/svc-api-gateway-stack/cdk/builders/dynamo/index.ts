@@ -1,25 +1,44 @@
-import { DynamoBuilder } from "../../../../../libs/cdk-builders/DynamoBuilder";
-import { UsersTableIndex } from "../../../../shared/enums/dynamodb/dynamodb-indices";
+import {
+  ConnectionsTableIndex,
+  UsersTableIndex,
+} from "../../../../shared/enums/dynamodb/dynamodb-indices";
 import { DynamoTableNames } from "../../../../shared/enums/dynamodb";
 import { ApiGatewayStack } from "../../../stack";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
+import { DynamoCDKBuilder } from "../../../../../libs/cdk-builders/dynamodb";
 
-export const runDynamoBuilder = (stack: ApiGatewayStack) => {
-  const builder = new DynamoBuilder(stack);
-
+export const createTables = (stack: ApiGatewayStack) => {
   // TABLES
   const dynamoTables: Record<string, Table> = {
-    [DynamoTableNames.TableNames.Users]: builder.createDynamoTable({
+    [DynamoTableNames.TableNames.Users]: DynamoCDKBuilder.createDynamoTable({
+      scope: stack,
       tableName: DynamoTableNames.TableNames.Users,
       partitionKey: {
         name: "userId",
         type: "string",
       },
     }),
+    [DynamoTableNames.TableNames.Connections]:
+      DynamoCDKBuilder.createDynamoTable({
+        scope: stack,
+        tableName: DynamoTableNames.TableNames.Connections,
+        partitionKey: {
+          name: "connectionId",
+          type: "string",
+        },
+      }),
+    [DynamoTableNames.TableNames.Trains]: DynamoCDKBuilder.createDynamoTable({
+      scope: stack,
+      tableName: DynamoTableNames.TableNames.Trains,
+      partitionKey: {
+        name: "trainId",
+        type: "string",
+      },
+    }),
   };
 
   // GSI
-  builder.createGSI({
+  DynamoCDKBuilder.createGSI({
     dynamoTable: dynamoTables[DynamoTableNames.TableNames.Users],
     indexName: UsersTableIndex.EmailICreatedAtIndex,
     partitionKey: {
@@ -32,5 +51,14 @@ export const runDynamoBuilder = (stack: ApiGatewayStack) => {
     },
   });
 
-  return {dynamoTables};
+  DynamoCDKBuilder.createGSI({
+    dynamoTable: dynamoTables[DynamoTableNames.TableNames.Connections],
+    indexName: ConnectionsTableIndex.ConnectionTypeIndex,
+    partitionKey: {
+      prop: "connectionType",
+      type: "string",
+    },
+  });
+
+  return dynamoTables;
 };

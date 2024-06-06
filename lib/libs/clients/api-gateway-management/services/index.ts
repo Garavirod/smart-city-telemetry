@@ -1,1 +1,0 @@
-export * as ApiGWMntNotificationService from './api-websocket-notifications';
