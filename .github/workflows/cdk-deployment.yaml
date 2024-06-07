@@ -13,8 +13,7 @@ on:
         description: Stack service
         options:
           # Add more services as needed.
-          - SvcApiGateway
-          - SvcApiWebSocket
+          - TelemetryStack
       selected_env:
         type: choice
         required: true
