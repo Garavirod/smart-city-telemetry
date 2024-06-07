@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import { ApiGatewayStack } from "../lib/stacks/svc-api-gateway-stack/stack";
+import { createSvcApisStack } from "../lib/stacks/svc-api-gateway-stack/stack";
+
 
 
 const app = new cdk.App();
-new ApiGatewayStack(app, "SvcApiGateway");
+createSvcApisStack(app);
 // createStackSvcWebSocketApi(app)
 // Stacks creation
 // new SvcPermissionsStack(app, "svc-permissions-stack",{});

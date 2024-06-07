@@ -2,20 +2,20 @@ import { buildCorsConfigurations } from "./cors";
 import { createUsersApiResources } from "./resources/users/resources";
 import { CognitoUsersPoolNames } from "../../../../shared/enums/cognito";
 import { ApiAuthorizersNames } from "../../../../shared/enums/api-authorizers";
-import { ApiGatewayStack } from "../../../stack";
 import { RestApi } from "aws-cdk-lib/aws-apigateway";
 import { createDependenciesApiResources } from "./resources/dependencies/resources";
 import { createTrainApiResources } from "./resources/train/resources";
 import { CognitoUserPools, LambdaFunctions } from "../../../../shared/types";
 import { ApiRestCDKBuilder } from "../../../../../libs/cdk-builders/api-gateway";
 import { getValidators } from "./validators";
+import { Stack } from "aws-cdk-lib";
 
 type optionResources = {
   lambdas: LambdaFunctions;
-  stack: ApiGatewayStack;
+  stack: Stack;
   cognitoPools: CognitoUserPools;
 };
-export const runApiRestBuilder = (options: optionResources) => {
+export const createRestApi = (options: optionResources) => {
   const { lambdas, stack, cognitoPools } = options;
   const apiRestName = "TelemetryApi";
 
@@ -70,5 +70,5 @@ export const runApiRestBuilder = (options: optionResources) => {
     restApi: restApi,
   });
 
-  return { restApi };
+  return restApi;
 };

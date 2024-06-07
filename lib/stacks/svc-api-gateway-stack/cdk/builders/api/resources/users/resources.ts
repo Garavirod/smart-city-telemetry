@@ -4,7 +4,6 @@ import {
 } from "../../../../../../../libs/cdk-builders/api-gateway/types";
 import { LambdasFunctionNames } from "../../../../../../shared/enums/lambdas";
 import { simplePaginationParams } from "../../../../../../shared/utils/simple-paginator-params";
-import { ValidatorNames } from "../../../../../../shared/enums/api-validators";
 import { createResourcesOptions } from "../types";
 import { SchemasModel } from "../../models/schemas";
 
@@ -16,10 +15,8 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
         httpMethod: "GET",
         lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetUsers],
         isproxy: true,
-        requestParams: {
-          validatorNameId: ValidatorNames.SimplePaginationValidator,
-          params: simplePaginationParams,
-        },
+        requestParams: simplePaginationParams,
+        validator: options.validators["SimplePaginationValidator"],
         auth: {
           type: AuthorizationType.Authorization,
           apiAuthorizer: options.cognitoAuthorizer,
@@ -35,11 +32,9 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
             lambdaFunction:
               options.lambdaFunctions[LambdasFunctionNames.SignIn],
             isproxy: true,
+            validator: options.validators["SignInValidator"],
             model: {
-              validator: {
-                nameId: "SignInValidator",
-                validator: options.validators["SignInValidator"],
-              },
+              nameId: "SignInModel",
               schema: SchemasModel.signInSchema,
             },
             auth: {
@@ -56,11 +51,9 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
             lambdaFunction:
               options.lambdaFunctions[LambdasFunctionNames.SignUp],
             isproxy: true,
+            validator: options.validators["SignupUserValidator"],
             model: {
-              validator: {
-                nameId: "SignupUserValidator",
-                validator: options.validators["SignupUserValidator"],
-              },
+              nameId: "SignupUserModel",
               schema: SchemasModel.signUpSchema,
             },
             auth: {
@@ -77,11 +70,9 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
             lambdaFunction:
               options.lambdaFunctions[LambdasFunctionNames.VerificationCode],
             isproxy: true,
+            validator: options.validators["VerificationCodeValidator"],
             model: {
-              validator: {
-                nameId: "VerificationCodeValidator",
-                validator: options.validators["VerificationCodeValidator"],
-              },
+              nameId: "VerificationCodeModel",
               schema: SchemasModel.verificationCodeSchema,
             },
             auth: {
@@ -98,11 +89,9 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
             lambdaFunction:
               options.lambdaFunctions[LambdasFunctionNames.ResendCode],
             isproxy: true,
+            validator: options.validators["EmailValidator"],
             model: {
-              validator: {
-                nameId: "EmailValidator",
-                validator: options.validators["EmailValidator"],
-              },
+              nameId: "EmailModel",
               schema: SchemasModel.EmailSchema,
             },
             auth: {

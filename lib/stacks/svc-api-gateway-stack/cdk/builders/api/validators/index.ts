@@ -6,13 +6,7 @@ import {
 } from "../../../../../../libs/cdk-builders/api-gateway/types";
 
 export const getValidators = (restApi: RestApi) => {
-  const sharedValidators = {
-    SimplePaginationValidator: ApiRestCDKBuilder.createRequestValidator({
-      restApi: restApi,
-      validationType: RequestValidatorType.ParamsType,
-      validatorName: "SimplePaginationValidator",
-    }),
-  };
+  const sharedValidators = getSharedValidators(restApi);
 
   return {
     apiUsersValidators: getApiUsersValidators(restApi, sharedValidators),
@@ -21,6 +15,16 @@ export const getValidators = (restApi: RestApi) => {
       sharedValidators
     ),
     apiTrainsValidators: getTrainsValidators(restApi, sharedValidators),
+  };
+};
+
+const getSharedValidators = (restApi: RestApi) => {
+  return {
+    SimplePaginationValidator: ApiRestCDKBuilder.createRequestValidator({
+      restApi: restApi,
+      validationType: RequestValidatorType.ParamsType,
+      validatorName: "SimplePaginationValidator",
+    }),
   };
 };
 

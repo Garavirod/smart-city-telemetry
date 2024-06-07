@@ -48,7 +48,6 @@ type createRequestValidatorOptions = {
   restApi: RestApi;
 };
 
-
 type ApiResourcesMap = Record<string, apigateway.Resource>;
 
 export function createApiRest(options: createApiRestOptions) {
@@ -111,7 +110,7 @@ function addHttpMethodToResource(props: {
 }) {
   for (const method of props.httpMethods) {
     // Build request parameters
-    const params = createRequestAndParamRequests(method.requestParams?.params);
+    const params = createRequestAndParamRequests(method.requestParams);
     // Create lambda integration
     const integration = createLambdaIntegration({
       isProxy: method.isproxy,
@@ -130,7 +129,7 @@ function addHttpMethodToResource(props: {
         requestParameters: params.requiredRequestTemplates,
         requestModels: createApiModel(method, props.restApi, props.scope),
         // Validate params or body
-        requestValidator: method.model?.validator.validator,
+        requestValidator: method.validator,
         // Cognito authorizer
         authorizer: authorizationProps.authorizer,
         authorizationType: authorizationProps.authorizationType,
@@ -148,7 +147,7 @@ function createApiModel(
 
   const model = new apigateway.Model(
     scope,
-    createResourceNameId(method.model.validator.nameId),
+    createResourceNameId(method.model.nameId),
     {
       restApi,
       contentType: "application/json",

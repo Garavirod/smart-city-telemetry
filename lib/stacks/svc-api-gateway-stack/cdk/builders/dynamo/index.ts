@@ -3,11 +3,11 @@ import {
   UsersTableIndex,
 } from "../../../../shared/enums/dynamodb/dynamodb-indices";
 import { DynamoTableNames } from "../../../../shared/enums/dynamodb";
-import { ApiGatewayStack } from "../../../stack";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { DynamoCDKBuilder } from "../../../../../libs/cdk-builders/dynamodb";
+import { Stack } from "aws-cdk-lib";
 
-export const createTables = (stack: ApiGatewayStack) => {
+export const createTables = (stack: Stack) => {
   // TABLES
   const dynamoTables: Record<string, Table> = {
     [DynamoTableNames.TableNames.Users]: DynamoCDKBuilder.createDynamoTable({

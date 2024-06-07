@@ -23,14 +23,9 @@ export type APiResourceMethods = {
   httpMethod: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
   lambdaFunction: NodejsFunction;
   isproxy: boolean;
-  requestParams?: {
-    validatorNameId: string;
-    params: RequestParameters[];
-  };
-  model?: {
-    validator: {nameId:string, validator:IRequestValidator};
-    schema: any;
-  };
+  requestParams?: RequestParameters[];
+  validator?: IRequestValidator;
+  model?: { schema: any; nameId: string };
   auth: {
     type: AuthorizationType;
     apiKeyRequired?: boolean;

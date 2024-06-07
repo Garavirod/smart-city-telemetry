@@ -7,7 +7,6 @@ import {
   DynamoTableIndex,
   DynamoTableNames,
 } from "../../../../shared/enums/dynamodb";
-import { ApiGatewayStack } from "../../../stack";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LambdaCDKBuilder } from "../../../../../libs/cdk-builders/lambda";
 import {
@@ -16,8 +15,9 @@ import {
   DynamoDBTables,
 } from "../../../../shared/types";
 import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
+import { Stack } from "aws-cdk-lib";
 type optionsResources = {
-  stack: ApiGatewayStack;
+  stack: Stack;
   tables: DynamoDBTables;
   cognitoPools: CognitoUserPools;
   cognitoClients: CognitoUserPoolClients;

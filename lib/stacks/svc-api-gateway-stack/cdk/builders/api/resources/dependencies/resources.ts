@@ -2,7 +2,7 @@ import {
   AuthorizationType,
   ResourcesAPI,
 } from "../../../../../../../libs/cdk-builders/api-gateway/types";
-import { ApiAuthorizersNames } from "../../../../../../shared/enums/api-authorizers";
+
 import { ValidatorNames } from "../../../../../../shared/enums/api-validators";
 import { LambdasFunctionNames } from "../../../../../../shared/enums/lambdas";
 import { simplePaginationParams } from "../../../../../../shared/utils/simple-paginator-params";
@@ -19,10 +19,8 @@ export const createDependenciesApiResources = (
         lambdaFunction:
           options.lambdaFunctions[LambdasFunctionNames.GetDependencies],
         isproxy: true,
-        requestParams: {
-          validatorNameId: ValidatorNames.SimplePaginationValidator,
-          params: simplePaginationParams,
-        },
+        validator: options.validators["SimplePaginationValidator"],
+        requestParams: simplePaginationParams,
         auth: {
           type: AuthorizationType.Authorization,
           apiAuthorizer: options.cognitoAuthorizer,

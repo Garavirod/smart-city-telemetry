@@ -2,8 +2,6 @@ import {
   AuthorizationType,
   ResourcesAPI,
 } from "../../../../../../../libs/cdk-builders/api-gateway/types";
-import { ApiAuthorizersNames } from "../../../../../../shared/enums/api-authorizers";
-import { ValidatorNames } from "../../../../../../shared/enums/api-validators";
 import { LambdasFunctionNames } from "../../../../../../shared/enums/lambdas";
 import { simplePaginationParams } from "../../../../../../shared/utils/simple-paginator-params";
 import { createResourcesOptions } from "../types";
@@ -16,13 +14,10 @@ export const createTrainApiResources = (options: createResourcesOptions) => {
         httpMethod: "GET",
         lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.GetTrains],
         isproxy: true,
-        requestParams: {
-          validatorNameId: ValidatorNames.SimplePaginationValidator,
-          params: simplePaginationParams,
-        },
+        requestParams: simplePaginationParams,
         auth: {
           type: AuthorizationType.Authorization,
-          apiAuthorizerName: ApiAuthorizersNames.AdminAuthorizer,
+          apiAuthorizer: options.cognitoAuthorizer,
         },
       },
     ],
