@@ -4,12 +4,13 @@ import { createResourceNameId } from "../../../stacks/shared/utils/rename-resour
 import { GlobalEnvironmentVars } from "../../environment";
 import path = require("path");
 import { Runtime } from "aws-cdk-lib/aws-lambda";
-import { Duration } from "aws-cdk-lib";
+import { Duration, aws_lambda_event_sources } from "aws-cdk-lib";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { UserPool, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Logger } from "../../logger";
 import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
+import { Queue } from "aws-cdk-lib/aws-sqs";
 
 type addLambdaFunctionOptions = {
   scope: Construct;
@@ -17,27 +18,6 @@ type addLambdaFunctionOptions = {
   pathStackHandlerCode: string;
   environment: Record<string, string>;
 };
-
-type lambdaPermissionsOption = {
-  dynamoTable: Table;
-  lambdas: NodejsFunction[];
-};
-
-type lambdaPermissionCognitoUsersOptions = {
-  lambdaFunctions: NodejsFunction[];
-  userPool: UserPool;
-};
-
-type preSignupLambdaTriggerOptions = {
-  lambdaFunction: NodejsFunction;
-  userPool: UserPool;
-};
-
-type grantLambdaPermissionsInvokeOptions = {
-  webSocket: WebSocketApi;
-  lambdaFunctions: NodejsFunction[];
-};
-
 /**
  * Creates an instance of NodejsFunction for creating a lambda
  * handler
@@ -66,6 +46,10 @@ export function createNodeFunctionLambda(options: addLambdaFunctionOptions) {
   );
 }
 
+type lambdaPermissionsOption = {
+  dynamoTable: Table;
+  lambdas: NodejsFunction[];
+};
 /**
  * Give Dynamo writing permission to lambda resources
  * @param options
@@ -87,6 +71,11 @@ export function grantReadPermissionsToDynamo(options: lambdaPermissionsOption) {
     options.dynamoTable.grantReadData(options.lambdas[i]);
   }
 }
+
+type lambdaPermissionCognitoUsersOptions = {
+  lambdaFunctions: NodejsFunction[];
+  userPool: UserPool;
+};
 
 /**
  * Grant the Lambda function permissions to sign up users in Cognito
@@ -122,10 +111,15 @@ export function grantLambdasSignInUsersPermission(
   }
 }
 
+type preSignupLambdaTriggerOptions = {
+  lambdaFunction: NodejsFunction;
+  userPool: UserPool;
+};
 /**
  * This method only must be used on Dev or Qa environments
  * @param options
  */
+
 export function addPreSignupLambdaTrigger(
   options: preSignupLambdaTriggerOptions
 ) {
@@ -141,6 +135,10 @@ export function addPreSignupLambdaTrigger(
   }
 }
 
+type grantLambdaPermissionsInvokeOptions = {
+  webSocket: WebSocketApi;
+  lambdaFunctions: NodejsFunction[];
+};
 export function grantPermissionToInvokeAPI(
   options: grantLambdaPermissionsInvokeOptions
 ) {
@@ -153,4 +151,18 @@ export function grantPermissionToInvokeAPI(
       })
     );
   }
+}
+
+type addSqsEventSourcesOptions = {
+  lambda: NodejsFunction;
+  queue: Queue;
+};
+export function addSqsEventSource(options: addSqsEventSourcesOptions) {
+  const sqsEventSource = new aws_lambda_event_sources.SqsEventSource(
+    options.queue,
+    {
+      batchSize: 5, // Process up to 5 messages at a time to stay within Free Tier
+    }
+  );
+  options.lambda.addEventSource(sqsEventSource);
 }
