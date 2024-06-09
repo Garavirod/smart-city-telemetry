@@ -1,0 +1,1 @@
+export * as SnsService from './publish';

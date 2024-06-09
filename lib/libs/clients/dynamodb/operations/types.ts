@@ -1,5 +1,3 @@
-import { SearchColumnTables } from "../tables/table-search-columns";
-
 export type PutOptions = {
   TableName: string;
   Item: any;
@@ -12,7 +10,7 @@ export type GetOptions = {
 
 export type UpdateOptions = {
   TableName: string;
-  key: Record<string,any>;
+  key: Record<string, any>;
   expressions: UpdateExpression[];
 };
 
