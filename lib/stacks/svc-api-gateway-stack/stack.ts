@@ -10,27 +10,35 @@ import {
   createWebSocketApi,
   createWebSocketRoutes,
 } from "./cdk/builders/websocket";
+import { createUsersTopics } from "./cdk/builders/sns/users";
+import { DynamoDBTables, LambdaFunctions, SnsTopics } from "../shared/types";
 
 export function createTelemetryStack(app: App) {
   const stack = new Stack(app, "TelemetryStack");
   // Websocket settings
   const websocket = createWebSocketApi(stack);
   // Dynamo Settings
-  const dynamoTables = createTables(stack);
+  const dynamoTables: DynamoDBTables = createTables(stack);
 
   // Cognito settings
   const { userPoolClients, userPools } = createCognitoPools(stack);
   const cognitoUserPools = userPools;
   const cognitoUserPoolClients = userPoolClients;
 
+  // Sns topic settings
+  const snsTopics: SnsTopics = {
+    ...createUsersTopics(stack),
+  };
+
   // Lambda settings
-  const lambdaFunctions = {
+  const lambdaFunctions: LambdaFunctions = {
     ...createUsersLambdas({
+      stack,
       webSocket: websocket,
       tables: dynamoTables,
       cognitoClients: cognitoUserPoolClients,
       cognitoPools: cognitoUserPools,
-      stack,
+      topics: snsTopics,
     }),
     ...createDependenciesLambdas(stack, dynamoTables),
     ...createWebSocketConnLambdas(stack, dynamoTables),

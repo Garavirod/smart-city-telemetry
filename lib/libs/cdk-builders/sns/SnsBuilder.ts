@@ -15,10 +15,6 @@ type queueSubscriptionOptions = {
   topic: Topic;
 };
 
-type lambdaPublishPermissionsOptions = {
-  lambdas: NodejsFunction[];
-  topic: Topic;
-};
 
 export function createTopic(options: createTopicOptions) {
   return new Topic(options.scope, createResourceNameId(options.nameId), {
@@ -30,13 +26,5 @@ export function addQueSubscription(options: queueSubscriptionOptions) {
   for (let i = 0; i < options.queues.length; i++) {
     const subscription = new SqsSubscription(options.queues[i]);
     options.topic.addSubscription(subscription);
-  }
-}
-
-export function grantLambdaPublishPermissions(
-  options: lambdaPublishPermissionsOptions
-) {
-  for (let i = 0; i < options.lambdas.length; i++) {
-    options.topic.grantPublish(options.lambdas[i]);
   }
 }

@@ -13,18 +13,22 @@ import {
   CognitoUserPoolClients,
   CognitoUserPools,
   DynamoDBTables,
+  SnsTopics,
 } from "../../../../shared/types";
 import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 import { Stack } from "aws-cdk-lib";
+import { SnsTopicNames } from "../../../../shared/enums/sns";
 type optionsResources = {
   stack: Stack;
   tables: DynamoDBTables;
   cognitoPools: CognitoUserPools;
   cognitoClients: CognitoUserPoolClients;
   webSocket: WebSocketApi;
+  topics: SnsTopics;
 };
 export const createUsersLambdas = (options: optionsResources) => {
-  const { stack, tables, cognitoPools, cognitoClients, webSocket } = options;
+  const { stack, tables, cognitoPools, cognitoClients, webSocket, topics } =
+    options;
   const codeFilepathBase = "/svc-api-gateway-stack/handlers/users";
 
   // LAMBDAS
@@ -63,7 +67,8 @@ export const createUsersLambdas = (options: optionsResources) => {
             .userPoolClientId,
         USERS_TABLE_EMAIL_INDEX:
           DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
-        WEBSOCKET_API_ENDPOINT: webSocket.apiEndpoint,
+        NOTIFY_USER_ONLINE_TOPIC_ARN:
+            topics[SnsTopicNames.NotifyNewUserOnlineTopic].topicArn,
       },
     }),
     [LambdasFunctionNames.PreSignUp]: LambdaCDKBuilder.createNodeFunctionLambda(
@@ -96,6 +101,19 @@ export const createUsersLambdas = (options: optionsResources) => {
             cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
               .userPoolClientId,
           USERS_TABLE: tables[DynamoTableNames.TableNames.Users].tableName,
+        },
+      }),
+    [LambdasFunctionNames.NotifyUserOnline]:
+      LambdaCDKBuilder.createNodeFunctionLambda({
+        scope: stack,
+        lambdaName: LambdasFunctionNames.NotifyUserOnline,
+        pathStackHandlerCode: `${codeFilepathBase}/notify-user-online.ts`,
+        environment: {
+          USER_POOL_MANAGEMENT_CLIENT_ID:
+            cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
+              .userPoolClientId,
+          CONNECTIONS_TABLE:
+            tables[DynamoTableNames.TableNames.Connections].tableName,
         },
       }),
   };
@@ -142,5 +160,14 @@ export const createUsersLambdas = (options: optionsResources) => {
     lambdaFunctions: [lambdaFunctions[LambdasFunctionNames.SignIn]],
   });
 
+  // SNS PERMISSIONS
+  LambdaCDKBuilder.grantTopicPublishPermissions({
+    lambdas: [lambdaFunctions[LambdasFunctionNames.SignIn]],
+    topic: topics[SnsTopicNames.NotifyNewUserOnlineTopic],
+  });
+  LambdaCDKBuilder.addSnsEventSource({
+    lambda: lambdaFunctions[LambdasFunctionNames.NotifyUserOnline],
+    topic: topics[SnsTopicNames.NotifyNewUserOnlineTopic],
+  });
   return lambdaFunctions;
 };

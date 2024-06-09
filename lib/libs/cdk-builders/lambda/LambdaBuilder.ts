@@ -11,6 +11,7 @@ import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Logger } from "../../logger";
 import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 import { Queue } from "aws-cdk-lib/aws-sqs";
+import { Topic } from "aws-cdk-lib/aws-sns";
 
 type addLambdaFunctionOptions = {
   scope: Construct;
@@ -165,4 +166,27 @@ export function addSqsEventSource(options: addSqsEventSourcesOptions) {
     }
   );
   options.lambda.addEventSource(sqsEventSource);
+}
+
+type addSnsEventSourcesOptions = {
+  lambda: NodejsFunction;
+  topic: Topic;
+};
+export function addSnsEventSource(options: addSnsEventSourcesOptions) {
+  const sqsEventSource = new aws_lambda_event_sources.SnsEventSource(
+    options.topic
+  );
+  options.lambda.addEventSource(sqsEventSource);
+}
+
+type lambdaPublishPermissionsOptions = {
+  lambdas: NodejsFunction[];
+  topic: Topic;
+};
+export function grantTopicPublishPermissions(
+  options: lambdaPublishPermissionsOptions
+) {
+  for (let i = 0; i < options.lambdas.length; i++) {
+    options.topic.grantPublish(options.lambdas[i]);
+  }
 }

@@ -10,4 +10,5 @@ export enum LambdasFunctionNames {
   NotifyTrainLocation = "NotifyTrainLocation",
   CreateNewConnection = "CreateNewConnection",
   DeleteConnection = "DeleteConnection",
+  NotifyUserOnline = "NotifyUserOnline",
 }

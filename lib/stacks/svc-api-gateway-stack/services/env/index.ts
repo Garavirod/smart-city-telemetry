@@ -18,3 +18,7 @@ export const CognitoEnvValues = {
 export const WebSocketEnvValues = {
   WEBSOCKET_API_ENDPOINT: process.env.WEBSOCKET_API_ENDPOINT ?? "",
 };
+
+export const SnsTopicEnvs = {
+  NOTIFY_USER_ONLINE_TOPIC_ARN: process.env.NOTIFY_USER_ONLINE_TOPIC_ARN ?? "",
+};
