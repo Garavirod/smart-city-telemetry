@@ -34,7 +34,7 @@ export function createNodeFunctionLambda(options: addLambdaFunctionOptions) {
       handler: "handler",
       entry: path.join(
         __dirname,
-        `../../stacks/${options.pathStackHandlerCode}`
+        `../../../stacks${options.pathStackHandlerCode}`
       ),
       environment: {
         DEPLOY_ENVIRONMENT: GlobalEnvironmentVars.DEPLOY_ENVIRONMENT,
@@ -59,7 +59,7 @@ export function grantWritePermissionsToDynamo(
   options: lambdaPermissionsOption
 ) {
   for (let i = 0; i < options.lambdas.length; i++) {
-    options.dynamoTable.grantReadWriteData(options.lambdas[i]);
+    options.dynamoTable.grantWriteData(options.lambdas[i]);
   }
 }
 
@@ -80,7 +80,7 @@ type lambdaPermissionCognitoUsersOptions = {
 
 /**
  * Grant the Lambda function permissions to sign up users in Cognito
- * @param options {lambdaPermissionCognitoUsersOptions}
+ * @param options @link{lambdaPermissionCognitoUsersOptions}
  */
 export function grantLambdasCreateUsersPermission(
   options: lambdaPermissionCognitoUsersOptions

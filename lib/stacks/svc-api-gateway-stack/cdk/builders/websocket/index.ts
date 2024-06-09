@@ -5,7 +5,7 @@ import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 import { LambdasFunctionNames } from "../../../../shared/enums/lambdas";
 
 export const createWebSocketApi = (stack: Stack) => {
-  const websocketName = "Web-socket=api";
+  const websocketName = "Web-socket-api";
   const websocket = WebSocketCDKBuilder.createWebsocket({
     scope: stack,
     webSocketNameId: websocketName,

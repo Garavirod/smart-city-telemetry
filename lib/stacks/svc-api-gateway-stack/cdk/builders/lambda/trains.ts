@@ -38,7 +38,6 @@ export const createTrainsLambdas = (
   LambdaCDKBuilder.grantWritePermissionsToDynamo({
     dynamoTable: tables[DynamoTableNames.TableNames.Connections],
     lambdas: [
-      lambdaFunctions[LambdasFunctionNames.SignIn],
       lambdaFunctions[LambdasFunctionNames.NotifyTrainLocation],
     ],
   });

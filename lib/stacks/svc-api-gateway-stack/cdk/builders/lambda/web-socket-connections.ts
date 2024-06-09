@@ -10,7 +10,7 @@ export const createWebSocketConnLambdas = (
   tables: DynamoDBTables
 ) => {
   const codeFilepathBase =
-    "/svc-api-gateway-stack/services/handlers/web-socket-connections";
+    "/svc-api-gateway-stack/handlers/websocket-connections";
 
   // LAMBDAS
   const lambdaFunctions: Record<string, NodejsFunction> = {
