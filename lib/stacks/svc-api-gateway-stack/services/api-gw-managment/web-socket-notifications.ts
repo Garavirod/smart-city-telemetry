@@ -1,24 +1,21 @@
 import { PostToConnectionCommandOperation } from "../../../../libs/clients/api-gateway-management/operations";
-import {
-  ConnectionModel,
-  ConnectionType,
-  UsersModel,
-} from "../../../../libs/clients/dynamodb/models/management";
+import { ConnectionModel } from "../../../../libs/clients/dynamodb/models/management";
 import { Logger } from "../../../../libs/logger";
-import { DynamoSocketConnectionsService } from "../dynamo";
 import { WebSocketEnvValues } from "../env";
 
-export const notifyNewUserOnline = async (newUserOnline: UsersModel) => {
+type notifyWebSocketConnectionsOptions = {
+  connections: ConnectionModel[];
+  data: any;
+};
+export const notifyNewUserOnline = async (
+  options: notifyWebSocketConnectionsOptions
+) => {
   try {
-    const connections: ConnectionModel[] =
-      await DynamoSocketConnectionsService.geConnectionsByType(
-        ConnectionType.OnlineUsers
-      );
     const endpoint = WebSocketEnvValues.WEBSOCKET_API_ENDPOINT;
-    for (const connection of connections) {
+    for (const connection of options.connections) {
       await PostToConnectionCommandOperation({
         connectionId: connection.connectionId,
-        data: newUserOnline,
+        data: options.data,
         endpoint,
       });
     }

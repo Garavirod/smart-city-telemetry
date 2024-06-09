@@ -13,6 +13,7 @@ import { SignInUserModel } from "../../cdk/builders/api/models/users";
 import { DynamoUsersService } from "../../services/dynamo";
 import { CognitoAuthService } from "../../services/cognito";
 import { Logger } from "../../../../libs/logger";
+import { SnsService } from "../../services/sns";
 
 interface BodyParamsExpected extends SignInUserModel {}
 
@@ -56,8 +57,8 @@ export const handler = async (
         },
       ],
     });
-
-    await WebSocketNotificationService.notifyNewUserOnline(user);
+    
+    await SnsService.publishNewUserOnline(user);
 
     return SuccessResponse200({
       data: { token, userId: user.userId },
