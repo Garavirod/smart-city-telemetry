@@ -58,6 +58,7 @@ export const handler = async (
       ],
     });
     
+    user.online = true;
     await SnsService.publishNewUserOnline(user);
 
     return SuccessResponse200({
