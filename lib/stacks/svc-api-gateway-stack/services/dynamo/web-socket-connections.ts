@@ -4,7 +4,7 @@ import {
   ConnectionModel,
   ConnectionType,
 } from "../../../../libs/clients/dynamodb/models/management";
-import { QueryPaginationCommandOperation } from "../../../../libs/clients/dynamodb/operations/dynamo-operations";
+import { PutCommandOperation, QueryPaginationCommandOperation } from "../../../../libs/clients/dynamodb/operations/dynamo-operations";
 import { QueryPaginateResult } from "../../../../libs/clients/dynamodb/operations/types";
 import { DynamoEnvTables } from "../env";
 import { ConnectionTableColumnSearch } from "./table-search-columns";
@@ -58,5 +58,19 @@ const getConnectionByGSIndex = async (options: getConnectionIndexOptions) => {
   } catch (error) {
     Logger.error(`Error on getting items via service ${error}`);
     throw error;
+  }
+};
+
+
+export const addNewConnection = async (item: ConnectionModel) => {
+  try {
+    const table = DynamoEnvTables.CONNECTIONS_TABLE;
+    await PutCommandOperation({
+      TableName: table,
+      Item: item,
+    });
+  } catch (error) {
+    Logger.error(`Error on putting new connection via service ${error}`);
+    throw Error(`${error}`);
   }
 };

@@ -8,7 +8,6 @@ import {
   InternalErrorResponse500,
   SuccessResponse200,
 } from "../utils/api-response";
-import { WebSocketNotificationService } from "../../services/api-gw-managment";
 import { SignInUserModel } from "../../cdk/builders/api/models/users";
 import { DynamoUsersService } from "../../services/dynamo";
 import { CognitoAuthService } from "../../services/cognito";
