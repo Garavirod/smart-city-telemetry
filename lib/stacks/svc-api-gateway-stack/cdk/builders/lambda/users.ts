@@ -65,8 +65,6 @@ export const createUsersLambdas = (options: optionsResources) => {
         USER_POOL_MANAGEMENT_CLIENT_ID:
           cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
             .userPoolClientId,
-        USERS_TABLE_EMAIL_INDEX:
-          DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
         NOTIFY_USER_ONLINE_TOPIC_ARN:
             topics[SnsTopicNames.NotifyNewUserOnlineTopic].topicArn,
       },
@@ -113,7 +111,7 @@ export const createUsersLambdas = (options: optionsResources) => {
             cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
               .userPoolClientId,
           CONNECTIONS_TABLE:
-            tables[DynamoTableNames.TableNames.Connections].tableName,
+            tables[DynamoTableNames.TableNames.Connections].tableName
         },
       }),
   };
@@ -138,9 +136,9 @@ export const createUsersLambdas = (options: optionsResources) => {
     ],
   });
 
-  LambdaCDKBuilder.grantWritePermissionsToDynamo({
+  LambdaCDKBuilder.grantReadPermissionsToDynamo({
     dynamoTable: tables[DynamoTableNames.TableNames.Connections],
-    lambdas: [lambdaFunctions[LambdasFunctionNames.SignIn]],
+    lambdas: [lambdaFunctions[LambdasFunctionNames.NotifyUserOnline]],
   });
 
   // COGNITO PERMISSIONS
