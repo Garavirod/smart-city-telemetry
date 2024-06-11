@@ -1,5 +1,5 @@
 import {
-  DeleteCommand,
+  DeleteCommandInput,
   DynamoDBDocumentPaginationConfiguration,
   GetCommand,
   PutCommand,
@@ -26,7 +26,7 @@ import {
   toKeyConditionExpressionsBeginWith,
 } from "./helpers";
 import { Logger } from "../../../logger";
-import { UpdateItemCommand, UpdateItemInput } from "@aws-sdk/client-dynamodb";
+import { DeleteItemCommand, UpdateItemCommand, UpdateItemInput } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 
 export const PutCommandOperation = async (options: PutOptions) => {
@@ -54,13 +54,15 @@ export const GetCommandOperation = async (options: GetOptions) => {
 
 export const DeleteCommandOperation = async (options: DeleteOptions) => {
   const client = new DynamoClientInstance();
-  const command = new DeleteCommand({
+  const input: DeleteCommandInput = {
     TableName: options.TableName,
-    Key: options.key,
-  });
-  const response = await client.getDynamoDBDocumentClient.send(command);
+    Key: marshall(options.key)
+    }
+  Logger.debug(`Delete Input >: ${JSON.stringify(input)}`);
+  const command = new DeleteItemCommand(input);
+  await client.getDynamoDBClient.send(command);
   client.destroyDynamoClients();
-  return response;
+  Logger.debug(`delete command successfully done!`);
 };
 
 /**
@@ -68,7 +70,6 @@ export const DeleteCommandOperation = async (options: DeleteOptions) => {
  * @param options
  */
 export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
-  Logger.debug(`options arg > ${JSON.stringify(options)}`);
   const client = new DynamoClientInstance();
   const expressions = getUpdateExpressions(options.expressions);
   const input: UpdateItemInput = {
@@ -77,7 +78,7 @@ export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
     ExpressionAttributeNames: expressions.attributeNames,
     ExpressionAttributeValues: marshall(expressions.attributeValues),
     UpdateExpression: expressions.updateExpression,
-  };
+    };
   Logger.debug(`Input params > ${JSON.stringify(input)}`);
   const command = new UpdateItemCommand(input);
   await client.getDynamoDBClient.send(command);

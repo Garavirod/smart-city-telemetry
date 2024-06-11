@@ -87,6 +87,6 @@ export const DeleteConnection = async (connectionId: string) => {
     });
   } catch (error) {
     Logger.error(`Error on deleting connection via service ${error}`);
-    throw Error(`${error}`);
+    throw error;
   }
 };
