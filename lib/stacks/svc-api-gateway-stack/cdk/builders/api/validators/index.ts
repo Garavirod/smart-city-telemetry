@@ -72,5 +72,10 @@ const getTrainsValidators = (
 ) => {
   return {
     ...shared,
+    TrainCoordsValidator: ApiRestCDKBuilder.createRequestValidator({
+      restApi: restApi,
+      validationType: RequestValidatorType.BodyType,
+      validatorName: "TrainCoordsValidator",
+    }),
   };
 };

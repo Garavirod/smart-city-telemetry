@@ -29,6 +29,7 @@ export const createTrainApiResources = (options: createResourcesOptions) => {
           type: AuthorizationType.ApiKeys,
           apiKeyRequired: true
         },
+        validator: options.validators["TrainCoordsValidator"],
         model:{
           nameId: "TrainCoordsModel",
           schema: SchemasModel.TrainCoordsSchema,
