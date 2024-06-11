@@ -18,6 +18,7 @@ import {
 import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 import { Stack } from "aws-cdk-lib";
 import { SnsTopicNames } from "../../../../shared/enums/sns";
+import { GlobalEnvironmentVars } from "../../../../../libs/environment";
 type optionsResources = {
   stack: Stack;
   tables: DynamoDBTables;
@@ -111,8 +112,8 @@ export const createUsersLambdas = (options: optionsResources) => {
             cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
               .userPoolClientId,
           CONNECTIONS_TABLE:
-            tables[DynamoTableNames.TableNames.Connections].tableName,
-          WEBSOCKET_API_ENDPOINT: webSocket.apiEndpoint,
+            tables[DynamoTableNames.TableNames.Connections].tableName, 
+          WEBSOCKET_API_ENDPOINT: `https://${webSocket.apiId}.execute-api.us-east-1.amazonaws.com/${GlobalEnvironmentVars.DEPLOY_ENVIRONMENT}`,
         },
       }),
   };

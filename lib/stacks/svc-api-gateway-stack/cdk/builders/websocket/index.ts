@@ -3,6 +3,7 @@ import { WebSocketCDKBuilder } from "../../../../../libs/cdk-builders/web-socket
 import { LambdaFunctions } from "../../../../shared/types";
 import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 import { LambdasFunctionNames } from "../../../../shared/enums/lambdas";
+import { GlobalEnvironmentVars } from "../../../../../libs/environment";
 
 export const createWebSocketApi = (stack: Stack) => {
   const websocketName = "Web-socket-api";
@@ -15,7 +16,7 @@ export const createWebSocketApi = (stack: Stack) => {
   WebSocketCDKBuilder.createStage({
     scope: stack,
     stageId: "WebSocketStage",
-    stageName: "dev", // TODO set this according environment,
+    stageName: GlobalEnvironmentVars.DEPLOY_ENVIRONMENT,
     webSocket: websocket,
   });
 
