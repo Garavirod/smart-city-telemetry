@@ -14,7 +14,7 @@ export const handler = async (event: SNSEvent): Promise<void> => {
       const message = JSON.parse(record.Sns.Message);
       Logger.debug(`Event message > : ${JSON.stringify(message)}`);
       const connections: ConnectionModel[] =
-        await DynamoSocketConnectionsService.geConnectionsByType(
+        await DynamoSocketConnectionsService.getConnectionsByType(
           ConnectionType.OnlineUsers
         );
       await WebSocketNotificationService.notifyNewUserOnline({

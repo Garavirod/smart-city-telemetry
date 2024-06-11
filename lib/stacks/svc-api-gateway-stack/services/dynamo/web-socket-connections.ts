@@ -13,7 +13,7 @@ import { QueryPaginateResult } from "../../../../libs/clients/dynamodb/operation
 import { DynamoEnvTables } from "../env";
 import { ConnectionTableColumnSearch } from "./table-search-columns";
 
-export const geConnectionsByType = async (type: ConnectionType) => {
+export const getConnectionsByType = async (type: ConnectionType) => {
   const connections = await getConnectionByGSIndex({
     tableColumn: "connectionType",
     tableIndex: DynamoTableIndex.ConnectionsTableIndex.ConnectionTypeIndex,
@@ -83,7 +83,7 @@ export const DeleteConnection = async (connectionId: string) => {
     const table = DynamoEnvTables.CONNECTIONS_TABLE;
     await DeleteCommandOperation({
       TableName: table,
-      key: connectionId,
+      key: { connectionId: connectionId },
     });
   } catch (error) {
     Logger.error(`Error on deleting connection via service ${error}`);
