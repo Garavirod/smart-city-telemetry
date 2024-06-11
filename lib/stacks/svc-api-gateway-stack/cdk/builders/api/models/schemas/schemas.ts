@@ -19,3 +19,8 @@ export const EmailSchema = generateSchemaModel({
   modelsFileName: "users.ts",
   interfaceName: "EmailModel",
 });
+
+export const TrainCoordsSchema = generateSchemaModel({
+  modelsFileName: "trains.ts",
+  interfaceName: "TrainCoordsModel",
+});

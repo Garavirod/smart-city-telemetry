@@ -12,6 +12,7 @@ import {
 } from "./cdk/builders/websocket";
 import { createUsersTopics } from "./cdk/builders/sns/users";
 import { DynamoDBTables, LambdaFunctions, SnsTopics } from "../shared/types";
+import { createTrainTopics } from "./cdk/builders/sns/trains";
 
 export function createTelemetryStack(app: App) {
   const stack = new Stack(app, "TelemetryStack");
@@ -28,6 +29,7 @@ export function createTelemetryStack(app: App) {
   // Sns topic settings
   const snsTopics: SnsTopics = {
     ...createUsersTopics(stack),
+    ...createTrainTopics(stack),
   };
 
   // Lambda settings
@@ -42,7 +44,12 @@ export function createTelemetryStack(app: App) {
     }),
     ...createDependenciesLambdas(stack, dynamoTables),
     ...createWebSocketConnLambdas(stack, dynamoTables),
-    ...createTrainsLambdas(stack, dynamoTables),
+    ...createTrainsLambdas({
+      stack,
+      tables: dynamoTables,
+      topics: snsTopics,
+      webSocket: websocket,
+    }),
   };
 
   // Rest api

@@ -1,22 +1,29 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { SNSEvent } from "aws-lambda";
+import { WebSocketNotificationService } from "../../services/api-gw-managment";
+import { DynamoSocketConnectionsService } from "../../services/dynamo";
+import {
+  ConnectionModel,
+  ConnectionType,
+} from "../../../../libs/clients/dynamodb/models/management";
 import { Logger } from "../../../../libs/logger";
-import { InternalErrorResponse500, SuccessResponse200 } from "../utils/api-response";
-/* interface BodyParamsExpected extends SignInUserModel {} */
 
-export const handler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: SNSEvent): Promise<void> => {
   try {
-    /* const params = <BodyParamsExpected>extractDataFromEvent({
-      event: event,
-      propertyToExtract: ParamPropertyType.Body,
-    }); */
-
-    Logger.debug(`Event handler >: ${JSON.stringify(event)}`);
-
-    return SuccessResponse200({});
+    for (const record of event.Records) {
+      Logger.debug(`Event record > : ${JSON.stringify(record)}`);
+      const message = JSON.parse(record.Sns.Message);
+      Logger.debug(`Event message > : ${JSON.stringify(message)}`);
+      const connections: ConnectionModel[] =
+        await DynamoSocketConnectionsService.getConnectionsByType(
+          ConnectionType.TrainLocation
+        );
+      await WebSocketNotificationService.sendMessage({
+        connections,
+        data: message,
+      });
+    }
   } catch (error) {
-    Logger.error(`Handler error ${JSON.stringify(error)}`);
-    return InternalErrorResponse500({});
+    Logger.error(`Error on notify train location ${JSON.stringify(error)}`);
+    throw error;
   }
 };

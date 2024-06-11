@@ -17,7 +17,7 @@ export const handler = async (event: SNSEvent): Promise<void> => {
         await DynamoSocketConnectionsService.getConnectionsByType(
           ConnectionType.OnlineUsers
         );
-      await WebSocketNotificationService.notifyNewUserOnline({
+      await WebSocketNotificationService.sendMessage({
         connections,
         data: message,
       });

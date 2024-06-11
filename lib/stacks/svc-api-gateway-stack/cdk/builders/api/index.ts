@@ -28,6 +28,13 @@ export const createRestApi = (options: optionResources) => {
     cors: buildCorsConfigurations(),
   });
 
+  ApiRestCDKBuilder.configureAPIKeyPlanUsage({
+    apiRest: restApi,
+    description: `Api key for api rest ${apiRestName}`,
+    scope: stack,
+    name: 'TelemetryApiKey'
+  })
+
   const apiAuthorizer = ApiRestCDKBuilder.createCognitoAuthorizer({
     scope: stack,
     authorizerName: ApiAuthorizersNames.AdminAuthorizer,
