@@ -66,7 +66,7 @@ export const createUsersLambdas = (options: optionsResources) => {
           cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
             .userPoolClientId,
         NOTIFY_USER_ONLINE_TOPIC_ARN:
-            topics[SnsTopicNames.NotifyNewUserOnlineTopic].topicArn,
+          topics[SnsTopicNames.NotifyNewUserOnlineTopic].topicArn,
       },
     }),
     [LambdasFunctionNames.PreSignUp]: LambdaCDKBuilder.createNodeFunctionLambda(
@@ -111,7 +111,8 @@ export const createUsersLambdas = (options: optionsResources) => {
             cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
               .userPoolClientId,
           CONNECTIONS_TABLE:
-            tables[DynamoTableNames.TableNames.Connections].tableName
+            tables[DynamoTableNames.TableNames.Connections].tableName,
+          WEBSOCKET_API_ENDPOINT: webSocket.apiEndpoint,
         },
       }),
   };
@@ -155,7 +156,7 @@ export const createUsersLambdas = (options: optionsResources) => {
   // WEBSOCKET API PERMISSIONS
   LambdaCDKBuilder.grantPermissionToInvokeAPI({
     webSocket,
-    lambdaFunctions: [lambdaFunctions[LambdasFunctionNames.SignIn]],
+    lambdaFunctions: [lambdaFunctions[LambdasFunctionNames.NotifyUserOnline]],
   });
 
   // SNS PERMISSIONS

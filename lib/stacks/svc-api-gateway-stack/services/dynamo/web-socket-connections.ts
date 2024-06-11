@@ -52,7 +52,6 @@ const getConnectionByGSIndex = async (options: getConnectionIndexOptions) => {
           },
         });
       startingToken = response.LastEvaluatedKey;
-      Logger.debug(`response service: ${JSON.stringify(response)}`);
       connections = [...connections, ...response.Items];
       
     } while (startingToken);
