@@ -27,6 +27,7 @@ export const createTrainApiResources = (options: createResourcesOptions) => {
         isproxy: true,
         auth:{
           type: AuthorizationType.ApiKeys,
+          apiKeyRequired: true
         },
         model:{
           nameId: "TrainCoordsModel",
