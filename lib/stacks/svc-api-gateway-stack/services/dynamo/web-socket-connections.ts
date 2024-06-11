@@ -4,7 +4,11 @@ import {
   ConnectionModel,
   ConnectionType,
 } from "../../../../libs/clients/dynamodb/models/management";
-import { PutCommandOperation, QueryPaginationCommandOperation } from "../../../../libs/clients/dynamodb/operations/dynamo-operations";
+import {
+  DeleteCommandOperation,
+  PutCommandOperation,
+  QueryPaginationCommandOperation,
+} from "../../../../libs/clients/dynamodb/operations/dynamo-operations";
 import { QueryPaginateResult } from "../../../../libs/clients/dynamodb/operations/types";
 import { DynamoEnvTables } from "../env";
 import { ConnectionTableColumnSearch } from "./table-search-columns";
@@ -53,7 +57,6 @@ const getConnectionByGSIndex = async (options: getConnectionIndexOptions) => {
         });
       startingToken = response.LastEvaluatedKey;
       connections = [...connections, ...response.Items];
-      
     } while (startingToken);
     return connections;
   } catch (error) {
@@ -61,7 +64,6 @@ const getConnectionByGSIndex = async (options: getConnectionIndexOptions) => {
     throw error;
   }
 };
-
 
 export const addNewConnection = async (item: ConnectionModel) => {
   try {
@@ -72,6 +74,19 @@ export const addNewConnection = async (item: ConnectionModel) => {
     });
   } catch (error) {
     Logger.error(`Error on putting new connection via service ${error}`);
+    throw Error(`${error}`);
+  }
+};
+
+export const DeleteConnection = async (connectionId: string) => {
+  try {
+    const table = DynamoEnvTables.CONNECTIONS_TABLE;
+    await DeleteCommandOperation({
+      TableName: table,
+      key: connectionId,
+    });
+  } catch (error) {
+    Logger.error(`Error on deleting connection via service ${error}`);
     throw Error(`${error}`);
   }
 };

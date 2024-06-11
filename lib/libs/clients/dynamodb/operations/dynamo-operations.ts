@@ -1,4 +1,5 @@
 import {
+  DeleteCommand,
   DynamoDBDocumentPaginationConfiguration,
   GetCommand,
   PutCommand,
@@ -7,6 +8,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 
 import {
+  DeleteOptions,
   GetOptions,
   PutOptions,
   QueryPaginateResult,
@@ -50,6 +52,17 @@ export const GetCommandOperation = async (options: GetOptions) => {
   return response;
 };
 
+export const DeleteCommandOperation = async (options: DeleteOptions) => {
+  const client = new DynamoClientInstance();
+  const command = new DeleteCommand({
+    TableName: options.TableName,
+    Key: options.key,
+  });
+  const response = await client.getDynamoDBDocumentClient.send(command);
+  client.destroyDynamoClients();
+  return response;
+};
+
 /**
  * Perform SDK Dynamo UpdateItemCommand
  * @param options
@@ -62,7 +75,7 @@ export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
     TableName: options.TableName,
     Key: marshall(options.key),
     ExpressionAttributeNames: expressions.attributeNames,
-    ExpressionAttributeValues:  marshall(expressions.attributeValues),
+    ExpressionAttributeValues: marshall(expressions.attributeValues),
     UpdateExpression: expressions.updateExpression,
   };
   Logger.debug(`Input params > ${JSON.stringify(input)}`);
