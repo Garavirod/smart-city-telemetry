@@ -155,6 +155,8 @@ export const QueryPaginationCommandOperation = async <T>(
     const page = await paginator.next();
     const value = page.done ? void 0 : page.value;
 
+    Logger.debug(`Value ${JSON.stringify(value)}`);
+
     LastEvaluatedKey = value?.LastEvaluatedKey;
     // work around stopOnSameToken not working or not being documented correctly.
     IteratorDone =
