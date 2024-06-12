@@ -4,6 +4,7 @@ import {
 } from "../../../../../../../libs/cdk-builders/api-gateway/types";
 import { LambdasFunctionNames } from "../../../../../../shared/enums/lambdas";
 import { simplePaginationParams } from "../../../../../../shared/utils/simple-paginator-params";
+import { SchemasModel } from "../../models/schemas";
 import { createResourcesOptions } from "../types";
 
 export const createTrainApiResources = (options: createResourcesOptions) => {
@@ -20,6 +21,20 @@ export const createTrainApiResources = (options: createResourcesOptions) => {
           apiAuthorizer: options.cognitoAuthorizer,
         },
       },
+      {
+        httpMethod: "POST",
+        lambdaFunction: options.lambdaFunctions[LambdasFunctionNames.CatchTrainCoords],
+        isproxy: true,
+        auth:{
+          type: AuthorizationType.ApiKeys,
+          apiKeyRequired: true
+        },
+        validator: options.validators["TrainCoordsValidator"],
+        model:{
+          nameId: "TrainCoordsModel",
+          schema: SchemasModel.TrainCoordsSchema,
+        }
+      }
     ],
   }; // end train
 

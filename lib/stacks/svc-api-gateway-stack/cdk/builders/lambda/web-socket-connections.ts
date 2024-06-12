@@ -36,6 +36,7 @@ export const createWebSocketConnLambdas = (
       }),
   };
 
+  // DYNAMO PERMISSIONS
   LambdaCDKBuilder.grantWritePermissionsToDynamo({
     dynamoTable: tables[DynamoTableNames.TableNames.Connections],
     lambdas: [

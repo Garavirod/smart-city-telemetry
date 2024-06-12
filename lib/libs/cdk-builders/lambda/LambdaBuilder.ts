@@ -144,13 +144,7 @@ export function grantPermissionToInvokeAPI(
   options: grantLambdaPermissionsInvokeOptions
 ) {
   for (let i = 0; i < options.lambdaFunctions.length; i++) {
-    options.lambdaFunctions[i].addToRolePolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        actions: ["execute-api:ManageConnections"],
-        resources: [`${options.webSocket.arnForExecuteApi()}/@connections/*`],
-      })
-    );
+    options.webSocket.grantManageConnections(options.lambdaFunctions[i]);
   }
 }
 

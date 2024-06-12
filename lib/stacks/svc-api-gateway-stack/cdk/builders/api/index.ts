@@ -9,6 +9,7 @@ import { CognitoUserPools, LambdaFunctions } from "../../../../shared/types";
 import { ApiRestCDKBuilder } from "../../../../../libs/cdk-builders/api-gateway";
 import { getValidators } from "./validators";
 import { Stack } from "aws-cdk-lib";
+import { GlobalEnvironmentVars } from "../../../../../libs/environment";
 
 type optionResources = {
   lambdas: LambdaFunctions;
@@ -23,9 +24,16 @@ export const createRestApi = (options: optionResources) => {
     scope: stack,
     apiRestName,
     apiRestDescription: "General api rest for telemetry app",
-    apiStage: "dev",
+    apiStage: GlobalEnvironmentVars.DEPLOY_ENVIRONMENT,
     cors: buildCorsConfigurations(),
   });
+
+  ApiRestCDKBuilder.configureAPIKeyPlanUsage({
+    apiRest: restApi,
+    description: `Api key for api rest ${apiRestName}`,
+    scope: stack,
+    name: 'TelemetryApiKey'
+  })
 
   const apiAuthorizer = ApiRestCDKBuilder.createCognitoAuthorizer({
     scope: stack,

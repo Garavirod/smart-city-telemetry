@@ -7,7 +7,7 @@ type notifyWebSocketConnectionsOptions = {
   connections: ConnectionModel[];
   data: any;
 };
-export const notifyNewUserOnline = async (
+export const sendMessage = async (
   options: notifyWebSocketConnectionsOptions
 ) => {
   try {

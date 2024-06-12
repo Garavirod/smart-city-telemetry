@@ -8,6 +8,7 @@ export enum LambdasFunctionNames {
   VerificationCode = "VerificationCode",
   ResendCode = "ResendCode",
   NotifyTrainLocation = "NotifyTrainLocation",
+  CatchTrainCoords = "CatchTrainCoords",
   CreateNewConnection = "CreateNewConnection",
   DeleteConnection = "DeleteConnection",
   NotifyUserOnline = "NotifyUserOnline",

@@ -8,6 +8,11 @@ export type GetOptions = {
   key: any;
 };
 
+export type DeleteOptions = {
+  TableName: string;
+  key: any;
+};
+
 export type UpdateOptions = {
   TableName: string;
   key: Record<string, any>;

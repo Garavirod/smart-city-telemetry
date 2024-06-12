@@ -3,6 +3,7 @@ import { WebSocketCDKBuilder } from "../../../../../libs/cdk-builders/web-socket
 import { LambdaFunctions } from "../../../../shared/types";
 import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 import { LambdasFunctionNames } from "../../../../shared/enums/lambdas";
+import { GlobalEnvironmentVars } from "../../../../../libs/environment";
 
 export const createWebSocketApi = (stack: Stack) => {
   const websocketName = "Web-socket-api";
@@ -15,7 +16,7 @@ export const createWebSocketApi = (stack: Stack) => {
   WebSocketCDKBuilder.createStage({
     scope: stack,
     stageId: "WebSocketStage",
-    stageName: "dev", // TODO set this according environment,
+    stageName: GlobalEnvironmentVars.DEPLOY_ENVIRONMENT,
     webSocket: websocket,
   });
 
@@ -38,11 +39,5 @@ export const createWebSocketRoutes = (options: createRoutesOptions) => {
     webSocket: options.webSocket,
     routeName: "$disconnect",
     integration: options.lambdas[LambdasFunctionNames.DeleteConnection],
-  });
-  /* This is t he route where the GPS train sensor will publish the message (Locations) */
-  WebSocketCDKBuilder.createRoute({
-    webSocket: options.webSocket,
-    routeName: "trainLocation",
-    integration: options.lambdas[LambdasFunctionNames.NotifyTrainLocation],
   });
 };

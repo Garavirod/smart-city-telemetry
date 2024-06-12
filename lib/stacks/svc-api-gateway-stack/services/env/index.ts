@@ -7,6 +7,7 @@ dotenv.config({ path: path });
 export const DynamoEnvTables = {
   USERS_TABLE: process.env.USERS_TABLE ?? "",
   CONNECTIONS_TABLE: process.env.CONNECTIONS_TABLE ?? "",
+  TRAINS_TABLE: process.env.TRAINS_TABLE ?? "",
 };
 
 export const CognitoEnvValues = {
@@ -21,4 +22,5 @@ export const WebSocketEnvValues = {
 
 export const SnsTopicEnvs = {
   NOTIFY_USER_ONLINE_TOPIC_ARN: process.env.NOTIFY_USER_ONLINE_TOPIC_ARN ?? "",
+  NOTIFY_TRAIN_LOCATION_TOPIC_ARN: process.env.NOTIFY_TRAIN_LOCATION_TOPIC_ARN ?? "",
 };

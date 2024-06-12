@@ -1,4 +1,6 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
+import {
+  APIGatewayProxyEvent,
+} from "aws-lambda";
 import { Logger } from "../../../../libs/logger";
 
 export enum ParamPropertyType {

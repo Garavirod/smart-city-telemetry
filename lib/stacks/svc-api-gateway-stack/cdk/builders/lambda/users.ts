@@ -18,6 +18,7 @@ import {
 import { WebSocketApi } from "aws-cdk-lib/aws-apigatewayv2";
 import { Stack } from "aws-cdk-lib";
 import { SnsTopicNames } from "../../../../shared/enums/sns";
+import { GlobalEnvironmentVars } from "../../../../../libs/environment";
 type optionsResources = {
   stack: Stack;
   tables: DynamoDBTables;
@@ -65,10 +66,8 @@ export const createUsersLambdas = (options: optionsResources) => {
         USER_POOL_MANAGEMENT_CLIENT_ID:
           cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
             .userPoolClientId,
-        USERS_TABLE_EMAIL_INDEX:
-          DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
         NOTIFY_USER_ONLINE_TOPIC_ARN:
-            topics[SnsTopicNames.NotifyNewUserOnlineTopic].topicArn,
+          topics[SnsTopicNames.NotifyNewUserOnlineTopic].topicArn,
       },
     }),
     [LambdasFunctionNames.PreSignUp]: LambdaCDKBuilder.createNodeFunctionLambda(
@@ -113,7 +112,8 @@ export const createUsersLambdas = (options: optionsResources) => {
             cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
               .userPoolClientId,
           CONNECTIONS_TABLE:
-            tables[DynamoTableNames.TableNames.Connections].tableName,
+            tables[DynamoTableNames.TableNames.Connections].tableName, 
+          WEBSOCKET_API_ENDPOINT: `https://${webSocket.apiId}.execute-api.us-east-1.amazonaws.com/${GlobalEnvironmentVars.DEPLOY_ENVIRONMENT}`,
         },
       }),
   };
@@ -138,9 +138,9 @@ export const createUsersLambdas = (options: optionsResources) => {
     ],
   });
 
-  LambdaCDKBuilder.grantWritePermissionsToDynamo({
+  LambdaCDKBuilder.grantReadPermissionsToDynamo({
     dynamoTable: tables[DynamoTableNames.TableNames.Connections],
-    lambdas: [lambdaFunctions[LambdasFunctionNames.SignIn]],
+    lambdas: [lambdaFunctions[LambdasFunctionNames.NotifyUserOnline]],
   });
 
   // COGNITO PERMISSIONS
@@ -157,7 +157,7 @@ export const createUsersLambdas = (options: optionsResources) => {
   // WEBSOCKET API PERMISSIONS
   LambdaCDKBuilder.grantPermissionToInvokeAPI({
     webSocket,
-    lambdaFunctions: [lambdaFunctions[LambdasFunctionNames.SignIn]],
+    lambdaFunctions: [lambdaFunctions[LambdasFunctionNames.NotifyUserOnline]],
   });
 
   // SNS PERMISSIONS
