@@ -40,10 +40,4 @@ export const createWebSocketRoutes = (options: createRoutesOptions) => {
     routeName: "$disconnect",
     integration: options.lambdas[LambdasFunctionNames.DeleteConnection],
   });
-  /* This is t he route where the GPS train sensor will publish the message (Locations) */
-  WebSocketCDKBuilder.createRoute({
-    webSocket: options.webSocket,
-    routeName: "trainLocation",
-    integration: options.lambdas[LambdasFunctionNames.NotifyTrainLocation],
-  });
 };

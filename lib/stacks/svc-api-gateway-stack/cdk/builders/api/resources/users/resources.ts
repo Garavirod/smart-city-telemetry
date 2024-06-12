@@ -51,9 +51,9 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
             lambdaFunction:
               options.lambdaFunctions[LambdasFunctionNames.SignUp],
             isproxy: true,
-            validator: options.validators["SignupUserValidator"],
+            validator: options.validators["SignUpValidator"],
             model: {
-              nameId: "SignupUserModel",
+              nameId: "SignUpValidator",
               schema: SchemasModel.signUpSchema,
             },
             auth: {

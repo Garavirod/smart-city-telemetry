@@ -26,7 +26,8 @@ export const createTrainsLambdas = (options: createTrainLambdasOptions) => {
         lambdaName: LambdasFunctionNames.NotifyTrainLocation,
         pathStackHandlerCode: `${codeFilepathBase}/notify-train-location.ts`,
         environment: {
-          CONNECTIONS_TABLE: tables[DynamoTableNames.TableNames.Connections].tableName,
+          CONNECTIONS_TABLE:
+            tables[DynamoTableNames.TableNames.Connections].tableName,
           WEBSOCKET_API_ENDPOINT: `https://${webSocket.apiId}.execute-api.us-east-1.amazonaws.com/${GlobalEnvironmentVars.DEPLOY_ENVIRONMENT}`,
         },
       }),
@@ -54,7 +55,7 @@ export const createTrainsLambdas = (options: createTrainLambdasOptions) => {
   };
 
   // DYNAMO PERMISSIONS
-  LambdaCDKBuilder.grantWritePermissionsToDynamo({
+  LambdaCDKBuilder.grantReadPermissionsToDynamo({
     dynamoTable: tables[DynamoTableNames.TableNames.Connections],
     lambdas: [lambdaFunctions[LambdasFunctionNames.NotifyTrainLocation]],
   });
@@ -67,6 +68,14 @@ export const createTrainsLambdas = (options: createTrainLambdasOptions) => {
   LambdaCDKBuilder.grantWritePermissionsToDynamo({
     dynamoTable: tables[DynamoTableNames.TableNames.Trains],
     lambdas: [lambdaFunctions[LambdasFunctionNames.CatchTrainCoords]],
+  });
+
+  // WEBSOCKET API PERMISSIONS
+  LambdaCDKBuilder.grantPermissionToInvokeAPI({
+    webSocket,
+    lambdaFunctions: [
+      lambdaFunctions[LambdasFunctionNames.NotifyTrainLocation],
+    ],
   });
 
   // SNS PERMISSIONS
