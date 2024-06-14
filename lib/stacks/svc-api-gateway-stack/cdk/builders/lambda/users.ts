@@ -146,6 +146,7 @@ export const createUsersLambdas = (options: optionsResources) => {
     dynamoTable: tables[DynamoTableNames.TableNames.Users],
     lambdas: [
       lambdaFunctions[LambdasFunctionNames.SignIn],
+      lambdaFunctions[LambdasFunctionNames.SignOut],
       lambdaFunctions[LambdasFunctionNames.VerificationCode],
       lambdaFunctions[LambdasFunctionNames.ResendCode],
     ],
