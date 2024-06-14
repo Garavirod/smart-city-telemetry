@@ -114,8 +114,12 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
                 isproxy: true,
                 auth: {
                   type: AuthorizationType.Authorization,
-                  apiAuthorizer: options.cognitoAuthorizer
+                  apiAuthorizer: options.cognitoAuthorizer,
                 },
+                model:{
+                  nameId: "AccessTokenModel",
+                  schema: SchemasModel.AccessTokenSchema,
+                }
               },
             ],
           },

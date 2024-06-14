@@ -24,3 +24,8 @@ export const TrainCoordsSchema = generateSchemaModel({
   modelsFileName: "trains.ts",
   interfaceName: "TrainCoordsModel",
 });
+
+export const AccessTokenSchema = generateSchemaModel({
+  modelsFileName: "users.ts",
+  interfaceName: "AccessTokenModel",
+});

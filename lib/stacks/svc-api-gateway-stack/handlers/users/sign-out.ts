@@ -15,11 +15,14 @@ import { Logger } from "../../../../libs/logger";
 import { SnsService } from "../../services/sns";
 
 interface HeadersParamsExpected {
-  accessToken:string;
+  authTokenId: string;
 }
 
 interface PathParamsExpected {
-  userId:string;
+  userId: string;
+}
+interface BodyParamsExpected {
+  accessToken: string;
 }
 
 export const handler = async (
@@ -31,9 +34,9 @@ export const handler = async (
       propertyToExtract: ParamPropertyType.HeadersAccessToken,
     });
 
-    if (!headers.accessToken) {
+    if (!headers.authTokenId) {
       return UnprocessableRequestResponse403({
-        message: "User Token is needed this operation",
+        message: "id Token is needed this operation",
       });
     }
 
@@ -42,6 +45,10 @@ export const handler = async (
       propertyToExtract: ParamPropertyType.PathParameters,
     });
 
+    const bodyParams = <BodyParamsExpected>extractDataFromEvent({
+      event: event,
+      propertyToExtract: ParamPropertyType.Body,
+    });
 
     const user = await DynamoUsersService.getUserById(pathParams.userId);
 
@@ -51,9 +58,8 @@ export const handler = async (
       });
     }
 
-    await CognitoAuthService.signOut(headers.accessToken);
+    await CognitoAuthService.signOut(bodyParams.accessToken);
 
-    
     // Update User online prop
     user.online = false;
     await DynamoUsersService.updateUserAttributes({
@@ -65,7 +71,7 @@ export const handler = async (
         },
       ],
     });
-    
+
     await SnsService.publishUserOnlineStatus(user);
 
     return SuccessResponse200({

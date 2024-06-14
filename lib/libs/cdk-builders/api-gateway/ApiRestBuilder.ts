@@ -136,6 +136,54 @@ function addHttpMethodToResource(props: {
       }
     );
   }
+
+  // add cors options
+  //addCorsOptions(props.apiResourcesMap[props.resourceId]);
+}
+
+function addCorsOptions(apiResource: apigateway.IResource) {
+  /* 
+  In API Gateway, you need to handle these OPTIONS requests by providing a response that tells the browser 
+  which HTTP methods and headers are allowed for the resource This is typically done using a mock integration.
+  */
+  apiResource.addMethod(
+    "OPTIONS",
+    new apigateway.MockIntegration({
+      // These responses are from the backend (like a Lambda function) to API Gateway. They map the backend responses to API Gateway responses.
+      /* integrationResponses: [
+        {
+          statusCode: "200",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
+            "method.response.header.Access-Control-Allow-Headers":
+              "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+            "method.response.header.Access-Control-Allow-Credentials":
+              "'false'",
+            "method.response.header.Access-Control-Allow-Methods":
+              "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+          },
+        },
+      ], */
+      passthroughBehavior: apigateway.PassthroughBehavior.NEVER,
+      requestTemplates: {
+        "application/json": '{"statusCode": 200}',
+      },
+    }),
+    {
+      // These responses are from API Gateway to the client. They ensure the response format and headers are as expected for the client.
+      methodResponses: [
+        {
+          statusCode: "200",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": true,
+            "method.response.header.Access-Control-Allow-Headers": true,
+            "method.response.header.Access-Control-Allow-Credentials": true,
+            "method.response.header.Access-Control-Allow-Methods": true,
+          },
+        },
+      ],
+    }
+  );
 }
 
 function createApiModel(
