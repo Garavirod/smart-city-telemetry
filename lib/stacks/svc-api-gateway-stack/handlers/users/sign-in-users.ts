@@ -34,34 +34,35 @@ export const handler = async (
     }
 
     // Add user to cognito
-    const token = await CognitoAuthService.signIn({
-      email: user.email,
-      password: params.password,
-      role: user.role,
-    });
+    const { accessToken, idToken, refreshToken } =
+      await CognitoAuthService.signIn({
+        email: user.email,
+        password: params.password,
+        role: user.role,
+      });
 
-    if (!token) {
+    if (!accessToken) {
       return InternalErrorResponse500({
         message: "Token could not be generated, please try again.",
       });
     }
 
     // Update User online prop
+    user.online = true;
     await DynamoUsersService.updateUserAttributes({
       userId: user.userId,
       attributesToUpdate: [
         {
           column: "online",
-          newValue: true,
+          newValue: user.online,
         },
       ],
     });
-    
-    user.online = true;
+
     await SnsService.publishUserOnlineStatus(user);
 
     return SuccessResponse200({
-      data: { token, userId: user.userId },
+      data: { accessToken, refreshToken, idToken, userId: user.userId },
       message: "Sign In successfully",
     });
   } catch (error) {
