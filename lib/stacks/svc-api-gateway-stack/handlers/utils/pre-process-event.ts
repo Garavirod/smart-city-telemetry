@@ -38,7 +38,7 @@ export const extractDataFromEvent = <T>(props: {
       `${propertyToExtract} content >: ${JSON.stringify(event.headers)}`
     );
     const data = event.headers.Authorization
-      ? ({ accessToken: event.headers.Authorization } as T)
+      ? ({ authTokenId: event.headers.Authorization } as T)
       : void 0;
 
     return data;
