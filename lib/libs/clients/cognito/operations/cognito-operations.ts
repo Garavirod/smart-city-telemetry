@@ -8,6 +8,8 @@ import {
   ConfirmSignUpCommand,
   ResendConfirmationCodeCommand,
   ResendConfirmationCodeCommandInput,
+  GlobalSignOutCommand,
+  GlobalSignOutCommandInput,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoClientInstance } from "../client/CognitoClient";
 import {
@@ -15,6 +17,7 @@ import {
   createAdminUserCognitoOptions,
   resendConfirmationCodeOptions,
   signInOptions,
+  signOutOptions,
 } from "./types";
 import { Logger } from "../../../logger";
 
@@ -64,10 +67,27 @@ export const SignInCommandOperation = async (options: signInOptions) => {
   const response = await cognitoClient.getClient.send(command);
 
   Logger.debug(
-    `Signup User successfully done >: ${JSON.stringify(response.$metadata)}`
+    `SignIn User successfully done >: ${JSON.stringify(response.$metadata)}`
   );
 
   return response;
+};
+
+export const SignOutCommandOperation = async (options: signOutOptions) => {
+  const cognitoClient = new CognitoClientInstance();
+
+  const input: GlobalSignOutCommandInput = {
+    AccessToken: options.token,
+  };
+
+  Logger.debug(`SignOut User Input >: ${JSON.stringify(input)}`);
+
+  const command = new GlobalSignOutCommand(input);
+  const response = await cognitoClient.getClient.send(command);
+
+  Logger.debug(
+    `SignOut User successfully done >: ${JSON.stringify(response.$metadata)}`
+  );
 };
 
 export const ConfirmationCodeCommandOperation = async (

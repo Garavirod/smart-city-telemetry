@@ -1,12 +1,11 @@
-import {
-  APIGatewayProxyEvent,
-} from "aws-lambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
 import { Logger } from "../../../../libs/logger";
 
 export enum ParamPropertyType {
   Body = "body",
   PathParameters = "pathParameters",
   Headers = "headers",
+  HeadersAccessToken = "headersAccessToken",
   QueryStringParameters = "queryStringParameters",
 }
 
@@ -22,7 +21,7 @@ export const extractDataFromEvent = <T>(props: {
     return data;
   }
 
-  if (propertyToExtract === "queryStringParameters") {
+  if (propertyToExtract === ParamPropertyType.QueryStringParameters) {
     Logger.debug(
       `${propertyToExtract} content >: ${JSON.stringify(
         event.queryStringParameters
@@ -31,6 +30,26 @@ export const extractDataFromEvent = <T>(props: {
     const data = event.queryStringParameters
       ? (event.queryStringParameters as T)
       : void 0;
+    return data;
+  }
+
+  if (propertyToExtract === ParamPropertyType.HeadersAccessToken) {
+    Logger.debug(
+      `${propertyToExtract} content >: ${JSON.stringify(event.headers)}`
+    );
+    const data = event.headers.Authorization
+      ? ({ accessToken: event.headers.Authorization } as T)
+      : void 0;
+
+    return data;
+  }
+
+  if (propertyToExtract === ParamPropertyType.PathParameters) {
+    Logger.debug(
+      `${propertyToExtract} content >: ${JSON.stringify(event.pathParameters)}`
+    );
+    const data = event.pathParameters ? (event.pathParameters as T) : void 0;
+
     return data;
   }
 

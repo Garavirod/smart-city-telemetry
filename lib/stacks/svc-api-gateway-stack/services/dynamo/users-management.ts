@@ -1,5 +1,6 @@
 import { UsersModel } from "../../../../libs/clients/dynamodb/models/management";
 import {
+  GetCommandOperation,
   PutCommandOperation,
   QueryPaginationCommandOperation,
   UpdateItemCommandOperation,
@@ -40,9 +41,17 @@ import { UsersTableColumnSearch } from "./table-search-columns";
     throw Error(`Error on getting user via service ${error}`);
   }
 }; */
-export const getUserById = async () => {
+export const getUserById = async (userId:string) => {
   try {
-  } catch (error) {}
+    const user =  await GetCommandOperation<UsersModel>({
+      key: userId,
+      TableName: DynamoEnvTables.USERS_TABLE
+    })
+    return user;
+  } catch (error) {
+    Logger.error(`Err on on getting user ny id via service ${JSON.stringify(error)}`);
+    throw error;
+  }
 };
 
 export const getACtiveUsers = async () => {

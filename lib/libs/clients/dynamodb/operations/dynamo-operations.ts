@@ -2,6 +2,7 @@ import {
   DeleteCommandInput,
   DynamoDBDocumentPaginationConfiguration,
   GetCommand,
+  GetCommandInput,
   PutCommand,
   QueryCommandInput,
   paginateQuery,
@@ -26,7 +27,11 @@ import {
   toKeyConditionExpressionsBeginWith,
 } from "./helpers";
 import { Logger } from "../../../logger";
-import { DeleteItemCommand, UpdateItemCommand, UpdateItemInput } from "@aws-sdk/client-dynamodb";
+import {
+  DeleteItemCommand,
+  UpdateItemCommand,
+  UpdateItemInput,
+} from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 
 export const PutCommandOperation = async (options: PutOptions) => {
@@ -41,23 +46,25 @@ export const PutCommandOperation = async (options: PutOptions) => {
   Logger.debug("PutCommand successfully done!");
 };
 
-export const GetCommandOperation = async (options: GetOptions) => {
+export const GetCommandOperation = async <T>(options: GetOptions) => {
   const client = new DynamoClientInstance();
-  const command = new GetCommand({
+  const input: GetCommandInput = {
     TableName: options.TableName,
     Key: options.key,
-  });
+  };
+  Logger.debug(`GetCommand Input >: ${JSON.stringify(input)}`);
+  const command = new GetCommand(input);
   const response = await client.getDynamoDBDocumentClient.send(command);
   client.destroyDynamoClients();
-  return response;
+  return response.Item ? (response.Item as T) : void 0;
 };
 
 export const DeleteCommandOperation = async (options: DeleteOptions) => {
   const client = new DynamoClientInstance();
   const input: DeleteCommandInput = {
     TableName: options.TableName,
-    Key: marshall(options.key)
-    }
+    Key: marshall(options.key),
+  };
   Logger.debug(`Delete Input >: ${JSON.stringify(input)}`);
   const command = new DeleteItemCommand(input);
   await client.getDynamoDBClient.send(command);
@@ -78,7 +85,7 @@ export const UpdateItemCommandOperation = async (options: UpdateOptions) => {
     ExpressionAttributeNames: expressions.attributeNames,
     ExpressionAttributeValues: marshall(expressions.attributeValues),
     UpdateExpression: expressions.updateExpression,
-    };
+  };
   Logger.debug(`Input params > ${JSON.stringify(input)}`);
   const command = new UpdateItemCommand(input);
   await client.getDynamoDBClient.send(command);
