@@ -168,6 +168,11 @@ export const createUsersLambdas = (options: optionsResources) => {
     lambdaFunction: lambdaFunctions[LambdasFunctionNames.PreSignUp],
   });
 
+  LambdaCDKBuilder.grantLambdasSignOutUsersPermission({
+    userPool: cognitoPools[CognitoUsersPoolNames.ManagementUsersPool],
+    lambdaFunctions: [lambdaFunctions[LambdasFunctionNames.SignOut]],
+  });
+
   // WEBSOCKET API PERMISSIONS
   LambdaCDKBuilder.grantPermissionToInvokeAPI({
     webSocket,
