@@ -100,6 +100,26 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
           },
         ],
       }, // end resend
+      {
+        pathPart: "signout",
+        methods: [],
+        resources: [
+          {
+            pathPart: "{userId}",
+            methods: [
+              {
+                httpMethod: "POST",
+                lambdaFunction:
+                  options.lambdaFunctions[LambdasFunctionNames.SignOut],
+                isproxy: true,
+                auth: {
+                  type: AuthorizationType.Authorization,
+                },
+              },
+            ],
+          },
+        ],
+      },
     ],
   }; // end users
 

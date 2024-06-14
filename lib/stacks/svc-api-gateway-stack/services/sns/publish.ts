@@ -4,7 +4,7 @@ import { Logger } from "../../../../libs/logger";
 import { TrainCoordsModel } from "../../cdk/builders/api/models/trains";
 import { SnsTopicEnvs } from "../env";
 
-export const publishNewUserOnline = async (user: UsersModel) => {
+export const publishUserOnlineStatus = async (user: UsersModel) => {
   try {
     const { userId, name, email, lastName, role, online } = user;
     await PublishCommandOperator({

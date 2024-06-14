@@ -58,7 +58,7 @@ export const handler = async (
     });
     
     user.online = true;
-    await SnsService.publishNewUserOnline(user);
+    await SnsService.publishUserOnlineStatus(user);
 
     return SuccessResponse200({
       data: { token, userId: user.userId },

@@ -26,7 +26,6 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    event.requestContext.authorizer
     const headers = <HeadersParamsExpected>extractDataFromEvent({
       event: event,
       propertyToExtract: ParamPropertyType.HeadersAccessToken,
@@ -34,7 +33,7 @@ export const handler = async (
 
     if (!headers.accessToken) {
       return UnprocessableRequestResponse403({
-        message: "User Token is needed for doing this operation",
+        message: "User Token is needed this operation",
       });
     }
 
@@ -56,18 +55,18 @@ export const handler = async (
 
     
     // Update User online prop
+    user.online = false;
     await DynamoUsersService.updateUserAttributes({
       userId: user.userId,
       attributesToUpdate: [
         {
           column: "online",
-          newValue: false,
+          newValue: user.online,
         },
       ],
     });
     
-    user.online = false;
-    await SnsService.publishNewUserOnline(user);
+    await SnsService.publishUserOnlineStatus(user);
 
     return SuccessResponse200({
       data: { userId: user.userId },
