@@ -5,7 +5,7 @@ import {
 import { LambdasFunctionNames } from "../../../../../../shared/enums/lambdas";
 import { simplePaginationParams } from "../../../../../../shared/utils/simple-paginator-params";
 import { createResourcesOptions } from "../types";
-import { SchemasModel } from "../../models/schemas";
+import { ModelNames } from "../../models/enum";
 
 export const createUsersApiResources = (options: createResourcesOptions) => {
   const resources: ResourcesAPI = {
@@ -33,10 +33,7 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
               options.lambdaFunctions[LambdasFunctionNames.SignIn],
             isproxy: true,
             validator: options.validators["SignInValidator"],
-            model: {
-              nameId: "SignInModel",
-              schema: SchemasModel.signInSchema,
-            },
+            model: options.apiModels![ModelNames.SignInModel],
             auth: {
               type: AuthorizationType.None,
             },
@@ -52,10 +49,7 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
               options.lambdaFunctions[LambdasFunctionNames.SignUp],
             isproxy: true,
             validator: options.validators["SignUpValidator"],
-            model: {
-              nameId: "SignUpValidator",
-              schema: SchemasModel.signUpSchema,
-            },
+            model: options.apiModels![ModelNames.SignUpModel],
             auth: {
               type: AuthorizationType.None,
             },
@@ -71,10 +65,7 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
               options.lambdaFunctions[LambdasFunctionNames.VerificationCode],
             isproxy: true,
             validator: options.validators["VerificationCodeValidator"],
-            model: {
-              nameId: "VerificationCodeModel",
-              schema: SchemasModel.verificationCodeSchema,
-            },
+            model: options.apiModels![ModelNames.VerificationCodeModel],
             auth: {
               type: AuthorizationType.None,
             },
@@ -90,10 +81,7 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
               options.lambdaFunctions[LambdasFunctionNames.ResendCode],
             isproxy: true,
             validator: options.validators["EmailValidator"],
-            model: {
-              nameId: "EmailModel",
-              schema: SchemasModel.EmailSchema,
-            },
+            model: options.apiModels![ModelNames.EmailModel],
             auth: {
               type: AuthorizationType.None,
             },
@@ -116,10 +104,7 @@ export const createUsersApiResources = (options: createResourcesOptions) => {
                   type: AuthorizationType.Authorization,
                   apiAuthorizer: options.cognitoAuthorizer,
                 },
-                model:{
-                  nameId: "AccessTokenModel",
-                  schema: SchemasModel.AccessTokenSchema,
-                }
+                model: options.apiModels![ModelNames.SignOutModel],
               },
             ],
           },

@@ -119,6 +119,9 @@ function addHttpMethodToResource(props: {
       requestTemplates: params.requestTemplates,
     });
     const authorizationProps = getAuthorizerProps(method);
+    const apiModel = method.model
+      ? { "application/json": method.model }
+      : void 0;
     // Create methods with integration
     props.apiResourcesMap[props.resourceId].addMethod(
       method.httpMethod,
@@ -127,7 +130,7 @@ function addHttpMethodToResource(props: {
         apiKeyRequired: getApiKeyRequired(method),
         // Marked request parameters as required
         requestParameters: params.requiredRequestTemplates,
-        requestModels: createApiModel(method, props.restApi, props.scope),
+        requestModels: apiModel,
         // Validate params or body
         requestValidator: method.validator,
         // Cognito authorizer
@@ -186,26 +189,22 @@ function addCorsOptions(apiResource: apigateway.IResource) {
   );
 }
 
-function createApiModel(
-  method: APiResourceMethods,
-  restApi: RestApi,
-  scope: Construct
-) {
-  if (!method.model) return method.model;
-
+export function createApiModel(options: {
+  restApi: RestApi;
+  scope: Construct;
+  schema: any;
+  modelNameId: string;
+}) {
   const model = new apigateway.Model(
-    scope,
-    createResourceNameId(method.model.nameId),
+    options.scope,
+    createResourceNameId(options.modelNameId),
     {
-      restApi,
+      restApi: options.restApi,
       contentType: "application/json",
-      schema: method.model.schema,
+      schema: options.schema,
     }
   );
-  Logger.debug(`Model schema result >: ${JSON.stringify(method.model.schema)}`);
-  return {
-    "application/json": model,
-  };
+  return model;
 }
 
 function getAuthorizerProps(method: APiResourceMethods) {

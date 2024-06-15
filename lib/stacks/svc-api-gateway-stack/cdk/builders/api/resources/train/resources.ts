@@ -4,7 +4,7 @@ import {
 } from "../../../../../../../libs/cdk-builders/api-gateway/types";
 import { LambdasFunctionNames } from "../../../../../../shared/enums/lambdas";
 import { simplePaginationParams } from "../../../../../../shared/utils/simple-paginator-params";
-import { SchemasModel } from "../../models/schemas";
+import { ModelNames } from "../../models/enum";
 import { createResourcesOptions } from "../types";
 
 export const createTrainApiResources = (options: createResourcesOptions) => {
@@ -30,10 +30,7 @@ export const createTrainApiResources = (options: createResourcesOptions) => {
           apiKeyRequired: true
         },
         validator: options.validators["TrainCoordsValidator"],
-        model:{
-          nameId: "TrainCoordsModel",
-          schema: SchemasModel.TrainCoordsSchema,
-        }
+        model: options.apiModels![ModelNames.TrainLocationModel]
       }
     ],
   }; // end train

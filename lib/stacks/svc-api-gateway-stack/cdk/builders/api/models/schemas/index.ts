@@ -1,1 +1,0 @@
-export * as SchemasModel from './schemas';
