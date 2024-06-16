@@ -1,11 +1,15 @@
 import { UsersModel } from "../../../../libs/clients/dynamodb/models/management";
 import {
+  GetCommandOperation,
   PutCommandOperation,
   QueryPaginationCommandOperation,
   UpdateItemCommandOperation,
 } from "../../../../libs/clients/dynamodb/operations/dynamo-operations";
 import { Logger } from "../../../../libs/logger";
-import { QueryPaginateResult, UpdateExpression } from "../../../../libs/clients/dynamodb/operations/types";
+import {
+  QueryPaginateResult,
+  UpdateExpression,
+} from "../../../../libs/clients/dynamodb/operations/types";
 import { DynamoTableIndex } from "../../../shared/enums/dynamodb";
 import { DynamoEnvTables } from "../env";
 import { UsersTableColumnSearch } from "./table-search-columns";
@@ -40,9 +44,19 @@ import { UsersTableColumnSearch } from "./table-search-columns";
     throw Error(`Error on getting user via service ${error}`);
   }
 }; */
-export const getUserById = async () => {
+export const getUserById = async (userId: string) => {
   try {
-  } catch (error) {}
+    const user = await GetCommandOperation<UsersModel>({
+      key: { userId: userId },
+      TableName: DynamoEnvTables.USERS_TABLE,
+    });
+    return user;
+  } catch (error) {
+    Logger.error(
+      `Err on on getting user ny id via service ${JSON.stringify(error)}`
+    );
+    throw error;
+  }
 };
 
 export const getACtiveUsers = async () => {

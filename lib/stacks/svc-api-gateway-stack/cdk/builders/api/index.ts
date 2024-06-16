@@ -10,6 +10,7 @@ import { ApiRestCDKBuilder } from "../../../../../libs/cdk-builders/api-gateway"
 import { getValidators } from "./validators";
 import { Stack } from "aws-cdk-lib";
 import { GlobalEnvironmentVars } from "../../../../../libs/environment";
+import { getModels } from "./models";
 
 type optionResources = {
   lambdas: LambdaFunctions;
@@ -32,34 +33,46 @@ export const createRestApi = (options: optionResources) => {
     apiRest: restApi,
     description: `Api key for api rest ${apiRestName}`,
     scope: stack,
-    name: 'TelemetryApiKey'
-  })
-
+    name: "TelemetryApiKey",
+  });
+  // Define api authorizer
   const apiAuthorizer = ApiRestCDKBuilder.createCognitoAuthorizer({
     scope: stack,
     authorizerName: ApiAuthorizersNames.AdminAuthorizer,
     userPools: [cognitoPools[CognitoUsersPoolNames.ManagementUsersPool]],
   });
 
+  // Fetch api validators
   const { apiUsersValidators, apiDependenciesValidators, apiTrainsValidators } =
     getValidators(restApi);
 
+  // Fetch api models
+  const { apiDependenciesModels, apiTrainsModels, apiUsersModels } = getModels({
+    scope: options.stack,
+    restApi,
+  });
+
+  // Create api endpoint resources
   const usersApiEndpointResources = createUsersApiResources({
     lambdaFunctions: lambdas,
     validators: apiUsersValidators,
-    cognitoAuthorizer:apiAuthorizer
+    cognitoAuthorizer: apiAuthorizer,
+    apiModels: apiUsersModels,
   });
   const dependenciesApiEndpointResources = createDependenciesApiResources({
     lambdaFunctions: lambdas,
     validators: apiDependenciesValidators,
-    cognitoAuthorizer:apiAuthorizer
+    cognitoAuthorizer: apiAuthorizer,
+    apiModels: apiDependenciesModels,
   });
   const trainApiEndpointResources = createTrainApiResources({
     lambdaFunctions: lambdas,
     validators: apiTrainsValidators,
-    cognitoAuthorizer:apiAuthorizer
+    cognitoAuthorizer: apiAuthorizer,
+    apiModels: apiTrainsModels,
   });
 
+  // Link api endpoint resources to api rest
   ApiRestCDKBuilder.addApiResourceFromRoot({
     scope: stack,
     resources: usersApiEndpointResources,

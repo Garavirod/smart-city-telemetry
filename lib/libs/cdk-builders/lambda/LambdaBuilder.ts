@@ -112,6 +112,23 @@ export function grantLambdasSignInUsersPermission(
   }
 }
 
+/**
+ * Grant the Lambda function permissions to sign out users in Cognito
+ * @param options {lambdaPermissionCognitoUsersOptions}
+ */
+export function grantLambdasSignOutUsersPermission(
+  options: lambdaPermissionCognitoUsersOptions
+) {
+  for (let i = 0; i < options.lambdaFunctions.length; i++) {
+    options.lambdaFunctions[i].addToRolePolicy(
+      new PolicyStatement({
+        actions: ["cognito-idp:GlobalSignOut"],
+        resources: [options.userPool.userPoolArn],
+      })
+    );
+  }
+}
+
 type preSignupLambdaTriggerOptions = {
   lambdaFunction: NodejsFunction;
   userPool: UserPool;

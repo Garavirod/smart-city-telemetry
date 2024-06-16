@@ -4,6 +4,7 @@ import {
   ConfirmationCodeCommandOperation,
   ResendConfirmationCodeCommandOperation,
   SignInCommandOperation,
+  SignOutCommandOperation,
   SignupUserCommandOperation,
 } from "../../../../libs/clients/cognito/operations/cognito-operations";
 import { CognitoEnvValues } from "../env";
@@ -50,7 +51,11 @@ export const signIn = async (options: signInOptions) => {
       userPoolClientId: poolClient,
     };
     const response = await SignInCommandOperation(input);
-    return response.AuthenticationResult?.IdToken;
+    return {
+      accessToken: response.AuthenticationResult?.AccessToken,
+      idToken: response.AuthenticationResult?.IdToken,
+      refreshToken: response.AuthenticationResult?.RefreshToken,
+    };
   } catch (error) {
     Logger.error(`Error on SignIn user via service ${error}`);
     throw error;
@@ -83,6 +88,15 @@ export const regenerateVerificationCode = async (email: string) => {
     );
   } catch (error) {
     Logger.error(`Error on regenerateVerificationCode via service ${error}`);
+    throw error;
+  }
+};
+
+export const signOut = async (token: string) => {
+  try {
+    await SignOutCommandOperation({ token });
+  } catch (error) {
+    Logger.error(`Error on sign out user via service ${error}`);
     throw error;
   }
 };

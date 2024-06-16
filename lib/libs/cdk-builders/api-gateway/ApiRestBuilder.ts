@@ -119,6 +119,9 @@ function addHttpMethodToResource(props: {
       requestTemplates: params.requestTemplates,
     });
     const authorizationProps = getAuthorizerProps(method);
+    const apiModel = method.model
+      ? { "application/json": method.model }
+      : void 0;
     // Create methods with integration
     props.apiResourcesMap[props.resourceId].addMethod(
       method.httpMethod,
@@ -127,7 +130,7 @@ function addHttpMethodToResource(props: {
         apiKeyRequired: getApiKeyRequired(method),
         // Marked request parameters as required
         requestParameters: params.requiredRequestTemplates,
-        requestModels: createApiModel(method, props.restApi, props.scope),
+        requestModels: apiModel,
         // Validate params or body
         requestValidator: method.validator,
         // Cognito authorizer
@@ -136,28 +139,72 @@ function addHttpMethodToResource(props: {
       }
     );
   }
+
+  // add cors options
+  //addCorsOptions(props.apiResourcesMap[props.resourceId]);
 }
 
-function createApiModel(
-  method: APiResourceMethods,
-  restApi: RestApi,
-  scope: Construct
-) {
-  if (!method.model) return method.model;
-
-  const model = new apigateway.Model(
-    scope,
-    createResourceNameId(method.model.nameId),
+function addCorsOptions(apiResource: apigateway.IResource) {
+  /* 
+  In API Gateway, you need to handle these OPTIONS requests by providing a response that tells the browser 
+  which HTTP methods and headers are allowed for the resource This is typically done using a mock integration.
+  */
+  apiResource.addMethod(
+    "OPTIONS",
+    new apigateway.MockIntegration({
+      // These responses are from the backend (like a Lambda function) to API Gateway. They map the backend responses to API Gateway responses.
+      /* integrationResponses: [
+        {
+          statusCode: "200",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
+            "method.response.header.Access-Control-Allow-Headers":
+              "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+            "method.response.header.Access-Control-Allow-Credentials":
+              "'false'",
+            "method.response.header.Access-Control-Allow-Methods":
+              "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+          },
+        },
+      ], */
+      passthroughBehavior: apigateway.PassthroughBehavior.NEVER,
+      requestTemplates: {
+        "application/json": '{"statusCode": 200}',
+      },
+    }),
     {
-      restApi,
-      contentType: "application/json",
-      schema: method.model.schema,
+      // These responses are from API Gateway to the client. They ensure the response format and headers are as expected for the client.
+      methodResponses: [
+        {
+          statusCode: "200",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": true,
+            "method.response.header.Access-Control-Allow-Headers": true,
+            "method.response.header.Access-Control-Allow-Credentials": true,
+            "method.response.header.Access-Control-Allow-Methods": true,
+          },
+        },
+      ],
     }
   );
-  Logger.debug(`Model schema result >: ${JSON.stringify(method.model.schema)}`);
-  return {
-    "application/json": model,
-  };
+}
+
+export function createApiModel(options: {
+  restApi: RestApi;
+  scope: Construct;
+  schema: any;
+  modelNameId: string;
+}) {
+  const model = new apigateway.Model(
+    options.scope,
+    createResourceNameId(options.modelNameId),
+    {
+      restApi: options.restApi,
+      contentType: "application/json",
+      schema: options.schema,
+    }
+  );
+  return model;
 }
 
 function getAuthorizerProps(method: APiResourceMethods) {

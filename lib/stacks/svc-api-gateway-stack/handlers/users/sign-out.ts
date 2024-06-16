@@ -7,48 +7,61 @@ import {
   BadRequestResponse400,
   InternalErrorResponse500,
   SuccessResponse200,
+  UnprocessableRequestResponse403,
 } from "../utils/api-response";
-import { SignInUserModel } from "../../cdk/builders/api/models/users";
 import { DynamoUsersService } from "../../services/dynamo";
 import { CognitoAuthService } from "../../services/cognito";
 import { Logger } from "../../../../libs/logger";
 import { SnsService } from "../../services/sns";
 
-interface BodyParamsExpected extends SignInUserModel {}
+interface HeadersParamsExpected {
+  authTokenId: string;
+}
+
+interface PathParamsExpected {
+  userId: string;
+}
+interface BodyParamsExpected {
+  accessToken: string;
+}
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const params = <BodyParamsExpected>extractDataFromEvent({
+    const headers = <HeadersParamsExpected>extractDataFromEvent({
+      event: event,
+      propertyToExtract: ParamPropertyType.HeadersAccessToken,
+    });
+
+    if (!headers.authTokenId) {
+      return UnprocessableRequestResponse403({
+        message: "id Token is needed this operation",
+      });
+    }
+
+    const pathParams = <PathParamsExpected>extractDataFromEvent({
+      event: event,
+      propertyToExtract: ParamPropertyType.PathParameters,
+    });
+
+    const bodyParams = <BodyParamsExpected>extractDataFromEvent({
       event: event,
       propertyToExtract: ParamPropertyType.Body,
     });
 
-    const user = await DynamoUsersService.getUserByEmail(params.email);
+    const user = await DynamoUsersService.getUserById(pathParams.userId);
 
     if (!user) {
       return BadRequestResponse400({
-        message: `No user registered with an email "${params.email}"`,
+        message: `No user registered with id "${pathParams.userId}"`,
       });
     }
 
-    // Add user to cognito
-    const { accessToken, idToken, refreshToken } =
-      await CognitoAuthService.signIn({
-        email: user.email,
-        password: params.password,
-        role: user.role,
-      });
-
-    if (!accessToken) {
-      return InternalErrorResponse500({
-        message: "Token could not be generated, please try again.",
-      });
-    }
+    await CognitoAuthService.signOut(bodyParams.accessToken);
 
     // Update User online prop
-    user.online = true;
+    user.online = false;
     await DynamoUsersService.updateUserAttributes({
       userId: user.userId,
       attributesToUpdate: [
@@ -62,8 +75,8 @@ export const handler = async (
     await SnsService.publishUserOnlineStatus(user);
 
     return SuccessResponse200({
-      data: { accessToken, refreshToken, idToken, userId: user.userId },
-      message: "Sign In successfully",
+      data: { userId: user.userId },
+      message: "Sign Out successfully",
     });
   } catch (error) {
     Logger.error(`Handler error ${JSON.stringify(error)}`);

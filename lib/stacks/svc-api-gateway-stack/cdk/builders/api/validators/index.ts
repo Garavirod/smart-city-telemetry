@@ -4,6 +4,7 @@ import {
   ApiRequestValidatorMap,
   RequestValidatorType,
 } from "../../../../../../libs/cdk-builders/api-gateway/types";
+import { ValidatorNames } from "./enums";
 
 export const getValidators = (restApi: RestApi) => {
   const sharedValidators = getSharedValidators(restApi);
@@ -20,11 +21,12 @@ export const getValidators = (restApi: RestApi) => {
 
 const getSharedValidators = (restApi: RestApi) => {
   return {
-    SimplePaginationValidator: ApiRestCDKBuilder.createRequestValidator({
-      restApi: restApi,
-      validationType: RequestValidatorType.ParamsType,
-      validatorName: "SimplePaginationValidator",
-    }),
+    [ValidatorNames.SimplePaginationValidator]:
+      ApiRestCDKBuilder.createRequestValidator({
+        restApi: restApi,
+        validationType: RequestValidatorType.ParamsType,
+        validatorName: ValidatorNames.SimplePaginationValidator,
+      }),
   };
 };
 
@@ -34,25 +36,32 @@ const getApiUsersValidators = (
 ) => {
   return {
     ...shared,
-    SignUpValidator: ApiRestCDKBuilder.createRequestValidator({
+    [ValidatorNames.SignUpUserValidator]:
+      ApiRestCDKBuilder.createRequestValidator({
+        restApi: restApi,
+        validationType: RequestValidatorType.BodyType,
+        validatorName: ValidatorNames.SignUpUserValidator,
+      }),
+    [ValidatorNames.SignInValidator]: ApiRestCDKBuilder.createRequestValidator({
       restApi: restApi,
       validationType: RequestValidatorType.BodyType,
-      validatorName: "SignUpValidator",
+      validatorName: ValidatorNames.SignInValidator,
     }),
-    SignInValidator: ApiRestCDKBuilder.createRequestValidator({
+    [ValidatorNames.VerificationCodeValidator]:
+      ApiRestCDKBuilder.createRequestValidator({
+        restApi: restApi,
+        validationType: RequestValidatorType.BodyType,
+        validatorName: ValidatorNames.VerificationCodeValidator,
+      }),
+    [ValidatorNames.EmailValidator]: ApiRestCDKBuilder.createRequestValidator({
       restApi: restApi,
       validationType: RequestValidatorType.BodyType,
-      validatorName: "SignInValidator",
+      validatorName: ValidatorNames.EmailValidator,
     }),
-    VerificationCodeValidator: ApiRestCDKBuilder.createRequestValidator({
+    [ValidatorNames.SignOutUserValidator]: ApiRestCDKBuilder.createRequestValidator({
       restApi: restApi,
       validationType: RequestValidatorType.BodyType,
-      validatorName: "VerificationCodeValidator",
-    }),
-    EmailValidator: ApiRestCDKBuilder.createRequestValidator({
-      restApi: restApi,
-      validationType: RequestValidatorType.BodyType,
-      validatorName: "EmailValidator",
+      validatorName: ValidatorNames.SignOutUserValidator,
     }),
   };
 };
@@ -72,10 +81,11 @@ const getTrainsValidators = (
 ) => {
   return {
     ...shared,
-    TrainCoordsValidator: ApiRestCDKBuilder.createRequestValidator({
-      restApi: restApi,
-      validationType: RequestValidatorType.BodyType,
-      validatorName: "TrainCoordsValidator",
-    }),
+    [ValidatorNames.TrainCoordsValidator]:
+      ApiRestCDKBuilder.createRequestValidator({
+        restApi: restApi,
+        validationType: RequestValidatorType.BodyType,
+        validatorName: ValidatorNames.TrainCoordsValidator,
+      }),
   };
 };

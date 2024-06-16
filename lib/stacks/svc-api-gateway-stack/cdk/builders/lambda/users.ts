@@ -32,6 +32,8 @@ export const createUsersLambdas = (options: optionsResources) => {
     options;
   const codeFilepathBase = "/svc-api-gateway-stack/handlers/users";
 
+  const webSocketEndpoint = `https://${webSocket.apiId}.execute-api.us-east-1.amazonaws.com/${GlobalEnvironmentVars.DEPLOY_ENVIRONMENT}`;
+
   // LAMBDAS
   const lambdaFunctions: Record<string, NodejsFunction> = {
     [LambdasFunctionNames.GetUsers]: LambdaCDKBuilder.createNodeFunctionLambda({
@@ -106,16 +108,26 @@ export const createUsersLambdas = (options: optionsResources) => {
       LambdaCDKBuilder.createNodeFunctionLambda({
         scope: stack,
         lambdaName: LambdasFunctionNames.NotifyUserOnline,
-        pathStackHandlerCode: `${codeFilepathBase}/notify-user-online.ts`,
+        pathStackHandlerCode: `${codeFilepathBase}/notify-user-online-status.ts`,
         environment: {
           USER_POOL_MANAGEMENT_CLIENT_ID:
             cognitoClients[CognitoUsersPoolClientNames.ManagementUsersPoolCli]
               .userPoolClientId,
           CONNECTIONS_TABLE:
-            tables[DynamoTableNames.TableNames.Connections].tableName, 
-          WEBSOCKET_API_ENDPOINT: `https://${webSocket.apiId}.execute-api.us-east-1.amazonaws.com/${GlobalEnvironmentVars.DEPLOY_ENVIRONMENT}`,
+            tables[DynamoTableNames.TableNames.Connections].tableName,
+          WEBSOCKET_API_ENDPOINT: webSocketEndpoint,
         },
       }),
+    [LambdasFunctionNames.SignOut]: LambdaCDKBuilder.createNodeFunctionLambda({
+      scope: stack,
+      lambdaName: LambdasFunctionNames.SignOut,
+      pathStackHandlerCode: `${codeFilepathBase}/sign-out.ts`,
+      environment: {
+        USERS_TABLE: tables[DynamoTableNames.TableNames.Users].tableName,
+        NOTIFY_USER_ONLINE_TOPIC_ARN:
+          topics[SnsTopicNames.NotifyNewUserOnlineTopic].topicArn,
+      },
+    }),
   };
 
   // DYNAMO PERMISSIONS
@@ -125,6 +137,7 @@ export const createUsersLambdas = (options: optionsResources) => {
       lambdaFunctions[LambdasFunctionNames.GetUsers],
       lambdaFunctions[LambdasFunctionNames.SignUp],
       lambdaFunctions[LambdasFunctionNames.SignIn],
+      lambdaFunctions[LambdasFunctionNames.SignOut],
       lambdaFunctions[LambdasFunctionNames.VerificationCode],
     ],
   });
@@ -133,6 +146,7 @@ export const createUsersLambdas = (options: optionsResources) => {
     dynamoTable: tables[DynamoTableNames.TableNames.Users],
     lambdas: [
       lambdaFunctions[LambdasFunctionNames.SignIn],
+      lambdaFunctions[LambdasFunctionNames.SignOut],
       lambdaFunctions[LambdasFunctionNames.VerificationCode],
       lambdaFunctions[LambdasFunctionNames.ResendCode],
     ],
@@ -154,6 +168,11 @@ export const createUsersLambdas = (options: optionsResources) => {
     lambdaFunction: lambdaFunctions[LambdasFunctionNames.PreSignUp],
   });
 
+  LambdaCDKBuilder.grantLambdasSignOutUsersPermission({
+    userPool: cognitoPools[CognitoUsersPoolNames.ManagementUsersPool],
+    lambdaFunctions: [lambdaFunctions[LambdasFunctionNames.SignOut]],
+  });
+
   // WEBSOCKET API PERMISSIONS
   LambdaCDKBuilder.grantPermissionToInvokeAPI({
     webSocket,
@@ -162,7 +181,10 @@ export const createUsersLambdas = (options: optionsResources) => {
 
   // SNS PERMISSIONS
   LambdaCDKBuilder.grantTopicPublishPermissions({
-    lambdas: [lambdaFunctions[LambdasFunctionNames.SignIn]],
+    lambdas: [
+      lambdaFunctions[LambdasFunctionNames.SignIn],
+      lambdaFunctions[LambdasFunctionNames.SignOut],
+    ],
     topic: topics[SnsTopicNames.NotifyNewUserOnlineTopic],
   });
   LambdaCDKBuilder.addSnsEventSource({

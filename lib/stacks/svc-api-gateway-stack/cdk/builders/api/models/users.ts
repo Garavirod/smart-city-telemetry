@@ -25,3 +25,7 @@ export interface VerificationCodeModel {
 export interface EmailModel {
   email: string;
 }
+
+export interface AccessTokenModel {
+  accessToken: string;
+}

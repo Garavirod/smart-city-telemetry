@@ -4,6 +4,7 @@ export enum LambdasFunctionNames {
   GetTrains = "GetTrains",
   SignUp = "SignUp",
   SignIn = "SignIn",
+  SignOut = "SignOut",
   PreSignUp = "PreSignUp",
   VerificationCode = "VerificationCode",
   ResendCode = "ResendCode",

@@ -1,7 +1,7 @@
 import {
   CognitoUserPoolsAuthorizer,
   IRequestValidator,
-  RestApi,
+  Model,
 } from "aws-cdk-lib/aws-apigateway";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
@@ -18,6 +18,7 @@ export enum AuthorizationType {
 }
 
 export type ApiRequestValidatorMap = Record<string, IRequestValidator>;
+export type ApiModelMap = Record<string, Model>;
 
 export type APiResourceMethods = {
   httpMethod: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
@@ -25,7 +26,7 @@ export type APiResourceMethods = {
   isproxy: boolean;
   requestParams?: RequestParameters[];
   validator?: IRequestValidator;
-  model?: { schema: any; nameId: string };
+  model?: Model;
   auth: {
     type: AuthorizationType;
     apiKeyRequired?: boolean;

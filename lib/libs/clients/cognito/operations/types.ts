@@ -13,12 +13,15 @@ export type signInOptions = {
   userPoolClientId: string;
 };
 
+export type signOutOptions = {
+  token: string;
+};
+
 export type confirmationCodeOptions = {
   userPoolClientId: string;
   email: string;
   code: string;
 };
-
 
 export type resendConfirmationCodeOptions = {
   userPoolClientId: string;
