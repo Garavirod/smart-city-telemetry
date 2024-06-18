@@ -3,7 +3,7 @@ export interface UsersModel {
   name: string;
   email: string;
   lastName: string;
-  status: boolean;
+  status: UserStatus;
   online: boolean;
   role: UserRole;
   createdAt: string;
@@ -15,6 +15,11 @@ export interface UsersModel {
 export enum UserRole {
   AdminUser="Admin",
   CommonUser="Common",
+}
+
+export enum UserStatus {
+  Inactive='inactive',
+  Active='active',
 }
 
 export enum Dependencies {
