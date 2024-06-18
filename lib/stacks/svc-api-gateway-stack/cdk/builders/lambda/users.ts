@@ -39,7 +39,7 @@ export const createUsersLambdas = (options: optionsResources) => {
     [LambdasFunctionNames.GetUsers]: LambdaCDKBuilder.createNodeFunctionLambda({
       scope: stack,
       lambdaName: LambdasFunctionNames.GetUsers,
-      pathStackHandlerCode: `${codeFilepathBase}/get-users.ts`,
+      pathStackHandlerCode: `${codeFilepathBase}/get-active-users.ts`,
       environment: {
         USERS_TABLE: tables[DynamoTableNames.TableNames.Users].tableName,
       },
