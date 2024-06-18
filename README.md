@@ -1,10 +1,27 @@
-# Welcome to your CDK TypeScript project
+# Overview Telemetry city project
 
-This is a blank project for CDK development with TypeScript.
+Description : Real time vehicle (Train) location monitoring.
+
+This is an AWS project build under CDK development with TypeScript. implements 
+Github Actions as CI/CD for deployments.
+
+- AWS services:
+    - Lambda
+    - Api Gateway
+    - Dynamo
+    - Web socket API
+    - SNS
+    - Pinpoint
+    - SQS
+    - Cognito
+
+- General diagram
+
+<img src="/assets/diagrams/train_location_diagram.png">
+    
+# CDK Useful commands
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-## Useful commands
 
 * `npm run build`   compile typescript to js
 * `npm run watch`   watch for changes and compile
