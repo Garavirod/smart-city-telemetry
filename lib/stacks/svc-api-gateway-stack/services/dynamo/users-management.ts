@@ -1,4 +1,4 @@
-import { UsersModel } from "../../../../libs/clients/dynamodb/models/management";
+import { UserStatus, UsersModel } from "../../../../libs/clients/dynamodb/models/management";
 import {
   GetCommandOperation,
   PutCommandOperation,
@@ -6,44 +6,42 @@ import {
   UpdateItemCommandOperation,
 } from "../../../../libs/clients/dynamodb/operations/dynamo-operations";
 import { Logger } from "../../../../libs/logger";
-import {
-  QueryPaginateResult,
-  UpdateExpression,
-} from "../../../../libs/clients/dynamodb/operations/types";
+import { UpdateExpression } from "../../../../libs/clients/dynamodb/operations/types";
 import { DynamoTableIndex } from "../../../shared/enums/dynamodb";
 import { DynamoEnvTables } from "../env";
 import { UsersTableColumnSearch } from "./table-search-columns";
 
-/* export const getUsers = async (props: { page?: any; pageSize: number }) => {
+export const getActiveUsers = async (props: {
+  page?: any;
+  pageSize: number;
+}) => {
   try {
     const table = DynamoEnvTables.USERS_TABLE;
-    const searchResult = await QueryPaginationCommandOperation<UsersModel>({
+    const response = await QueryPaginationCommandOperation<UsersModel>({
       TableName: table,
       ScanIndexForward: false,
       searchOptions: {
         startingToken: props.page,
         pageSize: props.pageSize,
-        index: DynamoTableIndex.UsersTableIndex.EmailICreatedAtIndex,
+        index: DynamoTableIndex.UsersTableIndex.StatusCreatedAtIndex,
         expressions: [
           {
             column: "status",
-            value: true,
+            value: UserStatus.Active,
             operator: "=",
           },
         ],
       },
     });
 
-    const response: QueryPaginateResult<UsersModel> = {
-      data: searchResult.Items,
-      count: searchResult.Count,
-      nextPage: searchResult.LastEvaluatedKey,
+    return {
+      users: response.Count > 0 ? response.Items[0] : void 0,
+      next: response.LastEvaluatedKey,
     };
-    return response;
   } catch (error) {
     throw Error(`Error on getting user via service ${error}`);
   }
-}; */
+};
 export const getUserById = async (userId: string) => {
   try {
     const user = await GetCommandOperation<UsersModel>({
@@ -57,11 +55,6 @@ export const getUserById = async (userId: string) => {
     );
     throw error;
   }
-};
-
-export const getACtiveUsers = async () => {
-  try {
-  } catch (error) {}
 };
 
 export const deleteUserById = async () => {

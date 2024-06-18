@@ -50,7 +50,18 @@ export const createTables = (stack: Stack) => {
       type: "string",
     },
   });
-
+  DynamoCDKBuilder.createGSI({
+    dynamoTable: dynamoTables[DynamoTableNames.TableNames.Users],
+    indexName: UsersTableIndex.StatusCreatedAtIndex,
+    partitionKey: {
+      prop: "status",
+      type: "string",
+    },
+    sortKey: {
+      prop: "createdAt",
+      type: "string",
+    },
+  });
   DynamoCDKBuilder.createGSI({
     dynamoTable: dynamoTables[DynamoTableNames.TableNames.Connections],
     indexName: ConnectionsTableIndex.ConnectionTypeIndex,

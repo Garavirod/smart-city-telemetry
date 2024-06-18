@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { UsernameExistsException } from "@aws-sdk/client-cognito-identity-provider";
 import { SignupUsersModel } from "../../cdk/builders/api/models/users";
-import { UsersModel } from "../../../../libs/clients/dynamodb/models/management";
+import { UserStatus, UsersModel } from "../../../../libs/clients/dynamodb/models/management";
 import { CognitoAuthService } from "../../services/cognito";
 import { DynamoUsersService } from "../../services/dynamo";
 import { Logger } from "../../../../libs/logger";
@@ -33,7 +33,7 @@ export const handler = async (
       name: params.name,
       email: params.email,
       lastName: params.lastName,
-      status: true,
+      status: UserStatus.Active,
       online: false,
       role: params.role,
       createdAt: new Date().toISOString(),
