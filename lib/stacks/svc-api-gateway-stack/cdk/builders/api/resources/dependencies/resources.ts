@@ -2,8 +2,6 @@ import {
   AuthorizationType,
   ResourcesAPI,
 } from "../../../../../../../libs/cdk-builders/api-gateway/types";
-
-import { ValidatorNames } from "../../../../../../shared/enums/api-validators";
 import { LambdasFunctionNames } from "../../../../../../shared/enums/lambdas";
 import { simplePaginationParams } from "../../../../../../shared/utils/simple-paginator-params";
 import { createResourcesOptions } from "../types";
